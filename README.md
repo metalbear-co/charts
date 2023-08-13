@@ -1,3 +1,3 @@
 # Metalbear Helm Charts
 
-* [mirrord-operator](./mirrord-operator/README.md)
+* [mirrord-operator](./mirrord-operator)
