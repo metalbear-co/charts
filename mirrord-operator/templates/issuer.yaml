@@ -1,0 +1,9 @@
+{{- if .Values.tls.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.tls.certManager.issuer }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selfSigned: {}
+{{- end }}

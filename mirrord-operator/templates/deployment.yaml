@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mirrord-operator
+  name: mirrord-operator
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: mirrord-operator
+  template:
+    metadata:
+      labels:
+        app: mirrord-operator
+    spec:
+      containers:
+      - env:
+        - name: RUST_LOG
+          value: mirrord=info,operator=info
+        - name: OPERATOR_ADDR
+          value: 0.0.0.0:3000
+        - name: OPERATOR_TLS_CERT_PATH
+          value: /tls/tls.crt
+        - name: OPERATOR_TLS_KEY_PATH
+          value: /tls/tls.key
+        {{- if .Values.license.file.data }}
+        - name: OPERATOR_LICENSE_PATH
+          value: /license/license.pem
+        {{- else }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.license.file.secret }}
+        {{- end }}
+        image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTPS
+          periodSeconds: 5
+        name: mirrord-operator
+        ports:
+        - containerPort: 3000
+          name: https
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTPS
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 1001
+        volumeMounts:
+        - mountPath: /tls
+          name: tls-volume
+        {{- if .Values.license.file.data }}
+        - mountPath: /license
+          name: license-volume
+        {{- end }}
+      serviceAccountName: {{ .Values.sa.name }}
+      volumes:
+      - name: tls-volume
+        secret:
+          secretName: {{ .Values.tls.secret }}
+      {{- if .Values.license.file.data }}
+      - name: license-volume
+        secret:
+          secretName: {{ .Values.license.file.secret }}
+      {{- end }}

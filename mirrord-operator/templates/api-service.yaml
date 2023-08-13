@@ -1,0 +1,14 @@
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1.operator.metalbear.co
+spec:
+  group: operator.metalbear.co
+  groupPriorityMinimum: 1000
+  insecureSkipTLSVerify: {{ .Values.tls.apiService.insecureSkipTLSVerify }}
+  service:
+    name: {{ .Values.service.name }}
+    namespace: {{ .Values.namespace }}
+    port: 3000
+  version: v1
+  versionPriority: 15
