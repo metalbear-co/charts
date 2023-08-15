@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mirrord-operator:
   - apiVersion: v2
+    appVersion: 3.57.1
+    created: "2023-08-15T16:02:33.379481892Z"
+    description: A Helm chart for Kubernetes
+    digest: 1c1614078785784a08a90a9a77f2345858b94dd31684f1f80fee3e2e79d39168
+    name: mirrord-operator
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-0.1.1/mirrord-operator-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 3.56.1
     created: "2023-08-13T15:27:16.026993461Z"
     description: A Helm chart for Kubernetes
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-0.1.0/mirrord-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-08-13T15:27:16.027003161Z"
+generated: "2023-08-15T16:02:33.379489192Z"
