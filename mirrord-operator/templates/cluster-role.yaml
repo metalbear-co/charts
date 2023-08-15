@@ -9,7 +9,9 @@ rules:
   - batch
   - argoproj.io
   resources:
+  - nodes
   - pods
+  - pods/log
   - pods/ephemeralcontainers
   - deployments
   - jobs
