@@ -13,6 +13,7 @@ license:
     secret: mirrord-operator-license
     # data:
     #   license.pem:
+  keyRef: ""
 
 service:
   name: mirrord-operator

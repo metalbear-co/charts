@@ -27,10 +27,16 @@ spec:
         {{- if .Values.license.file.data }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
-        {{- else }}
+        {{- else if .Values.license.key }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
+        {{ else if .Values.license.keyRef }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.license.keyRef }}
+        {{ else }}
+          {{ required "Either keyRef, file or key value is required for license!" }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
