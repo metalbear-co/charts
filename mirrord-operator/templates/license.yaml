@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 stringData:
   {{- toYaml .Values.license.file.data | nindent 2 }}
-{{- else }}
+{{- else if .Values.license.key }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -15,3 +15,4 @@ metadata:
 stringData:
   OPERATOR_LICENSE_KEY: {{ .Values.license.key }}
 {{- end }}
+// don't create secret if using keyRef
