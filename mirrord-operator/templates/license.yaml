@@ -15,4 +15,6 @@ metadata:
 stringData:
   OPERATOR_LICENSE_KEY: {{ .Values.license.key }}
 {{- end }}
-// don't create secret if using keyRef
+{{- /*
+don't create secret if using keyRef
+*/}}
