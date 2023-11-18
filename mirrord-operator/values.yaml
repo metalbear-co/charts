@@ -25,7 +25,7 @@ tls:
   secret: mirrord-operator-tls
 
   apiService:
-    insecureSkipTLSVerify: false
+    insecureSkipTLSVerify: true
 
   certManager:
     # If this is not enabled value for `tls.data` must be not empty 
