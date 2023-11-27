@@ -16,7 +16,7 @@ spec:
     spec:
       {{- if .Values.operator.imagePullSecrets }}
       {{- toYaml .Values.operator.imagePullSecrets }}
-      {{- else }}
+      {{- end }}
       containers:
       - env:
         - name: RUST_LOG
@@ -45,7 +45,7 @@ spec:
         imagePullPolicy: IfNotPresent
         {{- if .Values.operator.containerArgs }}
         {{- toYaml .Values.operator.containerArgs }}
-        {{- else }}
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /health
