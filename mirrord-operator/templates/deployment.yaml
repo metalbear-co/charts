@@ -14,6 +14,9 @@ spec:
       labels:
         app: mirrord-operator
     spec:
+      {{- if .Values.operator.imagePullSecrets }}
+      {{- toYaml .Values.operator.imagePullSecrets }}
+      {{- else }}
       containers:
       - env:
         - name: RUST_LOG
@@ -40,6 +43,9 @@ spec:
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
+        {{- if .Values.operator.containerArgs }}
+        {{- toYaml .Values.operator.containerArgs }}
+        {{- else }}
         livenessProbe:
           httpGet:
             path: /health
