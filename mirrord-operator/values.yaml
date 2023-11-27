@@ -6,6 +6,11 @@ namespace: mirrord
 
 operator:
   image: ghcr.io/metalbear-co/operator
+  # imagePullSecrets:
+  #   - name: value
+  # containerArgs:
+  #   - '--agent-config'
+  #   - '{"image_pull_secrets":[{"name":"docker"}]}'
 
 license:
   key: ""
