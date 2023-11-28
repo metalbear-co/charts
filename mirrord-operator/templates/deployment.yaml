@@ -15,7 +15,10 @@ spec:
         app: mirrord-operator
     spec:
       {{- if .Values.operator.imagePullSecrets }}
-      {{- toYaml .Values.operator.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.operator.imagePullSecrets }}
+        - {{ toYaml . }}
+        {{- end }}
       {{- end }}
       containers:
       - env:
@@ -34,17 +37,20 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
-        {{ else if .Values.license.keyRef }}
+        {{- else if .Values.license.keyRef }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.keyRef }}
-        {{ else }}
+        {{- else }}
           {{ required "Either keyRef, file or key value is required for license!" }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
         {{- if .Values.operator.containerArgs }}
-        {{- toYaml .Values.operator.containerArgs }}
+        args:
+          {{- range .Values.operator.containerArgs }}
+          - {{ toYaml . }}
+          {{- end }}
         {{- end }}
         livenessProbe:
           httpGet:
