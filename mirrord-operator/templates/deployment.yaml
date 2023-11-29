@@ -30,7 +30,7 @@ spec:
           value: /tls/tls.crt
         - name: OPERATOR_TLS_KEY_PATH
           value: /tls/tls.key
-        {{- if .Values.license.file.data }}
+        {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
         {{- else if .Values.license.key }}
@@ -42,7 +42,7 @@ spec:
         - secretRef:
             name: {{ .Values.license.keyRef }}
         {{- else }}
-          {{ required "Either keyRef, file or key value is required for license!" }}
+          {{- required "Either keyRef, pemRef, file or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
@@ -79,7 +79,7 @@ spec:
         volumeMounts:
         - mountPath: /tls
           name: tls-volume
-        {{- if .Values.license.file.data }}
+        {{- if or .Values.license.file.data .Values.license.pemRef }}
         - mountPath: /license
           name: license-volume
         {{- end }}
@@ -92,4 +92,9 @@ spec:
       - name: license-volume
         secret:
           secretName: {{ .Values.license.file.secret }}
+      {{- end }}
+      {{- if .Values.license.pemRef }}
+      - name: license-volume
+        secret:
+          secretName: {{ .Values.license.pemRef }}
       {{- end }}
