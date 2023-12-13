@@ -1,0 +1,17 @@
+{{- if .Values.openshift }}
+kind: SecurityContextConstraints
+apiVersion: security.openshift.io/v1
+metadata:
+  name: scc-mirrord
+allowHostPID: true
+allowPrivilegedContainer: false
+allowHostDirVolumePlugin: true
+allowedCapabilities: ["SYS_ADMIN", "SYS_PTRACE", "NET_RAW", "NET_ADMIN"]
+runAsUser:
+  type: MustRunAsNonRoot
+seLinuxContext:
+  type: MustRunAs
+users:
+- system:serviceaccount:mirrord:mirrord-operator
+- system:serviceaccount:mirrord:default
+{{ end }}
