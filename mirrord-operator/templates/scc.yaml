@@ -8,7 +8,7 @@ allowPrivilegedContainer: false
 allowHostDirVolumePlugin: true
 allowedCapabilities: ["SYS_ADMIN", "SYS_PTRACE", "NET_RAW", "NET_ADMIN"]
 runAsUser:
-  type: MustRunAsNonRoot
+  type: RunAsAny
 seLinuxContext:
   type: MustRunAs
 users:
