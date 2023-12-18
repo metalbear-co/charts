@@ -30,6 +30,10 @@ spec:
           value: /tls/tls.crt
         - name: OPERATOR_TLS_KEY_PATH
           value: /tls/tls.key
+        {{- if .Values.agent.image }}
+        - name: MIRRORD_AGENT_IMAGE
+          value: {{ .Values.agent.image }}
+        {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem

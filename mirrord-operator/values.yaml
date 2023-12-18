@@ -12,6 +12,11 @@ operator:
   #   - '--agent-config'
   #   - '{"image_pull_secrets":[{"name":"docker"}]}'
 
+agent:
+  ## example
+  ## image: your-internal.registry.io/metalbear-co/operator
+  image: ""
+
 license:
   key: ""
   file:
