@@ -20,6 +20,3 @@ If you have a certificate license (usually part of Enterprise offering) you can:
         license.pem: LICENSE_CONTENT
     ```
     then reference it using `license.pemRef` in `values.yaml`
-
-
-If `certManager.enabled` is set to `false`, you must set `tls.data['tls.key']` and `tls.data['tls.crt']`

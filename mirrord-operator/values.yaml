@@ -35,12 +35,14 @@ sa:
 tls:
   secret: mirrord-operator-tls
 
+  # if you're using a verified certificate, set this value to true.
   apiService:
     insecureSkipTLSVerify: true
 
+  # if certmanager is disabled and no tls.key and tls.crt is set,
+  # the operator will generate a self-signed certificate.
   certManager:
-    # If this is not enabled value for `tls.data` must be not empty 
-    enabled: true
+    enabled: false
 
     issuer: mirrord-operator-issuer
     certificate: mirrord-operator-tls

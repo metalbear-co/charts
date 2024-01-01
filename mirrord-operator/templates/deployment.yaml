@@ -26,10 +26,16 @@ spec:
           value: mirrord=info,operator=info
         - name: OPERATOR_ADDR
           value: 0.0.0.0:3000
+        - name: OPERATOR_NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: OPERATOR_SERVICE_NAME
+          value: mirrord-operator
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
         - name: OPERATOR_TLS_KEY_PATH
           value: /tls/tls.key
+        {{- end }}
         {{- if .Values.agent.image }}
         - name: MIRRORD_AGENT_IMAGE
           value: {{ .Values.agent.image }}
@@ -89,9 +95,11 @@ spec:
         {{- end }}
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
+      {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
       - name: tls-volume
         secret:
           secretName: {{ .Values.tls.secret }}
+      {{- end }}
       {{- if .Values.license.file.data }}
       - name: license-volume
         secret:
