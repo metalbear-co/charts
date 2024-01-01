@@ -45,6 +45,7 @@ rules:
   - userextras/iam.gke.io/user-assertion
   - userextras/user-assertion.cloud.google.com
   - userextras/principalid
+  - userextras/oid
   verbs:
   - impersonate
 ---
