@@ -4,6 +4,10 @@
 
 namespace: mirrord
 
+## Whether we should create the namespace or not
+## If you set this to false, you must create the namespace manually
+createNamespace: true
+
 operator:
   image: ghcr.io/metalbear-co/operator
   # imagePullSecrets:
