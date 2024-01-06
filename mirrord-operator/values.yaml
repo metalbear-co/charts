@@ -13,7 +13,7 @@ operator:
   # imagePullSecrets:
   #   - name: value
   
-  ## stop using container args for agent config, as now you can just modify `agent-config-map.yaml`
+  ## stop using container args for agent config, as now you can just use agent.extraConfig
   ## also imagePullSecrets is re-used from operator.imagePullSecrets
   # containerArgs:
   #   - '--agent-config'
