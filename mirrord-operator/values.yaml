@@ -9,9 +9,9 @@ namespace: mirrord
 createNamespace: true
 
 operator:
-  image: ""
+  image: ghcr.io/metalbear-co/operator
   # imagePullSecrets:
-  # - name: value
+  #   - name: value
   
   ## stop using container args for agent config, as now you can just modify `agent-config-map.yaml`
   ## also imagePullSecrets is re-used from operator.imagePullSecrets
