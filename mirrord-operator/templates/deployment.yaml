@@ -30,15 +30,13 @@ spec:
           value: {{ .Values.namespace }}
         - name: OPERATOR_SERVICE_NAME
           value: mirrord-operator
+        - name: OPERATOR_AGENT_CONFIG
+          value: /mirrord-config/agent-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
         - name: OPERATOR_TLS_KEY_PATH
           value: /tls/tls.key
-        {{- end }}
-        {{- if .Values.agent.image }}
-        - name: MIRRORD_AGENT_IMAGE
-          value: {{ .Values.agent.image }}
         {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
@@ -87,14 +85,21 @@ spec:
           privileged: false
           runAsUser: 1001
         volumeMounts:
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
           name: tls-volume
+        {{- end }}
+        - mountPath: /mirrord-config
+          name: mirrord-config-volume
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - mountPath: /license
           name: license-volume
         {{- end }}
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
+      - name: mirrord-config-volume
+        configMap:
+          name: mirrord-configmap
       {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
       - name: tls-volume
         secret:

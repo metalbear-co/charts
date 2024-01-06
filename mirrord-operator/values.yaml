@@ -9,17 +9,29 @@ namespace: mirrord
 createNamespace: true
 
 operator:
-  image: ghcr.io/metalbear-co/operator
+  image: ""
   # imagePullSecrets:
-  #   - name: value
+  # - name: value
+  
+  ## stop using container args for agent config, as now you can just modify `agent-config-map.yaml`
+  ## also imagePullSecrets is re-used from operator.imagePullSecrets
   # containerArgs:
   #   - '--agent-config'
   #   - '{"image_pull_secrets":[{"name":"docker"}]}'
 
 agent:
   ## example
-  ## image: your-internal.registry.io/metalbear-co/operator
+  ## image: your-internal.registry.io/metalbear-co/agent
   image: ""
+
+  ## use this if you want to add settings that aren't covered by the values.yaml
+  ## see possible settings here: https://mirrord.dev/docs/overview/configuration/#root-agent
+  # extraConfig:
+  #   tolerations:
+  #     - operator: Exists
+  #   privileged: true
+
+
 
 license:
   key: ""
