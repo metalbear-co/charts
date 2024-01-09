@@ -48,6 +48,13 @@ rules:
   - userextras/oid
   verbs:
   - impersonate
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordpolicies
+  verbs:
+  - list
+  - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
