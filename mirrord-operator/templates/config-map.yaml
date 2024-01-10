@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mirrord-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  agent-config.yaml: |-
+    {{- if .Values.agent.image }}
+    image: "{{ .Values.agent.image }}"
+    {{- end }}
+    {{- if .Values.operator.imagePullSecrets }}
+    image_pull_secrets:
+    {{- range .Values.operator.imagePullSecrets }}
+    - {{ toYaml . }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.agent.extraConfig }}
+    {{- .Values.agent.extraConfig | toYaml | nindent 4 }}
+    {{- end }}
