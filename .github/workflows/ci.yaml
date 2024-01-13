@@ -1,0 +1,67 @@
+name: CI
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [staging-squash-merge.tmp]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
+
+      - name: Lint chart
+        run: helm lint mirrord-operator
+
+      - name: Start minikube
+        id: minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Run chart-testing (install)
+        run: |
+          echo ${{ secrets.MIRRORD_OPERATOR_LICENSE }} | base64 --decode > ./test-license.pem          
+          helm install mirrord ./mirrord-operator --wait --set-file license.file.data."license\.pem"=./test-license.pem
+
+      - name: Install mirrord
+        run: curl -fsSL https://raw.githubusercontent.com/metalbear-co/mirrord/main/scripts/install.sh | bash
+
+      - name: Check mirrord-operator status
+        run: |
+          end_time=$((SECONDS+60))
+          log_file="error.log"
+          rm -f "$log_file"
+
+          while [ $SECONDS -lt $end_time ]; do
+            if mirrord operator status 2>> "$log_file"; then
+              kubectl logs $(kubectl get pods -n mirrord -o jsonpath='{.items[0].metadata.name}') -n mirrord
+              break
+            fi
+            kubectl describe pods -n mirrord
+            sleep 5
+          done
+
+          if [ $SECONDS -ge $end_time ]; then
+            echo "Timed out!, error messages:"            
+            cat "$log_file" 
+            exit 1           
+          fi
+
+      - name: Sanity check
+        run: |
+          echo '{"operator": true}' > config.json
+          mirrord exec sh -f config.json
