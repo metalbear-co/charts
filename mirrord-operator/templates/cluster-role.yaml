@@ -64,6 +64,7 @@ rules:
 - apiGroups:
   - operator.metalbear.co
   resources:
+  - copytargets
   - mirrordoperators
   - targets
   - targets/port-locks
@@ -74,11 +75,13 @@ rules:
   - operator.metalbear.co
   resources:
   - mirrordoperators/certificate
+  - copytargets
   verbs:
   - create
 - apiGroups:
   - operator.metalbear.co
   resources:
   - targets
+  - copytargets
   verbs:
   - proxy
