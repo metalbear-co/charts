@@ -14,6 +14,7 @@ rules:
   - pods/log
   - pods/ephemeralcontainers
   - deployments
+  - deployments/scale
   - jobs
   - rollouts
   verbs:
@@ -26,12 +27,19 @@ rules:
   - jobs
   verbs:
   - create
+  - delete
 - apiGroups:
   - ''
   resources:
   - pods/ephemeralcontainers
   verbs:
   - update
+- apiGroups:
+  - apps
+  resources:
+  - deployments/scale
+  verbs:
+  - patch
 - apiGroups:
   - ''
   - authentication.k8s.io
