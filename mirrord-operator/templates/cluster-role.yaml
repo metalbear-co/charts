@@ -17,6 +17,7 @@ rules:
   - deployments/scale
   - jobs
   - rollouts
+  - rollouts/scale
   verbs:
   - get
   - list
@@ -36,8 +37,10 @@ rules:
   - update
 - apiGroups:
   - apps
+  - argoproj.io
   resources:
   - deployments/scale
+  - rollouts/scale
   verbs:
   - patch
 - apiGroups:
