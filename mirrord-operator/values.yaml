@@ -19,6 +19,9 @@ operator:
   #   - '--agent-config'
   #   - '{"image_pull_secrets":[{"name":"docker"}]}'
 
+  ## You can use this only if using Enterprise license.
+  disableTelemetries: false
+
 agent:
   ## example
   ## image: your-internal.registry.io/metalbear-co/agent
