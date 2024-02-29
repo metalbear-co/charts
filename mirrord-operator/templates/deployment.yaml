@@ -85,7 +85,6 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
-          runAsUser: 1001
         volumeMounts:
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
