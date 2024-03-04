@@ -82,6 +82,9 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
+          limits:
+            cpu: {{.Values.operator.limits.cpu}}
+            memory: {{.Values.operator.limits.memory}}
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false

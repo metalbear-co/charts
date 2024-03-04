@@ -22,6 +22,11 @@ operator:
   ## You can use this only if using Enterprise license.
   disableTelemetries: false
 
+  ## This should be enough for around 200~ concurrent sessions.
+  limits:
+    cpu: 200m
+    memory: 200Mi
+
 agent:
   ## example
   ## image: your-internal.registry.io/metalbear-co/agent
