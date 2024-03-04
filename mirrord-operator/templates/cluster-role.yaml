@@ -96,3 +96,10 @@ rules:
   - copytargets
   verbs:
   - proxy
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - sessions
+  verbs:
+  - deletecollection
+  - delete
