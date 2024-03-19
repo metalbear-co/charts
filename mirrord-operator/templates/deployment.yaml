@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: mirrord-operator
-    {{- include "mirrord-operator.labels" . | nindent 4 }}
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
 spec:
