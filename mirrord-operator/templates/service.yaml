@@ -3,6 +3,7 @@ kind: Service
 metadata:
   labels:
     app: mirrord-operator
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
   name: {{ .Values.service.name }}
   namespace: {{ .Values.namespace }}
 spec:

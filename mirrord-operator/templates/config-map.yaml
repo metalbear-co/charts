@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: mirrord-configmap
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 data:
   agent-config.yaml: |-
     {{- if .Values.agent.image }}
