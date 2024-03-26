@@ -4,35 +4,9 @@ kind: Role
 metadata:
   name: mirrord-operator-user
   namespace: {{.}}
+  labels:
+    {{- template "mirrord-operator.labels" . }}
 rules:
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - copytargets
-  - targets
-  - targets/port-locks
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - copytargets
-  verbs:
-  - create
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - targets
-  - copytargets
-  verbs:
-  - proxy
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - sessions
-  verbs:
-  - deletecollection
-  - delete
+{{- include "mirrord-operator.rules" . | nindent 0 }}
 ---
 {{- end }}  
