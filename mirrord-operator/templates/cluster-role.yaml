@@ -74,7 +74,7 @@ kind: ClusterRole
 metadata:
   name: mirrord-operator-user
   labels:
-    {{- template "mirrord-operator.labels" . }}
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
@@ -84,6 +84,6 @@ kind: ClusterRole
 metadata:
   name: mirrord-operator-user-basic
   labels:
-    {{- template "mirrord-operator.labels" . }}
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
