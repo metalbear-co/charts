@@ -103,3 +103,24 @@ rules:
   verbs:
   - deletecollection
   - delete
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mirrord-operator-user-basic
+rules:
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordoperators
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordoperators/certificate
+  verbs:
+  - create
