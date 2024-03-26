@@ -3,6 +3,8 @@ kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
 metadata:
   name: scc-mirrord
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 allowHostPID: true
 allowPrivilegedContainer: false
 allowHostDirVolumePlugin: true

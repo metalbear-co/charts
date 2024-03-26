@@ -2,6 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator
+  labels:
+    {{- template "mirrord-operator.labels" . }}
 rules:
 - apiGroups:
   - ''
@@ -71,6 +73,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - operator.metalbear.co

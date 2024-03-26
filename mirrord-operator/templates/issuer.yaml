@@ -4,6 +4,8 @@ kind: Issuer
 metadata:
   name: {{ .Values.tls.certManager.issuer }}
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 spec:
   selfSigned: {}
 {{- end }}
