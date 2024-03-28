@@ -7,16 +7,16 @@ metadata:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 data:
   agent-config.yaml: |-
-    {{- if .Values.agent.image_pull_config }}
+    {{- if and (.Values.agent.image) (kindIs "string" .Values.agent.image) }}
+    image: "{{ .Values.agent.image }}"
+    {{- else }}
     image:
-      {{- if .Values.agent.image_pull_config.registry }}
+      {{- if .Values.agent.image.registry }}
       registry: "{{ .Values.agent.image.registry }}"
       {{- end }}
-      {{- if .Values.agent.image_pull_config.tag}}
+      {{- if .Values.agent.image.tag}}
       tag: "{{ .Values.agent.image.tag }}"
       {{- end }}
-    {{- else if .Values.agent.image }}
-    image: "{{ .Values.agent.image }}"
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:
