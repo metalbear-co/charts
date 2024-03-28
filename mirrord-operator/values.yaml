@@ -33,13 +33,16 @@ operator:
     memory: 200Mi
 
 agent:
-  ## example
-  ## image: 
+  ## Set up the mirrord-agent image.
+  ##
+  ## image: "your-internal.registry.io/metalbear-co/agent:latest"
+  image: ""
+
+  ## You can also specify the mirrord-agent image registry and tags separately.
+  ##
+  ## image_pull_config: 
   ##   registry: "your-internal.registry.io/metalbear-co/agent"
   ##   tag: "latest"
-  image:
-    registry: ""
-    tag: ""
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
