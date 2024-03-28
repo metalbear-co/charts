@@ -8,7 +8,9 @@ metadata:
 data:
   agent-config.yaml: |-
     {{- if .Values.agent.image }}
-    image: "{{ .Values.agent.image }}"
+    image:
+      registry: "{{ .Values.agent.image.registry }}"
+      tag: "{{ .Values.agent.image.tag }}"
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:
