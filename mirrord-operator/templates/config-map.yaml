@@ -19,6 +19,7 @@ data:
     {{- else }}
     image: "{{ .Values.agent.image }}"
     {{- end }}
+    {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:
     {{- range .Values.operator.imagePullSecrets }}
@@ -27,5 +28,4 @@ data:
     {{- end }}
     {{- if .Values.agent.extraConfig }}
     {{- .Values.agent.extraConfig | toYaml | nindent 4 }}
-    {{- end }}
     {{- end }}
