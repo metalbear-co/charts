@@ -34,8 +34,18 @@ operator:
 
 agent:
   ## example
-  ## image: your-internal.registry.io/metalbear-co/agent
-  image: ""
+  ##
+  ## image: 
+  ##   registry: "your-internal.registry.io/metalbear-co/agent"
+  ##   tag: "latest"
+  ##
+  ## or
+  ##
+  ## image: "your-internal.registry.io/metalbear-co/agent:latest"
+  ##
+  # image: 
+    # registry: "ghcr.io/metalbear-co/mirrord"
+    # tag: "latest"
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
