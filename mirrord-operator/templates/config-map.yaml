@@ -8,7 +8,8 @@ metadata:
 data:
   agent-config.yaml: |-
     {{- if .Values.agent }}
-    {{- if and (.Values.agent.image) (kindIs "map" .Values.agent.image) }}
+    {{- if .Values.agent.image }}
+    {{- if kindIs "map" .Values.agent.image }}
     image:
       {{- if .Values.agent.image.registry }}
       registry: "{{ .Values.agent.image.registry }}"
@@ -18,6 +19,7 @@ data:
       {{- end }}
     {{- else }}
     image: "{{ .Values.agent.image }}"
+    {{- end }}
     {{- end }}
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
