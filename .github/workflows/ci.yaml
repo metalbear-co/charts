@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - "**.yaml"
+      - "**.tpl"
   pull_request:
     branches: [main]
     paths:
       - "**.yaml"
+      - "**.tpl"
 
 jobs:
   sanity:
