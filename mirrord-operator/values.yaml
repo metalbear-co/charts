@@ -49,7 +49,7 @@ agent:
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
-  # extraConfig:
+ extraConfig:
   #   tolerations:
   #     - operator: Exists
   #   privileged: true
