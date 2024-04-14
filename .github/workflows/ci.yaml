@@ -20,3 +20,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.1.0
       - run: helm template mirrord-operator --set license.key=secret --debug
+
+  operator-install:
+    runs-on: ubuntu-latest
+    name: helm install & check install
+    steps:
+      - uses: actions/checkout@v4
+      - name: start minikube
+        uses: medyagh/setup-minikube@master
+        with:
+          container-runtime: ${{ inputs.container-runtime }}
+          cpus: 'max'
+          memory: '4gb'
+      - uses: azure/setup-helm@v4.1.0
+      - run: helm install mirrord-operator ./mirrord-operator
