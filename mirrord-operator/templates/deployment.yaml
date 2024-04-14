@@ -33,6 +33,8 @@ spec:
           value: mirrord-operator
         - name: OPERATOR_TELEMETRY_ENABLED
           value: {{ .Values.operator.disableTelemetries | ternary "false" "true" | quote }}
+        - name: OPERATOR_JSON_LOG
+          value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG
           value: /mirrord-config/agent-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
