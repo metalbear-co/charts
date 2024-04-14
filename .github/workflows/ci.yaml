@@ -32,6 +32,6 @@ jobs:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
           memory: '4gb'
-      - run: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
       - uses: azure/setup-helm@v4.1.0
-      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.certManager.enabled=true ./mirrord-operator
+      - uses: kofemann/action-create-certificate@v0.0.4
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat hostkey.pem)" --set tls.data."tls\\.crt"="$(cat hostcert.pem)" ./mirrord-operator
