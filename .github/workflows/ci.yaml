@@ -41,4 +41,4 @@ jobs:
           openssl x509 -req -in ./tls.csr -CA ./ca.crt -CAkey ./ca.key \
             -CAcreateserial -out ./tls.crt -days 10000 \
             -extensions v3_req -extfile ./.github/workflows/tls.conf
-      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat tls.key)" --set tls.data."tls\\.crt"="$(cat tls.crt)" ./mirrord-operator
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat tls.key)" --set tls.data."tls\\.crt"="$(cat tls.crt)" ./mirrord-operator --wait
