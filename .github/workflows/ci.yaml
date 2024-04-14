@@ -34,4 +34,4 @@ jobs:
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
       - uses: kofemann/action-create-certificate@v0.0.4
-      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat hostkey.pem)" --set tls.data."tls\\.crt"="$(cat hostcert.pem)" ./mirrord-operator
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat ./hostkey.pem)" --set tls.data."tls\\.crt"="$(cat ./hostcert.pem)" ./mirrord-operator
