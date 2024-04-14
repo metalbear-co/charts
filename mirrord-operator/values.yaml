@@ -16,7 +16,7 @@ roleNamespaces: []
 operator:
   image: ghcr.io/metalbear-co/operator
 
-  json_log: false
+  jsonLog: false
   # imagePullSecrets:
   #   - name: value
   
