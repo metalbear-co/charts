@@ -73,8 +73,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user
-  labels:
-    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
@@ -83,7 +81,5 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user-basic
-  labels:
-    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
