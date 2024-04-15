@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: mirrord-operator
   labels:
-    {{- template "mirrord-operator.labels" . }}
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - ''
