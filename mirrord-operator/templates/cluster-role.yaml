@@ -25,9 +25,11 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
   - batch
   resources:
   - jobs
+  - pods
   verbs:
   - create
   - delete
