@@ -89,8 +89,8 @@ tls:
     certificate: mirrord-operator-tls
 
   data:
-    tls.key: ""
-    tls.crt: ""
+    # tls.key: ""
+    # tls.crt: ""
 
 # if you run on OpenShift, set this value to true to get a SCC in the yaml.
 openshift: false
