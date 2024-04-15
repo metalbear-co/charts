@@ -33,13 +33,5 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
-      - run: |
-          openssl genrsa -out ca.key 4096
-          openssl genrsa -out tls.key 4096
-          openssl req -x509 -new -sha512 -nodes -key ./ca.key -days 7307 -out ./ca.crt -config ./.github/workflows/ca.conf
-          openssl req -new -key ./tls.key -out ./tls.csr -config ./.github/workflows/tls.conf
-          openssl x509 -req -in ./tls.csr -CA ./ca.crt -CAkey ./ca.key \
-            -CAcreateserial -out ./tls.crt -days 10000 \
-            -extensions v3_req -extfile ./.github/workflows/tls.conf
-      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set tls.data."tls\\.key"="$(cat tls.key)" --set tls.data."tls\\.crt"="$(cat tls.crt)" ./mirrord-operator --wait
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true ./mirrord-operator --wait
       - run: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
