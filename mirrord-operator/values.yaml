@@ -8,8 +8,15 @@ namespace: mirrord
 ## If you set this to false, you must create the namespace manually
 createNamespace: true
 
+## For each namespace you'd like a namespaced role to be created in, add here.
+## The chart will create a role that is required to use mirrord in the namespace
+## and it can be bound via rolebinding (That you need to create yourself).
+roleNamespaces: []
+
 operator:
   image: ghcr.io/metalbear-co/operator
+
+  jsonLog: false
   # imagePullSecrets:
   #   - name: value
   
@@ -29,12 +36,22 @@ operator:
 
 agent:
   ## example
-  ## image: your-internal.registry.io/metalbear-co/agent
-  image: ""
+  ##
+  ## image: 
+  ##   registry: "your-internal.registry.io/metalbear-co/agent"
+  ##   tag: "latest"
+  ##
+  ## or
+  ##
+  ## image: "your-internal.registry.io/metalbear-co/agent:latest"
+  ##
+  # image: 
+    # registry: "ghcr.io/metalbear-co/mirrord"
+    # tag: "latest"
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
-  # extraConfig:
+ extraConfig:
   #   tolerations:
   #     - operator: Exists
   #   privileged: true
@@ -62,7 +79,7 @@ sa:
 tls:
   secret: mirrord-operator-tls
 
-  # if you're using a verified certificate, set this value to true.
+  # if you're using a verified certificate, set this value to false.
   apiService:
     insecureSkipTLSVerify: true
 

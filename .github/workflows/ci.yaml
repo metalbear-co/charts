@@ -1,0 +1,42 @@
+name: CI
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "**.yaml"
+      - "**.tpl"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**.yaml"
+      - "**.tpl"
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    name: helm-sanity debug
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.1.0
+      - run: helm template mirrord-operator --set license.key=secret --debug
+
+  operator-install:
+    runs-on: ubuntu-latest
+    name: helm install & check install
+    steps:
+      - uses: actions/checkout@v4
+      - name: start minikube
+        uses: medyagh/setup-minikube@master
+        with:
+          container-runtime: ${{ inputs.container-runtime }}
+          cpus: 'max'
+          memory: '4gb'
+      - uses: azure/setup-helm@v4.1.0
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true ./mirrord-operator --wait
+      - uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 10
+          max_attempts: 5
+          retry_wait_seconds: 1
+          command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml

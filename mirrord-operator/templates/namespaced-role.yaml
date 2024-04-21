@@ -1,0 +1,12 @@
+{{- range .Values.roleNamespaces -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mirrord-operator-user
+  namespace: {{.}}
+  labels:
+    {{- include "mirrord-operator.labels" $ | nindent 4 }}
+rules:
+{{- include "mirrord-operator.rules" . | nindent 0 }}
+---
+{{- end }}  

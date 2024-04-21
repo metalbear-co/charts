@@ -4,6 +4,8 @@ kind: Secret
 metadata:
   name: {{ .Values.tls.secret }}
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 stringData:
   {{- toYaml .Values.tls.data | nindent 2 }}
 type: kubernetes.io/tls
@@ -13,6 +15,8 @@ kind: Certificate
 metadata:
   name: {{ .Values.tls.certManager.certificate }}
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 spec:
   secretName: {{ .Values.tls.secret }}
   issuerRef:
