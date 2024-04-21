@@ -65,8 +65,8 @@ cat >trust-relationship.json <<EOF
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "$oidc_provider:aud": "sts.amazonaws.com",
-          "$oidc_provider:sub": "system:serviceaccount:$namespace:$service_account"
+          "${oidc_provider}:aud": "sts.amazonaws.com",
+          "${oidc_provider}:sub": "system:serviceaccount:$namespace:$service_account"
         }
       }
     }
