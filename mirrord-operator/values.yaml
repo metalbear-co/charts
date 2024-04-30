@@ -15,7 +15,8 @@ roleNamespaces: []
 
 operator:
   image: ghcr.io/metalbear-co/operator
-
+  podAnnotations: {}
+  podLabels: {}
   jsonLog: false
   # imagePullSecrets:
   #   - name: value

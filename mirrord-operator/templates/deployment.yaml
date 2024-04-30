@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   labels:
     app: mirrord-operator
+    component: operator
+    app.kubernetes.io/component: operator
     {{- include "mirrord-operator.labels" . | nindent 4 }}
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
@@ -13,7 +15,17 @@ spec:
   template:
     metadata:
       labels:
+        {{- include "mirrord-operator.labels" . | nindent 8 }}
         app: mirrord-operator
+        component: operator
+        app.kubernetes.io/component: operator
+        {{- if .Values.operator.podLabels }}
+          {{ toYaml .Values.operator.podLabels | indent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.operator.podAnnotations }}
+          {{ toYaml .Values.operator.podAnnotations | indent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.operator.imagePullSecrets }}
       imagePullSecrets:
