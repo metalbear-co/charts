@@ -61,6 +61,8 @@ rules:
   - userextras/user-assertion.cloud.google.com
   - userextras/principalid
   - userextras/oid
+  - userextras/username
+  - userextras/licensekey
   verbs:
   - impersonate
 - apiGroups:
