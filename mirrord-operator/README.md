@@ -8,7 +8,7 @@ If you have a license key (usually obtained from https://app.metalbear.co) you c
 * Or you can create a secret with key `OPERATOR_LICENSE_KEY` and set the given key as value, then use `license.keyRef` to reference that secret.
 
 If you have a certificate license (usually part of Enterprise offering) you can:
-* Add license file to `license.file.secret.data.license.pem` in `values.yaml`
+* Add the contents of your license file to `license.file.secret.data.license.pem` in `values.yaml`
 * Or you can create a secret with the following format:
     ```yaml
     apiVersion: v1

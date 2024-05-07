@@ -28,6 +28,18 @@ rules:
   - list
   - watch
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - patch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  verbs:
+  - patch
+- apiGroups:
   - ""
   - batch
   resources:
@@ -76,6 +88,35 @@ rules:
   verbs:
   - list
   - get
+- apiGroups:
+  - splitters.mirrord.metalbear.co
+  resources:
+  - mirrordqueuesplitters
+  verbs:
+  - list
+- apiGroups:
+  - splitters.mirrord.metalbear.co
+  resources:
+  - mirrordqueuesplitters/status
+  verbs:
+  - update
+- apiGroups:
+  - splitters.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - patch
+- apiGroups:
+  - splitters.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions/status
+  verbs:
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
