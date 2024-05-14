@@ -50,9 +50,13 @@ agent:
     # registry: "ghcr.io/metalbear-co/mirrord"
     # tag: "latest"
 
+
+  # If you want the operator to secure agent connections with TLS, set this value to true.
+  # This option requires agent version at least 3.97.0.
+  tls: false
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
- extraConfig:
+  extraConfig:
   #   tolerations:
   #     - operator: Exists
   #   privileged: true
@@ -95,7 +99,3 @@ tls:
 
 # if you run on OpenShift, set this value to true to get a SCC in the yaml.
 openshift: false
-
-# If you want the operator to secure agent connections with TLS, set this value to true.
-# This option requires agent version at least 3.97.0.
-agentTls: false
