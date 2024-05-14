@@ -95,3 +95,7 @@ tls:
 
 # if you run on OpenShift, set this value to true to get a SCC in the yaml.
 openshift: false
+
+# If you want the operator to secure agent connections with TLS, set this value to true.
+# This option requires agent version at least 3.97.0.
+agentTls: false
