@@ -59,7 +59,7 @@ spec:
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
         {{- else if .Values.license.key }}
-        {{- if .Value.agentTls }}
+        {{- if .Values.agentTls }}
         - name: OPERATOR_AGENT_CONNECTION_TLS
           value: "true"
         {{- end }}
