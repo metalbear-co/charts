@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: mirrord-operator
   labels:
-    {{- template "mirrord-operator.labels" . }}
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - ''
@@ -25,9 +25,11 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
   - batch
   resources:
   - jobs
+  - pods
   verbs:
   - create
   - delete
@@ -59,6 +61,8 @@ rules:
   - userextras/user-assertion.cloud.google.com
   - userextras/principalid
   - userextras/oid
+  - userextras/username
+  - userextras/licensekey
   verbs:
   - impersonate
 - apiGroups:
@@ -73,6 +77,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
@@ -81,5 +87,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user-basic
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
