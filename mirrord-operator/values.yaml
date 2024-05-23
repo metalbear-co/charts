@@ -58,6 +58,8 @@ agent:
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
   extraConfig:
   #  json_log: false
+  #  labels: '{ "user": "meow" }'
+  #  annotations: '{ "cats.io/inject": "enabled" }'
   #  tolerations:
   #    - operator: Exists
   #  privileged: true
