@@ -33,7 +33,7 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
-      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true ./mirrord-operator --wait
+      - run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" --set operator.podLabels."label\.metalbear\.co/name"="operator" --set operator.podLabels."label\.metalbear\.co/version"="latest" ./mirrord-operator --wait
       - uses: nick-fields/retry@v3
         with:
           timeout_seconds: 10
