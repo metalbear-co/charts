@@ -20,11 +20,11 @@ spec:
         component: operator
         app.kubernetes.io/component: operator
         {{- if .Values.operator.podLabels }}
-          {{ toYaml .Values.operator.podLabels | indent 8 }}
+          {{- toYaml .Values.operator.podLabels | nindent 8 }}
         {{- end }}
       annotations:
         {{- if .Values.operator.podAnnotations }}
-          {{ toYaml .Values.operator.podAnnotations | indent 8 }}
+          {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
       {{- if .Values.operator.imagePullSecrets }}
