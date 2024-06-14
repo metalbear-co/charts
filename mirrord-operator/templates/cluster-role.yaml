@@ -17,9 +17,11 @@ rules:
   - pods/ephemeralcontainers
   - deployments
   - deployments/scale
-  - jobs
   - rollouts
   - rollouts/scale
+  - jobs
+  - cronjobs
+  - statefulsets
   verbs:
   - get
   - list
@@ -45,6 +47,7 @@ rules:
   resources:
   - deployments/scale
   - rollouts/scale
+  - statefulsets/scale
   verbs:
   - patch
 - apiGroups:
