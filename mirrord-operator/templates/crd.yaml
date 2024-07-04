@@ -83,4 +83,238 @@ spec:
     served: true
     storage: true
     subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordWorkloadQueueRegistry
+    plural: mirrordworkloadqueueregistries
+    shortNames:
+    - qs
+    singular: mirrordworkloadqueueregistry
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
+        properties:
+          spec:
+            description: Defines a Custom Resource that holds a central configuration for splitting a queue. mirrord users specify a splitter by name in their configuration. mirrord then starts splitting according to the spec and the user's filter.
+            properties:
+              consumer:
+                description: The resource (deployment or Argo rollout) that reads from the queues.
+                oneOf:
+                - required:
+                  - deployment
+                - required:
+                  - rollout
+                properties:
+                  deployment:
+                    type: string
+                  rollout:
+                    type: string
+                type: object
+              queues:
+                additionalProperties:
+                  description: The details of a queue that should be split.
+                  oneOf:
+                  - oneOf:
+                    - required:
+                      - configMap
+                    - required:
+                      - envVar
+                    required:
+                    - queueType
+                  properties:
+                    configMap:
+                      properties:
+                        name:
+                          description: The name of the config map that holds the name of the queue we want to split.
+                          type: string
+                        queueNameKey:
+                          description: The name of the key in the config map that holds the name of the queue we want to split.
+                          type: string
+                      required:
+                      - name
+                      - queueNameKey
+                      type: object
+                    envVar:
+                      type: string
+                    queueType:
+                      enum:
+                      - SQS
+                      type: string
+                  type: object
+                description: A map of the queues that should be split. The key is used by users to associate filters to the right queues.
+                type: object
+              tags:
+                additionalProperties:
+                  type: string
+                description: These tags will be set for all temporary SQS queues created by mirrord for queues defined in this MirrordWorkloadQueueRegistry, alongside with the original tags of the respective original queue. In case of a collision, the temporary queue will get the value from the tag passed in here.
+                nullable: true
+                type: object
+            required:
+            - consumer
+            - queues
+            type: object
+          status:
+            nullable: true
+            properties:
+              queueDetails:
+                description: Details retrieved from K8s resources once the splitter is active, used on filter session creation to determine the required config changes that make the application use the output queues instead of the original.
+                properties:
+                  config_map_updates:
+                    additionalProperties:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    description: For each config map name, a mapping from queue id to key name in the map that holds the name of that queue.
+                    type: object
+                  direct_env_vars:
+                    additionalProperties:
+                      type: string
+                    description: Names of env vars that contain the queue name directly in the pod spec, without config map refs, mapped to their queue id.
+                    type: object
+                  env_updates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    type: object
+                  queue_names:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: For each queue_id, the actual queue name as retrieved from the target's pod spec or config map, together with the name of its temporary output queue.
+                    type: object
+                required:
+                - config_map_updates
+                - direct_env_vars
+                - env_updates
+                - queue_names
+                type: object
+            required:
+            - queueDetails
+            type: object
+        required:
+        - spec
+        title: MirrordWorkloadQueueRegistry
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordsqssessions.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordSQSSession
+    plural: mirrordsqssessions
+    shortNames: []
+    singular: mirrordsqssession
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordSqsSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: The operator creates this object when a user runs mirrord against a target that is a queue consumer.
+            properties:
+              queueConsumer:
+                description: The target of this session.
+                oneOf:
+                - required:
+                  - deployment
+                - required:
+                  - rollout
+                properties:
+                  deployment:
+                    type: string
+                  rollout:
+                    type: string
+                type: object
+              queueFilters:
+                additionalProperties:
+                  additionalProperties:
+                    type: string
+                  type: object
+                description: For each queue_id, a mapping from attribute name, to attribute value regex. The queue_id for a queue is determined at the queue registry. It is not (necessarily) The name of the queue on AWS.
+                type: object
+              sessionId:
+                description: The id of the mirrord exec session, from the operator.
+                type: string
+            required:
+            - queueConsumer
+            - queueFilters
+            - sessionId
+            type: object
+          status:
+            nullable: true
+            properties:
+              envUpdates:
+                additionalProperties:
+                  properties:
+                    original_name:
+                      type: string
+                    output_name:
+                      type: string
+                  required:
+                  - original_name
+                  - output_name
+                  type: object
+                description: Env var name -> old and new queue names.
+                type: object
+              queueNames:
+                additionalProperties:
+                  properties:
+                    original_name:
+                      type: string
+                    output_name:
+                      type: string
+                  required:
+                  - original_name
+                  - output_name
+                  type: object
+                description: Queue ID -> old and new queue names.
+                type: object
+            required:
+            - envUpdates
+            - queueNames
+            type: object
+        required:
+        - spec
+        title: MirrordSqsSession
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
 
