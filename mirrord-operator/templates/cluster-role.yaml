@@ -89,19 +89,19 @@ rules:
   - list
   - get
 - apiGroups:
-  - splitters.mirrord.metalbear.co
+  - queues.mirrord.metalbear.co
   resources:
-  - mirrordqueuesplitters
+  - mirrordworkloadqueueregistries
   verbs:
   - list
 - apiGroups:
-  - splitters.mirrord.metalbear.co
+  - queues.mirrord.metalbear.co
   resources:
-  - mirrordqueuesplitters/status
+  - mirrordworkloadqueueregistries/status
   verbs:
   - update
 - apiGroups:
-  - splitters.mirrord.metalbear.co
+  - queues.mirrord.metalbear.co
   resources:
   - mirrordsqssessions
   verbs:
@@ -110,9 +110,10 @@ rules:
   - list
   - get
   - delete
+  - deletecollection
   - patch
 - apiGroups:
-  - splitters.mirrord.metalbear.co
+  - queues.mirrord.metalbear.co
   resources:
   - mirrordsqssessions/status
   verbs:
