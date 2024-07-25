@@ -167,8 +167,9 @@ spec:
           status:
             nullable: true
             properties:
-              queueDetails:
-                description: Details retrieved from K8s resources once the splitter is active, used on filter session creation to determine the required config changes that make the application use the output queues instead of the original.
+              sqsDetails:
+                description: Optional even though it's currently the only field, because in the future there will be fields for other queue types.
+                nullable: true
                 properties:
                   config_map_updates:
                     additionalProperties:
@@ -213,8 +214,6 @@ spec:
                 - env_updates
                 - queue_names
                 type: object
-            required:
-            - queueDetails
             type: object
         required:
         - spec
