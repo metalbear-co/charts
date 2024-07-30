@@ -45,6 +45,10 @@ spec:
           value: mirrord-operator
         - name: OPERATOR_TELEMETRY_ENABLED
           value: {{ .Values.operator.disableTelemetries | ternary "false" "true" | quote }}
+        {{ if .Values.operator.maxSessionTime }}
+        - name: OPERATOR_MAX_SESSION_TIME
+          value: {{ .Values.operator.maxSessionTime | quote }}
+        {{- end }}
         - name: OPERATOR_JSON_LOG
           value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG

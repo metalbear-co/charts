@@ -30,6 +30,9 @@ operator:
   ## You can use this only if using Enterprise license.
   disableTelemetries: false
 
+  ## Controls how long (in seconds) a session is allowed to live for.
+  # maxSessionTime: 3600
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m
