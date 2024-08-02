@@ -127,24 +127,10 @@ spec:
                   oneOf:
                   - oneOf:
                     - required:
-                      - configMap
-                    - required:
                       - envVar
                     required:
                     - queueType
                   properties:
-                    configMap:
-                      properties:
-                        name:
-                          description: The name of the config map that holds the name of the queue we want to split.
-                          type: string
-                        queueNameKey:
-                          description: The name of the key in the config map that holds the name of the queue we want to split.
-                          type: string
-                      required:
-                      - name
-                      - queueNameKey
-                      type: object
                     envVar:
                       type: string
                     queueType:
@@ -171,17 +157,10 @@ spec:
                 description: Optional even though it's currently the only field, because in the future there will be fields for other queue types.
                 nullable: true
                 properties:
-                  config_map_updates:
-                    additionalProperties:
-                      additionalProperties:
-                        type: string
-                      type: object
-                    description: For each config map name, a mapping from queue id to key name in the map that holds the name of that queue.
-                    type: object
                   direct_env_vars:
                     additionalProperties:
                       type: string
-                    description: Names of env vars that contain the queue name directly in the pod spec, without config map refs, mapped to their queue id.
+                    description: Names of env vars that contain the queue name directly in the pod template, without config map refs, mapped to their queue id.
                     type: object
                   env_updates:
                     additionalProperties:
@@ -209,7 +188,6 @@ spec:
                     description: For each queue_id, the actual queue name as retrieved from the target's pod spec or config map, together with the name of its temporary output queue.
                     type: object
                 required:
-                - config_map_updates
                 - direct_env_vars
                 - env_updates
                 - queue_names
