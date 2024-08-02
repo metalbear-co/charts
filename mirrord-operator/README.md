@@ -14,8 +14,8 @@ If you have a certificate license (usually part of Enterprise offering) you can:
     apiVersion: v1
     kind: Secret
     metadata:
-    name: secret
-    namespace: mirrord
+        name: mirrord-operator-license-pem
+        namespace: mirrord
     stringData:
         license.pem: LICENSE_CONTENT
     ```
