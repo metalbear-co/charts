@@ -33,6 +33,10 @@ spec:
         - {{ toYaml . }}
         {{- end }}
       {{- end }}
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "443"
       containers:
       - env:
         - name: RUST_LOG
@@ -111,9 +115,6 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
-          sysctls:
-            - name: net.ipv4.ip_unprivileged_port_start
-              value: "443"
         volumeMounts:
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
