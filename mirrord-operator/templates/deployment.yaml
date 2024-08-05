@@ -38,7 +38,7 @@ spec:
         - name: RUST_LOG
           value: mirrord=info,operator=info
         - name: OPERATOR_ADDR
-          value: 0.0.0.0:3000
+          value: 0.0.0.0:443
         - name: OPERATOR_NAMESPACE
           value: {{ .Values.namespace }}
         - name: OPERATOR_SERVICE_NAME
@@ -88,17 +88,17 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 3000
+            port: 443
             scheme: HTTPS
           periodSeconds: 5
         name: mirrord-operator
         ports:
-        - containerPort: 3000
+        - containerPort: 443
           name: https
         readinessProbe:
           httpGet:
             path: /health
-            port: 3000
+            port: 443
             scheme: HTTPS
           periodSeconds: 5
         resources:
@@ -111,6 +111,10 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
+          capabilities:
+            # allow 443 port binding
+            add:
+            - "NET_BIND_SERVICE"
         volumeMounts:
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
