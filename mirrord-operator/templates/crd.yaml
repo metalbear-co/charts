@@ -255,36 +255,119 @@ spec:
             type: object
           status:
             nullable: true
+            oneOf:
+            - required:
+              - Starting
+            - required:
+              - Ready
+            - required:
+              - StartError
+            - required:
+              - CleanupError
             properties:
-              envUpdates:
-                additionalProperties:
+              CleanupError:
+                items:
+                - description: Representation of Sqs errors for the status of SQS session resources.
                   properties:
-                    original_name:
+                    reason:
+                      description: Human-readable explanation of what went wrong.
                       type: string
-                    output_name:
-                      type: string
+                    statusCode:
+                      description: HTTP code for operator response.
+                      format: uint16
+                      minimum: 0.0
+                      type: integer
                   required:
-                  - original_name
-                  - output_name
+                  - reason
+                  - statusCode
                   type: object
-                description: Env var name -> old and new queue names.
-                type: object
-              queueNames:
-                additionalProperties:
+                - nullable: true
                   properties:
-                    original_name:
-                      type: string
-                    output_name:
-                      type: string
+                    envUpdates:
+                      additionalProperties:
+                        properties:
+                          original_name:
+                            type: string
+                          output_name:
+                            type: string
+                        required:
+                        - original_name
+                        - output_name
+                        type: object
+                      description: Env var name -> old and new queue names.
+                      type: object
+                    queueNames:
+                      additionalProperties:
+                        properties:
+                          original_name:
+                            type: string
+                          output_name:
+                            type: string
+                        required:
+                        - original_name
+                        - output_name
+                        type: object
+                      description: Queue ID -> old and new queue names.
+                      type: object
                   required:
-                  - original_name
-                  - output_name
+                  - envUpdates
+                  - queueNames
                   type: object
-                description: Queue ID -> old and new queue names.
+                maxItems: 2
+                minItems: 2
+                type: array
+              Ready:
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
                 type: object
-            required:
-            - envUpdates
-            - queueNames
+              StartError:
+                description: Representation of Sqs errors for the status of SQS session resources.
+                properties:
+                  reason:
+                    description: Human-readable explanation of what went wrong.
+                    type: string
+                  statusCode:
+                    description: HTTP code for operator response.
+                    format: uint16
+                    minimum: 0.0
+                    type: integer
+                required:
+                - reason
+                - statusCode
+                type: object
+              Starting:
+                items: []
+                maxItems: 0
+                minItems: 0
+                type: array
             type: object
         required:
         - spec
