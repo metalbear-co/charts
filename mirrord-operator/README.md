@@ -44,4 +44,3 @@ However, if the wokrload gets its access to the queue by an IAM policy (and not 
 
 
 > **Note:** the names of all queues created and deleted by mirrord begin with "mirrord-".
-
