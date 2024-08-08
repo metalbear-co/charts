@@ -106,7 +106,10 @@ spec:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
         properties:
           spec:
-            description: Defines a Custom Resource that holds a central configuration for splitting a queue. mirrord users specify a splitter by name in their configuration. mirrord then starts splitting according to the spec and the user's filter.
+            description: |-
+              Defines a Custom Resource that holds a central configuration for splitting queues for a QueueConsumer (a target workload for which queues should be split).
+
+              This means there should be 1 such resource per queue splitting target.
             properties:
               consumer:
                 description: The resource (deployment or Argo rollout) that reads from the queues.
@@ -117,34 +120,53 @@ spec:
                   - rollout
                 properties:
                   deployment:
-                    type: string
+                    description: The name of the deployment and an optional container. If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    items:
+                    - type: string
+                    - nullable: true
+                      type: string
+                    maxItems: 2
+                    minItems: 2
+                    type: array
                   rollout:
-                    type: string
+                    description: The name of the rollout and an optional container. If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    items:
+                    - type: string
+                    - nullable: true
+                      type: string
+                    maxItems: 2
+                    minItems: 2
+                    type: array
                 type: object
               queues:
                 additionalProperties:
                   description: The details of a queue that should be split.
                   oneOf:
-                  - oneOf:
-                    - required:
-                      - envVar
-                    required:
+                  - required:
+                    - nameSource
                     - queueType
                   properties:
-                    envVar:
-                      type: string
+                    nameSource:
+                      description: Where the application gets the queue name from. Will be used to read messages from that queue and distribute them to the output queues. When running with mirrord and splitting this queue, applications will get a modified name from that source.
+                      oneOf:
+                      - required:
+                        - envVar
+                      properties:
+                        envVar:
+                          type: string
+                      type: object
                     queueType:
                       enum:
                       - SQS
                       type: string
+                    tags:
+                      additionalProperties:
+                        type: string
+                      description: These tags will be set for all temporary SQS queues created by mirrord for queues defined in this MirrordWorkloadQueueRegistry, alongside with the original tags of the respective original queue. In case of a collision, the temporary queue will get the value from the tag passed in here.
+                      nullable: true
+                      type: object
                   type: object
                 description: A map of the queues that should be split. The key is used by users to associate filters to the right queues.
-                type: object
-              tags:
-                additionalProperties:
-                  type: string
-                description: These tags will be set for all temporary SQS queues created by mirrord for queues defined in this MirrordWorkloadQueueRegistry, alongside with the original tags of the respective original queue. In case of a collision, the temporary queue will get the value from the tag passed in here.
-                nullable: true
                 type: object
             required:
             - consumer
@@ -234,9 +256,23 @@ spec:
                   - rollout
                 properties:
                   deployment:
-                    type: string
+                    description: The name of the deployment and an optional container. If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    items:
+                    - type: string
+                    - nullable: true
+                      type: string
+                    maxItems: 2
+                    minItems: 2
+                    type: array
                   rollout:
-                    type: string
+                    description: The name of the rollout and an optional container. If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    items:
+                    - type: string
+                    - nullable: true
+                      type: string
+                    maxItems: 2
+                    minItems: 2
+                    type: array
                 type: object
               queueFilters:
                 additionalProperties:
@@ -258,6 +294,8 @@ spec:
             oneOf:
             - required:
               - Starting
+            - required:
+              - RegisteringFilters
             - required:
               - Ready
             - required:
@@ -317,6 +355,39 @@ spec:
                 minItems: 2
                 type: array
               Ready:
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
+                type: object
+              RegisteringFilters:
+                description: SQS operator sets this status before it starts registering filters, so that if anything fails during the registration of filters, we have all the queues we need to delete on cleanup.
                 properties:
                   envUpdates:
                     additionalProperties:
