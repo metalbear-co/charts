@@ -24,61 +24,24 @@ If you have a certificate license (usually part of Enterprise offering) you can:
 
 ### SQS queue splitting
 
-When using EKS we need to allow the operator to modify `sqs` queues
+#### IAM Role for the operator's service account
 
-```bash
-export account_id=$(aws sts get-caller-identity --query "Account" --output text)
+For mirrord's SQS queue splitting feature, the operator has to be able to create, read from, write to, and delete SQS queues.
+If the queue messages are encrypted, the operator also needs the `kms:Encrypt`, `kms:Decrypt` and `kms:GenerateDataKey` permissions.
 
-cat >mirrord-operator-policy.json <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "sqs:*"
-            ],
-            "Resource": [
-                "arn:aws:sqs:*:$account_id:*"
-            ]
-        }
-    ]
-}
-EOF
+For that, an IAM role with an appropriate policy has to be assigned to the operator's service acount.
+Follow AWS's documentation on how to do that:
 
-aws iam create-policy --policy-name mirrord-operator-policy --policy-document file://mirrord-operator-policy.json
+https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html
 
-export oidc_provider=$(aws eks describe-cluster --name my-cluster --region $AWS_REGION --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+Pass the ARN of the role in `sa.roleArn` in `values.yaml` or via `--set sa.roleArn=arn:aws:iam::$account_id:role/mirrord-operator-role`.
 
-export namespace=mirrord
-export service_account=mirrord-operator
+#### Permissions for target workloads
 
-cat >trust-relationship.json <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::$account_id:oidc-provider/$oidc_provider"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "${oidc_provider}:aud": "sts.amazonaws.com",
-          "${oidc_provider}:sub": "system:serviceaccount:$namespace:$service_account"
-        }
-      }
-    }
-  ]
-}
-EOF
+In order to be targeted with SQS queue splitting, a workload has to be able to read from queues that are created by mirrord.
+Any temporary queues created by mirrord are created with the same policy as the orignal queues they are splitting (with the single change of the queue name in the policy), so if a queue has a policy that allows the target workload to call `ReceiveMessage` on it, that is enough.
+However, if the wokrload gets its access to the queue by an IAM policy (and not an SQS policy, see [SQS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-using-identity-based-policies.html#sqs-using-sqs-and-iam-policies)) that grants access to that specific queue by its exact name, you would have to add a policy that would allow that workload to also read from new temporary queues created by mirrord on the run.
 
-aws iam create-role --role-name mirrord-operator-role --assume-role-policy-document file://trust-relationship.json --description "Role for SQS splitting for mirrord-operator"
 
-aws iam attach-role-policy --role-name mirrord-operator-role --policy-arn=arn:aws:iam::$account_id:policy/mirrord-operator-role
+> **Note:** the names of all queues created and deleted by mirrord begin with "mirrord-".
 
-```
-*[aws docs referance](https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html)*
-
-And setting the `sa.roleArn` value in `values.yaml` or via `--set sa.roleArn=arn:aws:iam::$account_id:role/mirrord-operator-role`
