@@ -18,6 +18,8 @@ operator:
   podAnnotations: {}
   podLabels: {}
   jsonLog: false
+  # Has to be set to `true` in order to use the SQS queue splitting feature.
+  sqsSplitting: false
   # imagePullSecrets:
   #   - name: value
   
@@ -81,7 +83,7 @@ service:
 
 sa:
   name: mirrord-operator
-  
+
   ## aws role arn to annotate for eks iam assumption
   # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
 
