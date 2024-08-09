@@ -289,56 +289,58 @@ spec:
               - CleanupError
             properties:
               CleanupError:
-                items:
-                - description: Representation of Sqs errors for the status of SQS session resources.
-                  properties:
-                    reason:
-                      description: Human-readable explanation of what went wrong.
-                      type: string
-                    statusCode:
-                      description: HTTP code for operator response.
-                      format: uint16
-                      minimum: 0.0
-                      type: integer
-                  required:
-                  - reason
-                  - statusCode
-                  type: object
-                - nullable: true
-                  properties:
-                    envUpdates:
-                      additionalProperties:
-                        properties:
-                          original_name:
-                            type: string
-                          output_name:
-                            type: string
-                        required:
-                        - original_name
-                        - output_name
+                properties:
+                  details:
+                    nullable: true
+                    properties:
+                      envUpdates:
+                        additionalProperties:
+                          properties:
+                            original_name:
+                              type: string
+                            output_name:
+                              type: string
+                          required:
+                          - original_name
+                          - output_name
+                          type: object
+                        description: Env var name -> old and new queue names.
                         type: object
-                      description: Env var name -> old and new queue names.
-                      type: object
-                    queueNames:
-                      additionalProperties:
-                        properties:
-                          original_name:
-                            type: string
-                          output_name:
-                            type: string
-                        required:
-                        - original_name
-                        - output_name
+                      queueNames:
+                        additionalProperties:
+                          properties:
+                            original_name:
+                              type: string
+                            output_name:
+                              type: string
+                          required:
+                          - original_name
+                          - output_name
+                          type: object
+                        description: Queue ID -> old and new queue names.
                         type: object
-                      description: Queue ID -> old and new queue names.
-                      type: object
-                  required:
-                  - envUpdates
-                  - queueNames
-                  type: object
-                maxItems: 2
-                minItems: 2
-                type: array
+                    required:
+                    - envUpdates
+                    - queueNames
+                    type: object
+                  error:
+                    description: Representation of Sqs errors for the status of SQS session resources.
+                    properties:
+                      reason:
+                        description: Human-readable explanation of what went wrong.
+                        type: string
+                      statusCode:
+                        description: HTTP code for operator response.
+                        format: uint16
+                        minimum: 0.0
+                        type: integer
+                    required:
+                    - reason
+                    - statusCode
+                    type: object
+                required:
+                - error
+                type: object
               Ready:
                 properties:
                   envUpdates:
