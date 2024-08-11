@@ -422,10 +422,12 @@ spec:
                 - statusCode
                 type: object
               Starting:
-                items: []
-                maxItems: 0
-                minItems: 0
-                type: array
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
             type: object
         required:
         - spec
