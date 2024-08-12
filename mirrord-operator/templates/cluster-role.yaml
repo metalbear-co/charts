@@ -28,6 +28,7 @@ rules:
   - list
   - watch
 {{- if .Values.operator.sqsSplitting }}
+# For patching target workloads to use different queue.
 - apiGroups:
   - apps
   resources:
@@ -38,6 +39,13 @@ rules:
   - argoproj.io
   resources:
   - rollouts
+  verbs:
+  - patch
+# For patching copy-pods to use different queue.
+- apiGroups:
+  - apps
+  resources:
+  - pods
   verbs:
   - patch
 {{- end }}
