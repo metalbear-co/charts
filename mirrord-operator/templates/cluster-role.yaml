@@ -41,13 +41,6 @@ rules:
   - rollouts
   verbs:
   - patch
-# For patching copy-pods to use different queue.
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  verbs:
-  - patch
 {{- end }}
 - apiGroups:
   - ""
