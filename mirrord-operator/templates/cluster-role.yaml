@@ -43,7 +43,7 @@ rules:
   - patch
 # For patching copy-pods to use different queue.
 - apiGroups:
-  - apps
+  - ''
   resources:
   - pods
   verbs:
