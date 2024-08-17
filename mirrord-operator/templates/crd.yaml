@@ -83,4 +83,358 @@ spec:
     served: true
     storage: true
     subresources: {}
+{{ if .Values.operator.sqsSplitting }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordWorkloadQueueRegistry
+    plural: mirrordworkloadqueueregistries
+    shortNames:
+    - qs
+    singular: mirrordworkloadqueueregistry
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Defines a Custom Resource that holds a central configuration for splitting queues for a QueueConsumer (a target workload for which queues should be split).
 
+              This means there should be 1 such resource per queue splitting target.
+            properties:
+              consumer:
+                description: The resource (deployment or Argo rollout) that reads from the queues.
+                properties:
+                  container:
+                    description: If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    nullable: true
+                    type: string
+                  name:
+                    type: string
+                  workload_type:
+                    description: A workload that is a consumer of a queue that is being split.
+                    enum:
+                    - Deployment
+                    - Rollout
+                    type: string
+                required:
+                - name
+                - workload_type
+                type: object
+              queues:
+                additionalProperties:
+                  description: The details of a queue that should be split.
+                  oneOf:
+                  - required:
+                    - nameSource
+                    - queueType
+                  properties:
+                    nameSource:
+                      description: Where the application gets the queue name from. Will be used to read messages from that queue and distribute them to the output queues. When running with mirrord and splitting this queue, applications will get a modified name from that source.
+                      oneOf:
+                      - required:
+                        - envVar
+                      properties:
+                        envVar:
+                          type: string
+                      type: object
+                    queueType:
+                      enum:
+                      - SQS
+                      type: string
+                    tags:
+                      additionalProperties:
+                        type: string
+                      description: These tags will be set for all temporary SQS queues created by mirrord for queues defined in this MirrordWorkloadQueueRegistry, alongside with the original tags of the respective original queue. In case of a collision, the temporary queue will get the value from the tag passed in here.
+                      nullable: true
+                      type: object
+                  type: object
+                description: A map of the queues that should be split. The key is used by users to associate filters to the right queues.
+                type: object
+            required:
+            - consumer
+            - queues
+            type: object
+          status:
+            nullable: true
+            properties:
+              sqsDetails:
+                description: Optional even though it's currently the only field, because in the future there will be fields for other queue types.
+                nullable: true
+                properties:
+                  direct_env_vars:
+                    additionalProperties:
+                      type: string
+                    description: Names of env vars that contain the queue name directly in the pod template, without config map refs, mapped to their queue id.
+                    type: object
+                  env_updates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    type: object
+                  queue_names:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: For each queue_id, the actual queue name as retrieved from the target's pod spec or config map, together with the name of its temporary output queue.
+                    type: object
+                required:
+                - direct_env_vars
+                - env_updates
+                - queue_names
+                type: object
+            type: object
+        required:
+        - spec
+        title: MirrordWorkloadQueueRegistry
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordsqssessions.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordSQSSession
+    plural: mirrordsqssessions
+    shortNames: []
+    singular: mirrordsqssession
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordSqsSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: The operator creates this object when a user runs mirrord against a target that is a queue consumer.
+            properties:
+              queueConsumer:
+                description: The target of this session.
+                properties:
+                  container:
+                    description: If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    nullable: true
+                    type: string
+                  name:
+                    type: string
+                  workload_type:
+                    description: A workload that is a consumer of a queue that is being split.
+                    enum:
+                    - Deployment
+                    - Rollout
+                    type: string
+                required:
+                - name
+                - workload_type
+                type: object
+              queueFilters:
+                additionalProperties:
+                  additionalProperties:
+                    type: string
+                  type: object
+                description: For each queue_id, a mapping from attribute name, to attribute value regex. The queue_id for a queue is determined at the queue registry. It is not (necessarily) The name of the queue on AWS.
+                type: object
+              sessionId:
+                description: The id of the mirrord exec session, from the operator.
+                type: string
+            required:
+            - queueConsumer
+            - queueFilters
+            - sessionId
+            type: object
+          status:
+            nullable: true
+            oneOf:
+            - required:
+              - Starting
+            - required:
+              - RegisteringFilters
+            - required:
+              - Ready
+            - required:
+              - StartError
+            - required:
+              - CleanupError
+            properties:
+              CleanupError:
+                properties:
+                  details:
+                    nullable: true
+                    properties:
+                      envUpdates:
+                        additionalProperties:
+                          properties:
+                            original_name:
+                              type: string
+                            output_name:
+                              type: string
+                          required:
+                          - original_name
+                          - output_name
+                          type: object
+                        description: Env var name -> old and new queue names.
+                        type: object
+                      queueNames:
+                        additionalProperties:
+                          properties:
+                            original_name:
+                              type: string
+                            output_name:
+                              type: string
+                          required:
+                          - original_name
+                          - output_name
+                          type: object
+                        description: Queue ID -> old and new queue names.
+                        type: object
+                    required:
+                    - envUpdates
+                    - queueNames
+                    type: object
+                  error:
+                    description: Representation of Sqs errors for the status of SQS session resources.
+                    properties:
+                      reason:
+                        description: Human-readable explanation of what went wrong.
+                        type: string
+                      statusCode:
+                        description: HTTP code for operator response.
+                        format: uint16
+                        minimum: 0.0
+                        type: integer
+                    required:
+                    - reason
+                    - statusCode
+                    type: object
+                required:
+                - error
+                type: object
+              Ready:
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
+                type: object
+              RegisteringFilters:
+                description: SQS operator sets this status before it starts registering filters, so that if anything fails during the registration of filters, we have all the queues we need to delete on cleanup.
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        original_name:
+                          type: string
+                        output_name:
+                          type: string
+                      required:
+                      - original_name
+                      - output_name
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
+                type: object
+              StartError:
+                description: Representation of Sqs errors for the status of SQS session resources.
+                properties:
+                  reason:
+                    description: Human-readable explanation of what went wrong.
+                    type: string
+                  statusCode:
+                    description: HTTP code for operator response.
+                    format: uint16
+                    minimum: 0.0
+                    type: integer
+                required:
+                - reason
+                - statusCode
+                type: object
+              Starting:
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
+            type: object
+        required:
+        - spec
+        title: MirrordSqsSession
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{ end }}

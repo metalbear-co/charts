@@ -27,6 +27,21 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.operator.sqsSplitting }}
+# For patching target workloads to use different queue.
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - patch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  verbs:
+  - patch
+{{- end }}
 - apiGroups:
   - ""
   - batch
@@ -76,6 +91,38 @@ rules:
   verbs:
   - list
   - get
+{{- if .Values.operator.sqsSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordworkloadqueueregistries
+  verbs:
+  - list
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordworkloadqueueregistries/status
+  verbs:
+  - update
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions/status
+  verbs:
+  - update
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
