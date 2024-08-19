@@ -40,7 +40,7 @@ operator:
     cpu: 200m
     memory: 200Mi
 
-  ## Allow to specify custom tolerations for operator deployment
+  ## Allow to specify tolerations for operator deployment
   # tolerations:
   #   - key: "key1"
   #     operator: "Equal"
