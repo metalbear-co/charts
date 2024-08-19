@@ -37,6 +37,12 @@ spec:
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
           value: "443"
+      {{- if .Values.operator.tolerations }}
+      tolerations:
+        {{- range .Values.operator.tolerations }}
+        - {{ toYaml . }}
+        {{- end }}
+      {{- end }}
       containers:
       - env:
         - name: RUST_LOG
