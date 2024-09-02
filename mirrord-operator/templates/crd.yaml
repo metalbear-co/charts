@@ -121,7 +121,7 @@ spec:
                     type: string
                   name:
                     type: string
-                  workload_type:
+                  workloadType:
                     description: A workload that is a consumer of a queue that is being split.
                     enum:
                     - Deployment
@@ -129,7 +129,7 @@ spec:
                     type: string
                 required:
                 - name
-                - workload_type
+                - workloadType
                 type: object
               queues:
                 additionalProperties:
@@ -172,40 +172,40 @@ spec:
                 description: Optional even though it's currently the only field, because in the future there will be fields for other queue types.
                 nullable: true
                 properties:
-                  direct_env_vars:
+                  directEnvVars:
                     additionalProperties:
                       type: string
                     description: Names of env vars that contain the queue name directly in the pod template, without config map refs, mapped to their queue id.
                     type: object
-                  env_updates:
+                  envUpdates:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     type: object
-                  queue_names:
+                  queueNames:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     description: For each queue_id, the actual queue name as retrieved from the target's pod spec or config map, together with the name of its temporary output queue.
                     type: object
                 required:
-                - direct_env_vars
-                - env_updates
-                - queue_names
+                - directEnvVars
+                - envUpdates
+                - queueNames
                 type: object
             type: object
         required:
@@ -249,7 +249,7 @@ spec:
                     type: string
                   name:
                     type: string
-                  workload_type:
+                  workloadType:
                     description: A workload that is a consumer of a queue that is being split.
                     enum:
                     - Deployment
@@ -257,7 +257,7 @@ spec:
                     type: string
                 required:
                 - name
-                - workload_type
+                - workloadType
                 type: object
               queueFilters:
                 additionalProperties:
@@ -296,26 +296,26 @@ spec:
                       envUpdates:
                         additionalProperties:
                           properties:
-                            original_name:
+                            originalName:
                               type: string
-                            output_name:
+                            outputName:
                               type: string
                           required:
-                          - original_name
-                          - output_name
+                          - originalName
+                          - outputName
                           type: object
                         description: Env var name -> old and new queue names.
                         type: object
                       queueNames:
                         additionalProperties:
                           properties:
-                            original_name:
+                            originalName:
                               type: string
-                            output_name:
+                            outputName:
                               type: string
                           required:
-                          - original_name
-                          - output_name
+                          - originalName
+                          - outputName
                           type: object
                         description: Queue ID -> old and new queue names.
                         type: object
@@ -346,26 +346,26 @@ spec:
                   envUpdates:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     description: Env var name -> old and new queue names.
                     type: object
                   queueNames:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     description: Queue ID -> old and new queue names.
                     type: object
@@ -379,26 +379,26 @@ spec:
                   envUpdates:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     description: Env var name -> old and new queue names.
                     type: object
                   queueNames:
                     additionalProperties:
                       properties:
-                        original_name:
+                        originalName:
                           type: string
-                        output_name:
+                        outputName:
                           type: string
                       required:
-                      - original_name
-                      - output_name
+                      - originalName
+                      - outputName
                       type: object
                     description: Queue ID -> old and new queue names.
                     type: object
