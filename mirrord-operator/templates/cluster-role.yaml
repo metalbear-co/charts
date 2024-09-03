@@ -67,23 +67,11 @@ rules:
   verbs:
   - patch
 - apiGroups:
-  - ''
-  - authentication.k8s.io
+  - authorization.k8s.io
   resources:
-  - groups
-  - users
-  - userextras/accesskeyid
-  - userextras/arn
-  - userextras/canonicalarn
-  - userextras/sessionname
-  - userextras/iam.gke.io/user-assertion
-  - userextras/user-assertion.cloud.google.com
-  - userextras/principalid
-  - userextras/oid
-  - userextras/username
-  - userextras/licensekey
+  - subjectaccessreviews
   verbs:
-  - impersonate
+  - create
 - apiGroups:
   - policies.mirrord.metalbear.co
   resources:
