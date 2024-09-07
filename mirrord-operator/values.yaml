@@ -47,6 +47,11 @@ operator:
   #     value: "value1"
   #     effect: "NoSchedule"
 
+  # Port for operator to listen on. If you can't listen on 443 due to privilege issues
+  # you can change this to 3000/8443 or whatever you want - just make sure that nodes
+  # can communicate on that port if it doesn't work then.
+  port: 443
+
 agent:
   ## example
   ##
