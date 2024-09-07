@@ -11,6 +11,6 @@ spec:
   service:
     name: {{ .Values.service.name }}
     namespace: {{ .Values.namespace }}
-    port: 443
+    port: {{ .Values.operator.port }}
   version: v1
   versionPriority: 15

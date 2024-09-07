@@ -9,7 +9,7 @@ metadata:
 spec:
   ports:
   - name: https
-    port: 443
+    port: {{ .Values.operator.port }}
     targetPort: https
   selector:
     app: mirrord-operator
