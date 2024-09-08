@@ -10,4 +10,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: mirrord-operator
-  namespace: mirrord
+  namespace: {{ .Values.namespace }}
