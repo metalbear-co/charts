@@ -42,9 +42,7 @@ spec:
       {{- end }}
       {{- if .Values.operator.tolerations }}
       tolerations:
-        {{- range .Values.operator.tolerations }}
-        - {{ toYaml . }}
-        {{- end }}
+        {{- toYaml .Values.operator.tolerations | nindent 8 }}
       {{- end }}
       containers:
       - env:
