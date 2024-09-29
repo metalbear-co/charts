@@ -40,3 +40,5 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 1
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
+      - name: check different values yaml files
+        run: ./test_values_files.sh
