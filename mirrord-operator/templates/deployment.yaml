@@ -44,6 +44,14 @@ spec:
       tolerations:
         {{- toYaml .Values.operator.tolerations | nindent 8 }}
       {{- end }}
+      {{- with .Values.operator.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.affinity }}
+      affinity:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
       containers:
       - env:
         - name: RUST_LOG
