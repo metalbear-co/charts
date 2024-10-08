@@ -35,6 +35,9 @@ operator:
   ## Controls how long (in seconds) a session is allowed to live for.
   # maxSessionTimeSeconds: 3600
 
+  ## Controls how long (in milliseconds) a session can live when there are no pods ready to be targeted.
+  # noPodTargetsSessionTimeoutMillis: 6000
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m

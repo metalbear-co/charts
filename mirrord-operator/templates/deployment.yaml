@@ -88,6 +88,10 @@ spec:
         - name: OPERATOR_AGENT_CONNECTION_TLS
           value: "true"
         {{- end }}
+        {{- if .Values.operator.operator.noPodTargetsSessionTimeoutMillis }}
+        - name: OPERATOR_NO_POD_TARGETS_SESSION_TIMEOUT_MILLIS
+          value: {{ .Values.operator.operator.noPodTargetsSessionTimeoutMillis | quote }}
+        {{- end }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
