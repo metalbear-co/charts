@@ -20,7 +20,7 @@ operator:
   jsonLog: false
   # Has to be set to `true` in order to use the SQS queue splitting feature.
   sqsSplitting: false
-  # Has to be set to `false` in order to use the Kafka queue splitting feature.
+  # Has to be set to `true` in order to use the Kafka queue splitting feature.
   kafkaSplitting: false
   # imagePullSecrets:
   #   - name: value
