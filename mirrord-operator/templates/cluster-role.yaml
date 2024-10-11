@@ -27,8 +27,8 @@ rules:
   - get
   - list
   - watch
-{{- if .Values.operator.sqsSplitting }}
-# For patching target workloads to use different queue.
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
+# For patching target workloads to use different queue/topic.
 - apiGroups:
   - apps
   resources:
@@ -110,6 +110,34 @@ rules:
   - mirrordsqssessions/status
   verbs:
   - update
+{{- end }}
+{{- if .Values.operator.kafkaSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkaephemeraltopics
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkaclientconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkatopicsconsumers
+  verbs:
+  - get
+  - list
+  - watch
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
