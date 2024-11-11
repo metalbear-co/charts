@@ -22,6 +22,9 @@ operator:
   sqsSplitting: false
   # Has to be set to `true` in order to use the Kafka queue splitting feature.
   kafkaSplitting: false
+  # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
+  applicationPauseAutoSync: false
+
   # imagePullSecrets:
   #   - name: value
   
