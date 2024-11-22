@@ -156,8 +156,8 @@ metadata:
   name: mirrord-operator-user
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
-    {{- if index .Values.clusterRole "mirrord-operator-user" }}
-          {{- toYaml (index .Values.clusterRole "mirrord-operator-user") | nindent 4 }}
+    {{- if index .Values.clusterRole "mirrord-operator-user" "labels" }}
+          {{- toYaml (index .Values.clusterRole "mirrord-operator-user" "labels") | nindent 4 }}
     {{- end }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
@@ -169,8 +169,8 @@ metadata:
   name: mirrord-operator-user-basic
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
-    {{- if index .Values.clusterRole "mirrord-operator-user-basic" }}
-          {{- toYaml (index .Values.clusterRole "mirrord-operator-user-basic") | nindent 4 }}
+    {{- if index .Values.clusterRole "mirrord-operator-user-basic" "labels" }}
+          {{- toYaml (index .Values.clusterRole "mirrord-operator-user-basic" "labels") | nindent 4 }}
     {{- end }}
 rules:
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
