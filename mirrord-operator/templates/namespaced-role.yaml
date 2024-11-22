@@ -6,6 +6,9 @@ metadata:
   namespace: {{.}}
   labels:
     {{- include "mirrord-operator.labels" $ | nindent 4 }}
+    {{- if .Values.operator.podLabels }}
+      {{- toYaml .Values.role.mirrord-operator-user | nindent 4 }}
+    {{- end }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
 ---

@@ -13,6 +13,20 @@ createNamespace: true
 ## and it can be bound via rolebinding (That you need to create yourself).
 roleNamespaces: []
 
+role:
+  # Note there's a cluster role version of it below.
+  mirrord-operator-user:
+    # add labels to the role, for i.e aggregate RBAC
+    labels: {}
+
+clusterRole:
+  mirrord-operator-user-basic:
+    # add labels to the role, for i.e aggregate RBAC
+    labels: {}
+  mirrord-operator-user:
+    # add labels to the role, for i.e aggregate RBAC
+    labels: {}
+
 operator:
   image: ghcr.io/metalbear-co/operator
   podAnnotations: {}
