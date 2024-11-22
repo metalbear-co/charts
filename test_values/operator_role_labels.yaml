@@ -1,0 +1,25 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+role:
+  # Note there's a cluster role version of it below.
+  mirrord-operator-user:
+    # add labels to the role, for i.e aggregate RBAC
+    labels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"
+
+clusterRole:
+  mirrord-operator-user-basic:
+    # add labels to the role, for i.e aggregate RBAC
+    labels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  mirrord-operator-user:
+    # add labels to the role, for i.e aggregate RBAC
+    labels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"
