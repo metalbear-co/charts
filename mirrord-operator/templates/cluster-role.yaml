@@ -27,12 +27,12 @@ rules:
   - get
   - list
   - watch
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
-# For patching target workloads to use different queue/topic.
+# For patching target workloads: scale down for copy target and env injection for queue splitting.
 - apiGroups:
   - apps
   resources:
   - deployments
+  - statefulsets
   verbs:
   - patch
 - apiGroups:
@@ -41,7 +41,6 @@ rules:
   - rollouts
   verbs:
   - patch
-{{- end }}
 - apiGroups:
   - ""
   - batch
