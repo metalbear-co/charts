@@ -6,8 +6,8 @@ metadata:
   namespace: {{.}}
   labels:
     {{- include "mirrord-operator.labels" $ | nindent 4 }}
-    {{- if index .Values.role "mirrord-operator-user" "labels" }}
-          {{- toYaml (index .Values.role "mirrord-operator-user" "labels") | nindent 4 }}
+    {{- if index $.Values.role "mirrord-operator-user" "labels" }}
+          {{- toYaml (index $.Values.role "mirrord-operator-user" "labels") | nindent 4 }}
     {{- end }}
 rules:
 {{- include "mirrord-operator.rules" . | nindent 0 }}
