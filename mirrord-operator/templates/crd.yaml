@@ -28,6 +28,7 @@ spec:
                   enum:
                   - steal
                   - steal-without-filter
+                  - mirror
                   type: string
                 type: array
               selector:
