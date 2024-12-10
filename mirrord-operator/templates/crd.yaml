@@ -460,6 +460,10 @@ spec:
       jsonPath: .spec.parent
       name: PARENT
       type: string
+    - description: Name of Secret to load from.
+      jsonPath: .spec.loadFromSecret
+      name: SECRET
+      type: string
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -468,6 +472,15 @@ spec:
           spec:
             description: Configuration to use when creating operator's Kafka client. Resources of this kind should live in the operator's namespace.
             properties:
+              loadFromSecret:
+                description: |-
+                  Namespace and name of a `Secret` to use as another source of properties.
+
+                  The secret is fetched and entries in its `.data` field are resolved to properties. Properties resolved this way override properties from the parent configuration. Properties defined inline in this object override properties resolved from the secret.
+
+                  Example value: `default/my-secret`
+                nullable: true
+                type: string
               parent:
                 description: Name of parent resource to use as base when resolving final configuration.
                 nullable: true
