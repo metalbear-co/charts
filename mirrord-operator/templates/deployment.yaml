@@ -156,6 +156,9 @@ spec:
         - mountPath: /license
           name: license-volume
         {{- end }}
+        # needed for the operator to download and use CA
+        - mountPath: /tmp
+          name: tmp
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
       - name: mirrord-config-volume
@@ -176,3 +179,5 @@ spec:
         secret:
           secretName: {{ .Values.license.pemRef }}
       {{- end }}
+      - emptyDir: {}
+        name: tmp
