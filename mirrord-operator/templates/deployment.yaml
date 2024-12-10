@@ -36,6 +36,9 @@ spec:
       {{/* Allow low port using ip_unprivileged_port_start */}}
       {{- if lt (int .Values.operator.port) 1024 -}}
       securityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1000
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
           value: {{ .Values.operator.port | quote}}
