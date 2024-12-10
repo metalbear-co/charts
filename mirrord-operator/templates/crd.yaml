@@ -84,6 +84,96 @@ spec:
     served: true
     storage: true
     subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclusterpolicies.policies.mirrord.metalbear.co
+spec:
+  group: policies.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordClusterPolicy
+    plural: mirrordclusterpolicies
+    shortNames: []
+    singular: mirrordclusterpolicy
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterPolicySpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Custom cluster-wide resource for policies that limit what mirrord features users can use.
+
+              This policy applies to resources across all namespaces in the cluster.
+            properties:
+              block:
+                description: List of features and operations blocked by this policy.
+                items:
+                  description: Features and operations that can be blocked by `mirrordpolicies` and `mirrordclusterpolicies`.
+                  enum:
+                  - steal
+                  - steal-without-filter
+                  - mirror
+                  type: string
+                type: array
+              selector:
+                description: If specified in a policy, the policy will only apply to targets with labels that match all of the selector's rules.
+                nullable: true
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                    items:
+                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies to.
+                          type: string
+                        operator:
+                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          enum:
+                          - In
+                          - NotIn
+                          - Exists
+                          - DoesNotExist
+                          type: string
+                        values:
+                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    nullable: true
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    nullable: true
+                    type: object
+                type: object
+              targetPath:
+                description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
+                nullable: true
+                type: string
+            required:
+            - block
+            type: object
+        required:
+        - spec
+        title: MirrordClusterPolicy
+        type: object
+    served: true
+    storage: true
+    subresources: {}
 {{ if .Values.operator.sqsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
