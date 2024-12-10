@@ -20,7 +20,7 @@ metadata:
   namespace: mirrord
 rules:
 - apiGroups:
-  - queues.mirrord.metalbear.co
+  - ""
   resources:
   - secrets
   verbs:
