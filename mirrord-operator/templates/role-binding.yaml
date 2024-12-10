@@ -11,3 +11,18 @@ subjects:
 - kind: ServiceAccount
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mirrord-operator
+  namespace: mirrord
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mirrord-operator
+subjects:
+- apiGroup: ''
+  kind: ServiceAccount
+  name: mirrord-operator
+  namespace: mirrord
