@@ -33,16 +33,15 @@ spec:
         - {{ toYaml . }}
         {{- end }}
       {{- end }}
-      {{/* Allow low port using ip_unprivileged_port_start */}}
-      {{- if lt (int .Values.operator.port) 1024 -}}
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 1000
+        {{/* Allow low port using ip_unprivileged_port_start */}}
+        {{- if lt (int .Values.operator.port) 1024 -}}
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
           value: {{ .Values.operator.port | quote}}
-      {{- end }}
+        {{- end }}
       {{- if .Values.operator.tolerations }}
       tolerations:
         {{- toYaml .Values.operator.tolerations | nindent 8 }}
@@ -145,6 +144,7 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
+          readOnlyRootFilesystem: true
         volumeMounts:
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
@@ -156,6 +156,9 @@ spec:
         - mountPath: /license
           name: license-volume
         {{- end }}
+        # needed for the operator to download and use CA
+        - mountPath: /tmp
+          name: tmp
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
       - name: mirrord-config-volume
@@ -176,3 +179,5 @@ spec:
         secret:
           secretName: {{ .Values.license.pemRef }}
       {{- end }}
+      - emptyDir: {}
+        name: tmp
