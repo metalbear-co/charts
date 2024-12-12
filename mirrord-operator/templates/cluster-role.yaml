@@ -75,6 +75,7 @@ rules:
   - policies.mirrord.metalbear.co
   resources:
   - mirrordpolicies
+  - mirrordclusterpolicies
   verbs:
   - list
   - get
