@@ -38,6 +38,8 @@ operator:
   kafkaSplitting: false
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
+  # Enable prometheus metrics endpoint
+  metrics: false
 
   # imagePullSecrets:
   #   - name: value
