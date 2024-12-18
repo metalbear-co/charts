@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # for each file in the test_values directory
 # run helm install && helm uninstall
 for file in test_values/*.yaml; do
