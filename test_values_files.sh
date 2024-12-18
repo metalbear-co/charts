@@ -5,4 +5,5 @@
 for file in test_values/*.yaml; do
   echo "Running test for $file"
   helm install --dry-run=server --debug -f $file mirrord-operator ./mirrord-operator
+  helm uninstall mirrord-operator
 done
