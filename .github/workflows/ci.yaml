@@ -33,6 +33,8 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
+      - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
+        run: kubectl create namespace namespace1 && kubectl create namespace namespace2
       - name: check installing the chart with various `values` yamls
         run: ./test_values_files.sh
       - name: install the chart
