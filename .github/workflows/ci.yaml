@@ -50,12 +50,14 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
-      - name: install the chart
+      - name: prepare operator license
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
+        run: echo $MIRRORD_OPERATOR_LICENSE | base64 --decode > license.pem
+      - name: install the chart
         run: |
           helm install mirrord-operator \
-            --set license.file.data."license\\.pem"="$MIRRORD_OPERATOR_LICENSE" \
+            --set license.file.data."license\\.pem"="${cat license.pem}" \
             --set operator.disableTelemetries=true \
             --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" \
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
