@@ -63,3 +63,6 @@ jobs:
         run: curl -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
+      - name: get operator logs
+        if: failure()
+        run: kubectl logs -n mirrord deployment/mirrord-operator
