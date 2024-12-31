@@ -55,7 +55,7 @@ jobs:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
         run: |
           helm install mirrord-operator \
-            --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE \
+            --set license.file.data."license\\.pem"="$MIRRORD_OPERATOR_LICENSE" \
             --set operator.disableTelemetries=true \
             --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" \
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
