@@ -15,7 +15,7 @@ on:
 jobs:
   sanity:
     runs-on: ubuntu-latest
-    name: helm-sanity debug
+    name: sanity render chart
     steps:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.1.0
@@ -23,7 +23,7 @@ jobs:
 
   operator-install:
     runs-on: ubuntu-latest
-    name: helm install & check install
+    name: install chart
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
@@ -37,6 +37,19 @@ jobs:
         run: kubectl create namespace namespace1 && kubectl create namespace namespace2
       - name: check installing the chart with various `values` yamls
         run: ./test_values_files.sh
+
+  operator-install-and-use:
+    runs-on: ubuntu-latest
+    name: install chart and run session
+    steps:
+      - uses: actions/checkout@v4
+      - name: start minikube
+        uses: medyagh/setup-minikube@master
+        with:
+          container-runtime: ${{ inputs.container-runtime }}
+          cpus: 'max'
+          memory: '4gb'
+      - uses: azure/setup-helm@v4.1.0
       - name: install the chart
         run: helm install mirrord-operator --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE --set operator.disableTelemetries=true --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" --set operator.podLabels."label\.metalbear\.co/name"="operator" --set operator.podLabels."label\.metalbear\.co/version"="latest" ./mirrord-operator --wait
       - name: wait for the operator status
@@ -46,3 +59,7 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 1
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
+      - name: download latest mirrord binary
+        run: curl -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
+      - name: run dummy mirrord session
+        run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
