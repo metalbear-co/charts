@@ -51,6 +51,8 @@ jobs:
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
       - name: install the chart
+        env:
+          MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
         run: |
           helm install mirrord-operator \
             --set license.file.data."license\\.pem"=$MIRRORD_OPERATOR_LICENSE \
