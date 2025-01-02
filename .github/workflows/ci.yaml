@@ -54,6 +54,8 @@ jobs:
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
         run: echo $MIRRORD_OPERATOR_LICENSE | base64 --decode > license.pem
+      - name: print license file hash
+        run: cat license.pem | sha256sum
       - name: install the chart
         run: |
           helm install mirrord-operator \
