@@ -102,6 +102,8 @@ spec:
         - name: OPERATOR_NO_POD_TARGETS_SESSION_TIMEOUT_MILLIS
           value: {{ .Values.operator.noPodTargetsSessionTimeoutMillis | quote }}
         {{- end }}
+        - name: OPERATOR_COPY_TARGET_USE_AGENT_IMAGE
+          value: {{ .Values.operator.copyTarget.useAgentImage | ternary "true" "false" | quote }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}

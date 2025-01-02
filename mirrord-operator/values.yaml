@@ -87,6 +87,13 @@ operator:
   # can communicate on that port if it doesn't work then.
   port: 443
 
+
+  copyTarget:
+    # by default, the operator will create a dummy container using the agent image
+    # as it is guaranteed to have a sleep binary. If you want the operator
+    # to use the target's image, set this value to false and make sure it has sleep binary
+    useAgentImage: true
+
 agent:
   ## example
   ##
