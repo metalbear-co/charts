@@ -90,10 +90,6 @@ spec:
         - name: OPERATOR_TLS_KEY_PATH
           value: /tls/tls.key
         {{- end }}
-        {{- if or .Values.license.file.data .Values.license.pemRef }}
-        - name: OPERATOR_LICENSE_PATH
-          value: /license/license.pem
-        {{- else if .Values.license.key }}
         {{- if .Values.agent.tls }}
         - name: OPERATOR_AGENT_CONNECTION_TLS
           value: "true"
@@ -104,6 +100,10 @@ spec:
         {{- end }}
         - name: OPERATOR_COPY_TARGET_USE_AGENT_IMAGE
           value: {{ .Values.operator.copyTarget.useAgentImage | ternary "true" "false" | quote }}
+        {{- if or .Values.license.file.data .Values.license.pemRef }}
+        - name: OPERATOR_LICENSE_PATH
+          value: /license/license.pem
+        {{- else if .Values.license.key }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
