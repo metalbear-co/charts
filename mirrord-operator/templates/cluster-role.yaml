@@ -23,6 +23,7 @@ rules:
   - cronjobs
   - statefulsets
   - statefulsets/scale
+  - services
   verbs:
   - get
   - list
