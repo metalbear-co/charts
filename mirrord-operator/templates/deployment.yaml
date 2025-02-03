@@ -94,6 +94,10 @@ spec:
         - name: OPERATOR_AGENT_CONNECTION_TLS
           value: "true"
         {{- end }}
+        {{- if .Values.agent.port }}
+        - name: OPERATOR_AGENT_PORT
+          value: {{ .Values.agent.port | quote }}
+        {{- end }}
         {{- if .Values.operator.noPodTargetsSessionTimeoutMillis }}
         - name: OPERATOR_NO_POD_TARGETS_SESSION_TIMEOUT_MILLIS
           value: {{ .Values.operator.noPodTargetsSessionTimeoutMillis | quote }}
