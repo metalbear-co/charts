@@ -86,6 +86,40 @@ spec:
                       type: string
                     type: array
                 type: object
+              network:
+                default:
+                  incoming:
+                    httpFilter:
+                      headerFilter: null
+                description: Fine grained control over network features like specifying required HTTP filters.
+                properties:
+                  incoming:
+                    default:
+                      httpFilter:
+                        headerFilter: null
+                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    properties:
+                      httpFilter:
+                        default:
+                          headerFilter: null
+                        description: Http filter policy that allows to specify requirements for the HTTP filter used in a session.
+                        properties:
+                          headerFilter:
+                            description: |-
+                              Require the user's header filter to match this regex, if such filter is provided.
+
+                              This auto enables `steal-without-filter` policy block to require that the user specifies a header filter for the network steal feature.
+
+                              # Composed filters
+
+                              When the user requests an `all_of` HTTP filter, at least one of the nested filters must be a header filter that matches this regex. At least one nested filter is required.
+
+                              When the user requests an `any_of` HTTP filter, all nested header filters must match this regex. At least one nested header filter is required.
+                            nullable: true
+                            type: string
+                        type: object
+                    type: object
+                type: object
               selector:
                 description: If specified in a policy, the policy will only apply to targets with labels that match all of the selector's rules.
                 nullable: true
@@ -227,6 +261,40 @@ spec:
                     items:
                       type: string
                     type: array
+                type: object
+              network:
+                default:
+                  incoming:
+                    httpFilter:
+                      headerFilter: null
+                description: Network operations policy that partialy mimics the mirrord network config.
+                properties:
+                  incoming:
+                    default:
+                      httpFilter:
+                        headerFilter: null
+                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    properties:
+                      httpFilter:
+                        default:
+                          headerFilter: null
+                        description: Http filter policy that allows to specify requirements for the HTTP filter used in a session.
+                        properties:
+                          headerFilter:
+                            description: |-
+                              Require the user's header filter to match this regex, if such filter is provided.
+
+                              This auto enables `steal-without-filter` policy block to require that the user specifies a header filter for the network steal feature.
+
+                              # Composed filters
+
+                              When the user requests an `all_of` HTTP filter, at least one of the nested filters must be a header filter that matches this regex. At least one nested filter is required.
+
+                              When the user requests an `any_of` HTTP filter, all nested header filters must match this regex. At least one nested header filter is required.
+                            nullable: true
+                            type: string
+                        type: object
+                    type: object
                 type: object
               selector:
                 description: If specified in a policy, the policy will only apply to targets with labels that match all of the selector's rules.
