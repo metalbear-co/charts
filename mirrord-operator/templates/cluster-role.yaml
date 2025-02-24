@@ -155,8 +155,8 @@ rules:
 - apiGroups:
   - mirrord.metalbear.co
   resources:
-  - MirrordTlsStealConfig
-  - MirrordClusterTlsStealConfig
+  - mirrordtlsstealconfigs
+  - mirrordclustertlsstealconfigs
   verbs:
   - list
   - get
