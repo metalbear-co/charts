@@ -990,3 +990,453 @@ spec:
     storage: true
     subresources: {}
 {{ end }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordtlsstealconfigs.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordTlsStealConfig
+    plural: mirrordtlsstealconfigs
+    shortNames: []
+    singular: mirrordtlsstealconfig
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordTlsStealConfigSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected targets.
+
+              Namespaced.
+            properties:
+              ports:
+                description: Configuration for stealing TLS traffic, separate for each port.
+                items:
+                  description: Configures TLS setup for stealing traffic from some port.
+                  properties:
+                    agentAsClient:
+                      description: |-
+                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS client.
+
+                        mirrord-agent acts as a TLS client when passing unmatched requests to their original destination.
+                      properties:
+                        authentication:
+                          description: |-
+                            Configures how mirrord-agent authenticates itself to the original destination server.
+
+                            Optional. If not present, mirrord-agent will make connections anonymously.
+                          nullable: true
+                          properties:
+                            certPem:
+                              description: |-
+                                Path to a PEM file containing a certificate chain to use.
+
+                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                              type: string
+                            keyPem:
+                              description: |-
+                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+
+                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                              type: string
+                          required:
+                          - certPem
+                          - keyPem
+                          type: object
+                        verification:
+                          description: Configures how mirrord-agent verifies the server's certificate.
+                          properties:
+                            acceptAnyCert:
+                              description: |-
+                                Whether to accept any certificate, regardless of its validity and who signed it.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            trustRoots:
+                              description: |-
+                                Paths to PEM files and directories with PEM files containing allowed root certificates.
+
+                                Directories are not traversed recursively.
+
+                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+
+                                Optional. Defaults to an empty list.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                      required:
+                      - verification
+                      type: object
+                    agentAsServer:
+                      description: |-
+                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS server.
+
+                        mirrord-agent acts as a TLS server when accepting stolen connections.
+                      properties:
+                        alpnProtocols:
+                          description: |-
+                            ALPN protocols supported by the server, in order of preference.
+
+                            If empty, ALPN is disabled.
+
+                            Optional. Defaults to en ampty list.
+                          items:
+                            type: string
+                          type: array
+                        authentication:
+                          description: Configures how the server authenticates itself to the clients.
+                          properties:
+                            certPem:
+                              description: |-
+                                Path to a PEM file containing a certificate chain to use.
+
+                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                              type: string
+                            keyPem:
+                              description: |-
+                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+
+                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                              type: string
+                          required:
+                          - certPem
+                          - keyPem
+                          type: object
+                        verification:
+                          description: |-
+                            Configures how mirrord-agent's server verifies the clients.
+
+                            Optional. If not present, the server will not offer client authentication at all.
+                          nullable: true
+                          properties:
+                            acceptAnyCert:
+                              description: |-
+                                Whether to accept any certificate, regardless of its validity and who signed it.
+
+                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            allowAnonymous:
+                              description: |-
+                                Whether anonymous clients should be accepted.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            trustRoots:
+                              description: |-
+                                Paths to PEM files and directories with PEM files containing allowed root certificates.
+
+                                Directories are not traversed recursively.
+
+                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+
+                                Optional. Defaults to an empty list.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                      required:
+                      - authentication
+                      type: object
+                    port:
+                      description: Remote port to which this configuration applies.
+                      format: uint16
+                      minimum: 0.0
+                      type: integer
+                  required:
+                  - agentAsClient
+                  - agentAsServer
+                  - port
+                  type: object
+                type: array
+              selector:
+                description: If this selector is provided, this configuration will only apply to targets with labels that match all of the selector's rules.
+                nullable: true
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                    items:
+                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies to.
+                          type: string
+                        operator:
+                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          enum:
+                          - In
+                          - NotIn
+                          - Exists
+                          - DoesNotExist
+                          type: string
+                        values:
+                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    nullable: true
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    nullable: true
+                    type: object
+                type: object
+              targetPath:
+                description: |-
+                  Specify the targets for which this configuration applies, in the `pod/my-pod`, `deploy/my-deploy/container/my-container` notation.
+
+                  Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this configuration does not depend on the target's path.
+                nullable: true
+                type: string
+            required:
+            - ports
+            type: object
+        required:
+        - spec
+        title: MirrordTlsStealConfig
+        type: object
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclustertlsstealconfigs.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordClusterTlsStealConfig
+    plural: mirrordclustertlsstealconfigs
+    shortNames: []
+    singular: mirrordclustertlsstealconfig
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterTlsStealConfigSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected targets.
+
+              Clusterwide.
+            properties:
+              ports:
+                description: Configuration for stealing TLS traffic, separate for each port.
+                items:
+                  description: Configures TLS setup for stealing traffic from some port.
+                  properties:
+                    agentAsClient:
+                      description: |-
+                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS client.
+
+                        mirrord-agent acts as a TLS client when passing unmatched requests to their original destination.
+                      properties:
+                        authentication:
+                          description: |-
+                            Configures how mirrord-agent authenticates itself to the original destination server.
+
+                            Optional. If not present, mirrord-agent will make connections anonymously.
+                          nullable: true
+                          properties:
+                            certPem:
+                              description: |-
+                                Path to a PEM file containing a certificate chain to use.
+
+                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                              type: string
+                            keyPem:
+                              description: |-
+                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+
+                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                              type: string
+                          required:
+                          - certPem
+                          - keyPem
+                          type: object
+                        verification:
+                          description: Configures how mirrord-agent verifies the server's certificate.
+                          properties:
+                            acceptAnyCert:
+                              description: |-
+                                Whether to accept any certificate, regardless of its validity and who signed it.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            trustRoots:
+                              description: |-
+                                Paths to PEM files and directories with PEM files containing allowed root certificates.
+
+                                Directories are not traversed recursively.
+
+                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+
+                                Optional. Defaults to an empty list.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                      required:
+                      - verification
+                      type: object
+                    agentAsServer:
+                      description: |-
+                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS server.
+
+                        mirrord-agent acts as a TLS server when accepting stolen connections.
+                      properties:
+                        alpnProtocols:
+                          description: |-
+                            ALPN protocols supported by the server, in order of preference.
+
+                            If empty, ALPN is disabled.
+
+                            Optional. Defaults to en ampty list.
+                          items:
+                            type: string
+                          type: array
+                        authentication:
+                          description: Configures how the server authenticates itself to the clients.
+                          properties:
+                            certPem:
+                              description: |-
+                                Path to a PEM file containing a certificate chain to use.
+
+                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                              type: string
+                            keyPem:
+                              description: |-
+                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+
+                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                              type: string
+                          required:
+                          - certPem
+                          - keyPem
+                          type: object
+                        verification:
+                          description: |-
+                            Configures how mirrord-agent's server verifies the clients.
+
+                            Optional. If not present, the server will not offer client authentication at all.
+                          nullable: true
+                          properties:
+                            acceptAnyCert:
+                              description: |-
+                                Whether to accept any certificate, regardless of its validity and who signed it.
+
+                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            allowAnonymous:
+                              description: |-
+                                Whether anonymous clients should be accepted.
+
+                                Optional. Defaults to `false`.
+                              type: boolean
+                            trustRoots:
+                              description: |-
+                                Paths to PEM files and directories with PEM files containing allowed root certificates.
+
+                                Directories are not traversed recursively.
+
+                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+
+                                Optional. Defaults to an empty list.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                      required:
+                      - authentication
+                      type: object
+                    port:
+                      description: Remote port to which this configuration applies.
+                      format: uint16
+                      minimum: 0.0
+                      type: integer
+                  required:
+                  - agentAsClient
+                  - agentAsServer
+                  - port
+                  type: object
+                type: array
+              selector:
+                description: If this selector is provided, this configuration will only apply to targets with labels that match all of the selector's rules.
+                nullable: true
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                    items:
+                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies to.
+                          type: string
+                        operator:
+                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          enum:
+                          - In
+                          - NotIn
+                          - Exists
+                          - DoesNotExist
+                          type: string
+                        values:
+                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    nullable: true
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    nullable: true
+                    type: object
+                type: object
+              targetPath:
+                description: |-
+                  Specify the targets for which this configuration applies, in the `pod/my-pod`, `deploy/my-deploy/container/my-container` notation.
+
+                  Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this configuration does not depend on the target's path.
+                nullable: true
+                type: string
+            required:
+            - ports
+            type: object
+        required:
+        - spec
+        title: MirrordClusterTlsStealConfig
+        type: object
+    served: true
+    storage: true
+    subresources: {}
