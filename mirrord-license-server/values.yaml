@@ -1,0 +1,81 @@
+# Default values for mirrord-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: mirrord
+
+## Whether we should create the namespace or not
+createNamespace: false
+
+server:
+  image: ghcr.io/metalbear-co/operator-license-server
+
+  podAnnotations: {}
+  podLabels: {}
+  jsonLog: false
+
+  # imagePullSecrets:
+  #   - name: value
+  
+  ## This should be enough for around 200~ concurrent sessions.
+  limits:
+    cpu: 200m
+    memory: 200Mi
+
+  ## Allow to specify tolerations for operator deployment
+  # tolerations:
+  #   - key: "key1"
+  #     operator: "Equal"
+  #     value: "value1"
+  #     effect: "NoSchedule"
+
+  # affinity:
+  #   podAntiAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       - topologyKey: kubernetes.io/hostname
+  #         labelSelector:
+  #           matchLabels:
+  #             k8s-app: mirrord
+
+  # nodeSelector:
+  #   kubernetes.io/os: linux
+
+  # Port for operator to listen on. If you can't listen on 443 due to privilege issues
+  # you can change this to 3000/8443 or whatever you want - just make sure that nodes
+  # can communicate on that port if it doesn't work then.
+  port: 443
+
+license:
+  key: ""
+  file:
+    secret: mirrord-operator-license
+    # data:
+    #   license.pem:
+
+service:
+  name: mirrord-operator-license-server
+
+  # Allow overriding port of service
+  # port: 443
+
+sa:
+  name: mirrord-operator-license-server
+
+  ## aws role arn to annotate for eks iam assumption
+  # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
+
+tls:
+  secret: mirrord-operator-license-server-tls
+
+  # if certmanager is disabled and no tls.key and tls.crt is set,
+  # the operator will generate a self-signed certificate.
+  certManager:
+    enabled: false
+    createIssuer: true
+
+    issuer: mirrord-operator-issuer
+    certificate: mirrord-operator-license-server-tls
+
+  data:
+    tls.key: ""
+    tls.crt: ""

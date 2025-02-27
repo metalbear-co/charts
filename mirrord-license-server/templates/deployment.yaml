@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mirrord-license-server
+    component: license-server
+    app.kubernetes.io/component: license-server
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+  name: mirrord-license-server
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: mirrord-license-server
+  template:
+    metadata:
+      labels:
+        {{- include "mirrord-license-server.labels" . | nindent 8 }}
+        app: mirrord-license-server
+        component: license-server
+        app.kubernetes.io/component: license-server
+        {{- if .Values.server.podLabels }}
+          {{- toYaml .Values.server.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.server.podAnnotations }}
+          {{- toYaml .Values.server.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.server.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.server.imagePullSecrets }}
+        - {{ toYaml . }}
+        {{- end }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        {{/* Allow low port using ip_unprivileged_port_start */}}
+        {{- if lt (int .Values.server.port) 1024 -}}
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: {{ .Values.server.port | quote}}
+        {{- end }}
+      {{- if .Values.server.tolerations }}
+      tolerations:
+        {{- toYaml .Values.server.tolerations | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.affinity }}
+      affinity:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+
+      containers:
+      - env:
+        - name: RUST_LOG
+          value: debug
+        - name: ADDRESS
+          value: {{ printf "0.0.0.0:%d" (int .Values.server.port ) }}
+        - name: DATABASE_URL
+          value: sqlite:///opt/mirrord/data/license-server.db?mode=rwc
+        - name: JSON_LOG
+          value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        - name: TLS_CERT_PATH
+          value: /tls/tls.crt
+        - name: TLS_KEY_PATH
+          value: /tls/tls.key
+        {{- end }}
+        - name: LICENSE_KEY
+          value: {{ .Values.license.key }}
+        - name: LICENSE_PATH
+          value: /license/license.pem
+        image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.server.port }}
+            scheme: {{ or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled | ternary "HTTPS" "HTTP" | quote }}
+          periodSeconds: 5
+        name: license-server
+        ports:
+        - containerPort: {{ .Values.server.port }}
+          name: https
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.server.port }}
+            scheme: {{ or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled | ternary "HTTPS" "HTTP" | quote }}
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: {{.Values.server.limits.cpu}}
+            memory: {{.Values.server.limits.memory}}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        - mountPath: /tls
+          name: tls-volume
+        {{- end }}
+        - mountPath: /license
+          name: license-volume
+        # needed for the license-server create sqlite database
+        - mountPath: /opt/mirrord/data
+          name: data
+      serviceAccountName: {{ .Values.sa.name }}
+      volumes:
+      {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+      - name: tls-volume
+        secret:
+          secretName: {{ .Values.tls.secret }}
+      {{- end }}
+      - name: license-volume
+        secret:
+          secretName: {{ .Values.license.file.secret }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: mirrord-license-server-pvc
