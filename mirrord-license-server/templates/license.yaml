@@ -1,0 +1,14 @@
+{{- if .Values.license.file.data }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.license.file.secret }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+stringData:
+  {{- toYaml .Values.license.file.data | nindent 2 }}
+{{- end }}
+{{- /*
+don't create secret if using keyRef or pemRef
+*/}}

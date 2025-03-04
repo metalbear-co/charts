@@ -137,6 +137,8 @@ license:
   keyRef: ""
   pemRef: ""
 
+  # licenseServer: http://mirrord-operator-license-server.mirrord.svc/api/v1/license
+
 service:
   name: mirrord-operator
 
@@ -157,7 +159,8 @@ tls:
   # the operator will generate a self-signed certificate.
   certManager:
     enabled: false
-
+    createIssuer: true
+    
     issuer: mirrord-operator-issuer
     certificate: mirrord-operator-tls
 

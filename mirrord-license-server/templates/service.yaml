@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mirrord-license-server
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+  name: {{ .Values.service.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+  - name: https
+    port: {{ or .Values.service.port .Values.server.port }}
+    targetPort: https
+  selector:
+    app: mirrord-license-server
+  type: ClusterIP
