@@ -56,9 +56,10 @@ spec:
       {{- end }}
 
       containers:
-      - env:
+      - args: ["license-server"]
+        env:
         - name: RUST_LOG
-          value: debug
+          value: warn,operator=info
         - name: ADDRESS
           value: {{ printf "0.0.0.0:%d" (int .Values.server.port ) }}
         - name: DATABASE_URL

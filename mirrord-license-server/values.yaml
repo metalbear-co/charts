@@ -8,7 +8,7 @@ namespace: mirrord
 createNamespace: false
 
 server:
-  image: ghcr.io/metalbear-co/operator-license-server
+  image: ghcr.io/metalbear-co/operator
 
   podAnnotations: {}
   podLabels: {}
