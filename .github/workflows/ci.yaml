@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
-        uses: medyagh/setup-minikube@master
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
-        uses: medyagh/setup-minikube@master
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
