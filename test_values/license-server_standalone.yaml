@@ -1,7 +1,0 @@
-createNamespace: true
-
-license:
-  key: "foobar"
-  file:
-    data:
-      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
