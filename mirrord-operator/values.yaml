@@ -137,7 +137,7 @@ license:
   keyRef: ""
   pemRef: ""
 
-  # licenseServer: http://mirrord-operator-license-server.mirrord.svc/api/v1/license
+  # licenseServer: http://mirrord-operator-license-server.mirrord.svc
 
 service:
   name: mirrord-operator
