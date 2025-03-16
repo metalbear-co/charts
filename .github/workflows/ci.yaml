@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
-        uses: medyagh/setup-minikube@master
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
-        uses: medyagh/setup-minikube@master
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
@@ -67,7 +67,7 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
       - name: wait for the operator status
-        uses: nick-fields/retry@v3
+        uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
           timeout_seconds: 10
           max_attempts: 5
