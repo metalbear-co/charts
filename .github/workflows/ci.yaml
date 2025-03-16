@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.1.0
       - run: helm template mirrord-operator --set license.key=secret --debug
+      - run: helm template mirrord-license-server --set license.key=secret --set license.file.data.license\\.pem=secret --debug
 
   operator-install:
     runs-on: ubuntu-latest
@@ -36,7 +37,24 @@ jobs:
       - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
         run: kubectl create namespace namespace1 && kubectl create namespace namespace2
       - name: check installing the chart with various `values` yamls
-        run: ./test_values_files.sh
+        run: ./test_values_files.sh operator
+
+  licens-server-install:
+    runs-on: ubuntu-latest
+    name: install chart
+    steps:
+      - uses: actions/checkout@v4
+      - name: start minikube
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
+        with:
+          container-runtime: ${{ inputs.container-runtime }}
+          cpus: 'max'
+          memory: '4gb'
+      - uses: azure/setup-helm@v4.1.0
+      - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
+        run: kubectl create namespace namespace1 && kubectl create namespace namespace2
+      - name: check installing the chart with various `values` yamls
+        run: ./test_values_files.sh license-server
 
   operator-install-and-use:
     runs-on: ubuntu-latest
@@ -89,6 +107,7 @@ jobs:
       needs:
         [
           sanity,
+          licens-server-install,
           operator-install,
           operator-install-and-use,
         ]
