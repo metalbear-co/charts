@@ -67,7 +67,7 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
       - name: wait for the operator status
-        uses: nick-fields/retry@v3
+        uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
           timeout_seconds: 10
           max_attempts: 5
