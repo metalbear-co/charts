@@ -24,7 +24,7 @@ jobs:
 
   operator-install:
     runs-on: ubuntu-latest
-    name: install chart
+    name: install chart (operator)
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
@@ -41,7 +41,7 @@ jobs:
 
   licens-server-install:
     runs-on: ubuntu-latest
-    name: install chart
+    name: install chart (license-server)
     steps:
       - uses: actions/checkout@v4
       - name: start minikube
