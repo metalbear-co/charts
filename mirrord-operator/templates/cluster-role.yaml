@@ -25,7 +25,6 @@ rules:
   - statefulsets/scale
   - services
   - replicasets
-  - podtemplates
   verbs:
   - get
   - list
@@ -161,6 +160,14 @@ rules:
   verbs:
   - list
   - get
+- apiGroups:
+  - ''
+  resources:
+  - podtemplates
+  verbs:
+  - list
+  - get
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
