@@ -22,7 +22,7 @@ server:
     cpu: 200m
     memory: 200Mi
 
-  ## Allow to specify tolerations for operator deployment
+  ## Allow to specify tolerations for license-server deployment
   # tolerations:
   #   - key: "key1"
   #     operator: "Equal"
@@ -40,10 +40,8 @@ server:
   # nodeSelector:
   #   kubernetes.io/os: linux
 
-  # Port for operator to listen on. If you can't listen on 443 due to privilege issues
-  # you can change this to 3000/8443 or whatever you want - just make sure that nodes
-  # can communicate on that port if it doesn't work then.
-  port: 443
+  # Port for license-server to listen on.
+  port: 80
 
 license:
   key: ""
