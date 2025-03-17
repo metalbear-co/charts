@@ -54,6 +54,8 @@ license:
 service:
   name: mirrord-operator-license-server
 
+  type: ClusterIP
+  
   # Allow overriding port of service
   # port: 443
 
