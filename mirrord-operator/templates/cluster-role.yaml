@@ -25,6 +25,7 @@ rules:
   - statefulsets/scale
   - services
   - replicasets
+  - podtemplates
   verbs:
   - get
   - list
