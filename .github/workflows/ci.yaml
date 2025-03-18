@@ -96,8 +96,8 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
-      - name: sleep 10 seconds
-        run: sleep 10
+      - name: sleep for 60 seconds
+        run: sleep 60
       - name: run dummy mirrord session (with license-server)
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
       - name: get operator logs
