@@ -108,6 +108,9 @@ jobs:
       - name: get operator logs
         if: failure()
         run: kubectl logs -n mirrord deployment/mirrord-operator
+      - name: get license-server logs
+        if: failure()
+        run: kubectl logs -n mirrord deployment/mirrord-license-server
 
   ci-success:
       runs-on: ubuntu-latest
