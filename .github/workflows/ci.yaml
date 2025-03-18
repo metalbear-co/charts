@@ -112,7 +112,7 @@ jobs:
           helm install mirrord-operator \
             --set createNamespace=false \
             --set license.key="secret" \
-            --set license.file.data.secret="mirrord-operator-license-key" \
+            --set license.file.secret="mirrord-operator-license-key" \
             --set license.licenseServer="http://mirrord-operator-license-server.mirrord.svc" \
             --set operator.disableTelemetries=false \
             --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" \
