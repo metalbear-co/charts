@@ -137,7 +137,7 @@ license:
   keyRef: ""
   pemRef: ""
 
-  # For air-gaped systems there is an option to use a license-server for enterprise licenses.
+  # For air-gapped systems there is an option to use a license-server for enterprise licenses.
   # This must be an accesible endpoint from where the operator is installed
   # (can be in cluster or not and via any ingress or node-port as long as communication is possible via http/https)
   #
