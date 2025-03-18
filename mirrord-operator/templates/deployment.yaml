@@ -104,6 +104,10 @@ spec:
         {{- end }}
         - name: OPERATOR_COPY_TARGET_USE_AGENT_IMAGE
           value: {{ .Values.operator.copyTarget.useAgentImage | ternary "true" "false" | quote }}
+        {{- if .Values.license.licenseServer }}
+        - name: OPERATOR_LICENSE_SERVER
+          value: {{ .Values.license.licenseServer | quote }}
+        {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem

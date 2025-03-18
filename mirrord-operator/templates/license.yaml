@@ -18,11 +18,6 @@ metadata:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 stringData:
   OPERATOR_LICENSE_KEY: {{ .Values.license.key }}
-  {{- if .Values.license.licenseServer }}
-  OPERATOR_LICENSE_SERVER: {{ .Values.license.licenseServer }}
-  {{- end }}
-{{- else if .Values.license.licenseServer }}
-  {{- required "licenseServer was specified without license key" .Values.license.key }}
 {{- end }}
 {{- /*
 don't create secret if using keyRef or pemRef
