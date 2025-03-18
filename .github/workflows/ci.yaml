@@ -103,17 +103,16 @@ jobs:
       - name: install the chart (license-server)
         run: |
           helm install mirrord-license-server \
-            --set createNamespace=true \
-            --set license.key="secret" \
+            --set 'createNamespace=true' \
+            --set 'license.key=secret' \
             --set license.file.data."license\\.pem"="$(cat license.pem)" \
             ./mirrord-license-server --wait
       - name: install the chart
         run: |
           helm install mirrord-operator \
-            --set createNamespace=false \
-            --set license.key="secret" \
+            --set 'createNamespace=false' \
+            --set 'license.key=secret' \
             --set license.licenseServer="http://mirrord-operator-license-server.mirrord.svc" \
-            --set operator.disableTelemetries=false \
             --set operator.podAnnotations."annotation\.metalbear\.co/name"="operator" \
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
