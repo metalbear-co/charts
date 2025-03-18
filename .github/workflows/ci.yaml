@@ -96,13 +96,8 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
-      - name: wait for the operator status (with license-server)
-        uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
-        with:
-          timeout_seconds: 10
-          max_attempts: 5
-          retry_wait_seconds: 1
-          command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
+      - name: sleep 10 seconds
+        run: sleep 10
       - name: run dummy mirrord session (with license-server)
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
       - name: get operator logs
