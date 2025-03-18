@@ -62,9 +62,6 @@ service:
 sa:
   name: mirrord-operator-license-server
 
-  ## aws role arn to annotate for eks iam assumption
-  # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
-
 tls:
   secret: mirrord-operator-license-server-tls
 
