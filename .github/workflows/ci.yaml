@@ -78,16 +78,39 @@ jobs:
         run: curl -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
-      - name: install license-server chart
+      - name: get operator logs
+        if: failure()
+        run: kubectl logs -n mirrord deployment/mirrord-operator
+
+  operator-install-with-license-server-and-use:
+    runs-on: ubuntu-latest
+    name: install chart and run session (with license-server)
+    steps:
+      - uses: actions/checkout@v4
+      - name: start minikube
+        uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
+        with:
+          container-runtime: ${{ inputs.container-runtime }}
+          cpus: 'max'
+          memory: '4gb'
+      - uses: azure/setup-helm@v4.1.0
+      - name: prepare operator license
+        env:
+          MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
+        run: echo $MIRRORD_OPERATOR_LICENSE | base64 --decode > license.pem
+      - name: print license file hash
+        run: cat license.pem | sha256sum
+      - name: install the chart (license-server)
         run: |
           helm install mirrord-license-server \
+            --set createNamespace=true \
             --set license.key="secret" \
-            --set license.file.secret="mirrord-license-server-license" \
             --set license.file.data."license\\.pem"="$(cat license.pem)" \
             ./mirrord-license-server --wait
-      - name: update operator to use license-server
+      - name: install the chart
         run: |
-          helm upgrade mirrord-operator \
+          helm install mirrord-operator \
+            --set createNamespace=false \
             --set license.key="secret" \
             --set license.licenseServer="http://mirrord-operator-license-server.mirrord.svc" \
             --set operator.disableTelemetries=false \
@@ -96,9 +119,16 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
-      - name: sleep for 60 seconds
-        run: sleep 60
-      - name: run dummy mirrord session (with license-server)
+      - name: wait for the operator status
+        uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
+        with:
+          timeout_seconds: 10
+          max_attempts: 5
+          retry_wait_seconds: 1
+          command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
+      - name: download latest mirrord binary
+        run: curl -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
+      - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
       - name: get operator logs
         if: failure()
@@ -117,6 +147,7 @@ jobs:
           sanity,
           operator-install,
           operator-install-and-use,
+          operator-install-with-license-server-and-use,
         ]
       steps:
         - name: CI succeeded
