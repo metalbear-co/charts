@@ -3,10 +3,22 @@ kind: PersistentVolumeClaim
 metadata:
   name: mirrord-license-server-pvc
   namespace: {{ .Values.namespace }}
+  {{- if .Values.pvc.annotations }}
+  annotations:
+    {{- toYaml .Values.pvc.annotations | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+  {{- if .Values.pvc.labels }}
+    {{- toYaml .Values.pvc.labels | nindent 4 }}
+  {{- end }}
 spec:
+  {{- if hasKey .Values.pvc "storageClassName" }}
+  storageClassName: {{ .Values.pvc.storageClassName | quote }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 1Gi
+      {{- toYaml .Values.pvc.requests | nindent 6 }}

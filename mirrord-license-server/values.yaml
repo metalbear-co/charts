@@ -1,4 +1,4 @@
-# Default values for mirrord-operator.
+# Default values for mirrord-operator-license-server.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -46,7 +46,7 @@ server:
 license:
   key: ""
   file:
-    secret: mirrord-operator-license
+    secret: mirrord-operator-license-server-license
     # data:
     #   license.pem:
   keyRef: ""
@@ -58,6 +58,18 @@ service:
   
   # Allow overriding port of service
   # port: 443
+
+pvc:
+  ## Allow to specify a StorageClass for license-server pvc, 
+  # storageClassName: ""
+
+  annotations: {}
+  labels: {}
+
+  ## This should be enough for about two hundred thousand sessions
+  ## NOTE this might need to change this if this value is lower than minimal provisionable size
+  requests:
+    storage: 1Gi
 
 sa:
   name: mirrord-operator-license-server
@@ -71,7 +83,7 @@ tls:
     enabled: false
     createIssuer: true
 
-    issuer: mirrord-operator-issuer
+    issuer: mirrord-operator-license-server-issuer
     certificate: mirrord-operator-license-server-tls
 
   data:
