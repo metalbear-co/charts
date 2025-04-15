@@ -108,6 +108,8 @@ spec:
         - name: OPERATOR_LICENSE_SERVER
           value: {{ .Values.license.licenseServer | quote }}
         {{- end }}
+        - name: OPERATOR_LICENSE_ALLOW_SEAT_OVERAGES
+          value: {{ .Values.license.allowSeatOverages | ternary "true" "false" | quote }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem

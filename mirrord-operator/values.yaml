@@ -143,6 +143,11 @@ license:
   #
   # licenseServer: http://mirrord-operator-license-server.mirrord.svc
 
+  # For enterprise licenses the operator can allow usage for more than the max amount of seats.
+  # 
+  # Set this value to `false` to disable this allowance to go over the max seats count.
+  allowSeatOverages: true
+
 service:
   name: mirrord-operator
 
