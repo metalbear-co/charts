@@ -81,8 +81,8 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Values.license.keyRef }}
-        {{- else }}
-          {{- required "Either keyRef, key value is required for license!" .Values.license.keyRef }}
+        {{- else if not .Values.license.pemRef }}
+          {{- required "Either keyRef, pemRef, or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
@@ -132,7 +132,7 @@ spec:
       {{- end }}
       - name: license-volume
         secret:
-          secretName: {{ .Values.license.file.secret }}
+          secretName: {{ if .Values.license.pemRef }}{{ .Values.license.pemRef }}{{ else }}{{ .Values.license.file.secret }}{{ end }}
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc

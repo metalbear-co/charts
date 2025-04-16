@@ -16,7 +16,7 @@ server:
 
   # imagePullSecrets:
   #   - name: value
-  
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m
@@ -50,17 +50,18 @@ license:
     # data:
     #   license.pem:
   keyRef: ""
+  pemRef: "" # Reference to existing secret containing license.pem file
 
 service:
   name: mirrord-operator-license-server
 
   type: ClusterIP
-  
+
   # Allow overriding port of service
   # port: 443
 
 pvc:
-  ## Allow to specify a StorageClass for license-server pvc, 
+  ## Allow to specify a StorageClass for license-server pvc,
   # storageClassName: ""
 
   annotations: {}
