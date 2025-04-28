@@ -59,6 +59,14 @@ operator:
   ## Controls how long (in milliseconds) a session can live when there are no pods ready to be targeted.
   # noPodTargetsSessionTimeoutMillis: 6000
 
+  ## Default TTL (in milliseconds) for idle Kafka splits.
+  ## For any given topic, starting the first Kafka splitting session requires patching the target workload.
+  ## Similarly, stopping the last Kafka splitting session requires another patch, that reverts the first one.
+  ## If the target workload takes a long time to restart, it may be desirable to keep the Kafka splits alive longer,
+  ## so that the next Kafka splitting session will not have to patch the workload again.
+  ## This value can be overridden per topic with the `spec.splitTtl` field in the `MirrordKafkaTopicsConsumer` custom resource.
+  # idleKafkaSplitTtlMillis: 30000
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m
