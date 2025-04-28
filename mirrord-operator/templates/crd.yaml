@@ -956,6 +956,17 @@ spec:
                 minimum: 0.0
                 nullable: true
                 type: integer
+              splitTtl:
+                description: |-
+                  Period of time to wait before cleaning up Kafka splits for this consumer and reverting Pod template patches (in seconds).
+
+                  For any given topic, starting the first Kafka splitting session requires patching the target workload. Similarly, stopping the last Kafka splitting session requires another patch, that reverts the first one.
+
+                  If the target workload takes a long time to restart, it may be desirable to keep the Kafka splits alive longer, so that the next Kafka splitting session will not have to patch the workload again.
+                format: uint32
+                minimum: 0.0
+                nullable: true
+                type: integer
               topics:
                 description: List of consumed splittable topics.
                 items:
