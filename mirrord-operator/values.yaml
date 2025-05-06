@@ -32,6 +32,8 @@ operator:
   podAnnotations: {}
   podLabels: {}
   jsonLog: false
+  # Define additional environment variables for the operator.
+  extraEnv: {}
   # Has to be set to `true` in order to use the SQS queue splitting feature.
   sqsSplitting: false
   # Has to be set to `true` in order to use the Kafka queue splitting feature.
