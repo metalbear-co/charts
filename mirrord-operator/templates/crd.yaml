@@ -5,15 +5,12 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordPolicy
     plural: mirrordpolicies
-    shortNames: []
     singular: mirrordpolicy
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPolicySpec via `CustomResource`
@@ -198,7 +195,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -207,15 +203,12 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordClusterPolicy
     plural: mirrordclusterpolicies
-    shortNames: []
     singular: mirrordclusterpolicy
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterPolicySpec via `CustomResource`
@@ -392,7 +385,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ if .Values.operator.sqsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -402,7 +394,6 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordWorkloadQueueRegistry
     plural: mirrordworkloadqueueregistries
     shortNames:
@@ -410,8 +401,7 @@ spec:
     singular: mirrordworkloadqueueregistry
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
@@ -534,15 +524,12 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordSQSSession
     plural: mirrordsqssessions
-    shortNames: []
     singular: mirrordsqssession
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordSqsSessionSpec via `CustomResource`
@@ -757,10 +744,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordKafkaClientConfig
     plural: mirrordkafkaclientconfigs
-    shortNames: []
     singular: mirrordkafkaclientconfig
   scope: Namespaced
   versions:
@@ -824,7 +809,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -833,10 +817,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordKafkaEphemeralTopic
     plural: mirrordkafkaephemeraltopics
-    shortNames: []
     singular: mirrordkafkaephemeraltopic
   scope: Namespaced
   versions:
@@ -876,7 +858,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -885,10 +866,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordKafkaTopicsConsumer
     plural: mirrordkafkatopicsconsumers
-    shortNames: []
     singular: mirrordkafkatopicsconsumer
   scope: Namespaced
   versions:
@@ -1043,7 +1022,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -1053,15 +1031,12 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordTlsStealConfig
     plural: mirrordtlsstealconfigs
-    shortNames: []
     singular: mirrordtlsstealconfig
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordTlsStealConfigSpec via `CustomResource`
@@ -1269,7 +1244,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1278,15 +1252,12 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordClusterTlsStealConfig
     plural: mirrordclustertlsstealconfigs
-    shortNames: []
     singular: mirrordclustertlsstealconfig
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterTlsStealConfigSpec via `CustomResource`
@@ -1494,7 +1465,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1503,15 +1473,12 @@ metadata:
 spec:
   group: profiles.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordProfile
     plural: mirrordprofiles
-    shortNames: []
     singular: mirrordprofile
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordProfileSpec via `CustomResource`
@@ -1558,4 +1525,3 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
