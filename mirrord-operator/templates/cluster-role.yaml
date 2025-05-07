@@ -82,6 +82,7 @@ rules:
   verbs:
   - list
   - get
+  - watch
 {{- if .Values.operator.sqsSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
