@@ -1,0 +1,10 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+operator:
+  extraEnv:
+    OPERATOR_COPY_TARGET_RUN_AS_USER_VALUE: 0
+    OPERATOR_COPY_TARGET_RUN_AS_USER_FIELD: "value"
