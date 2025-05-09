@@ -114,14 +114,14 @@ spec:
         {{- end }}
         - name: OPERATOR_LICENSE_ALLOW_SEAT_OVERAGES
           value: {{ .Values.license.allowSeatOverages | ternary "true" "false" | quote }}
-        {{- if or .Values.license.file.data .Values.license.pemRef }}
-        - name: OPERATOR_LICENSE_PATH
-          value: /license/license.pem
-        {{- else if .Values.license.key }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
+        {{- if or .Values.license.file.data .Values.license.pemRef }}
+        - name: OPERATOR_LICENSE_PATH
+          value: /license/license.pem
+        {{- else if .Values.license.key }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
