@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mirrord-operator:
   - apiVersion: v2
+    appVersion: 3.112.0
+    created: "2025-05-13T18:58:12.606422615Z"
+    description: A Helm chart for Kubernetes
+    digest: 52a4976f0815b73a0d4746666f7c78fdfb314a4891c42d67aea0c625b8dca1f6
+    name: mirrord-operator
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-1.26.0/mirrord-operator-1.26.0.tgz
+    version: 1.26.0
+  - apiVersion: v2
     appVersion: 3.111.0
     created: "2025-05-12T07:58:47.12203798Z"
     description: A Helm chart for Kubernetes
@@ -1053,6 +1063,16 @@ entries:
     version: 0.1.0
   mirrord-operator-license-server:
   - apiVersion: v2
+    appVersion: 3.112.0
+    created: "2025-05-13T18:58:12.807349249Z"
+    description: A Helm chart for Kubernetes
+    digest: 7274ceb781f2daf90cbc6f2366d5f7de3a94651bca98b3aa7efa955950a377af
+    name: mirrord-operator-license-server
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-license-server-1.0.8/mirrord-operator-license-server-1.0.8.tgz
+    version: 1.0.8
+  - apiVersion: v2
     appVersion: 3.111.0
     created: "2025-05-07T15:30:00.852022404Z"
     description: A Helm chart for Kubernetes
@@ -1132,4 +1152,4 @@ entries:
     urls:
     - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-license-server-1.0.0/mirrord-operator-license-server-1.0.0.tgz
     version: 1.0.0
-generated: "2025-05-12T07:58:47.122478396Z"
+generated: "2025-05-13T18:58:12.807880834Z"
