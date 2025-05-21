@@ -1476,7 +1476,7 @@ spec:
     kind: MirrordProfile
     plural: mirrordprofiles
     singular: mirrordprofile
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1alpha
     schema:
@@ -1485,9 +1485,11 @@ spec:
         properties:
           spec:
             description: |-
-              This custom resource has been superseded by `MirrordClusterProfile` and should no longer be used. During the migration period, we support both this and the new `MirrordClusterProfile` custom resource definition.
+              Custom namespaced resource for storing a reusable mirrord config template.
 
-              Once users have migrated, we plan to re-introduce the kind `MirrordProfile` in future releases for namespaced mirrord profile.
+              Can be selected from the user's mirrord config.
+
+              Examle: ```json { "profile": "my-namespace/my-profile" } ```
             properties:
               featureAdjustments:
                 description: |-
