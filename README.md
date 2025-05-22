@@ -285,6 +285,40 @@ operator:
     useAgentImage: true
 ```
 
+#### Configuring the mirrord-agent
+
+The agent `image` is sourced by default from `ghcr.io/metalbear-co/agent`, but you can change that
+to your own repository.
+
+```yaml
+agent:
+  image: ghcr.io/metalbear-co/agent
+```
+
+You can set on which port the agent accepts connections from the operator with the `agent.port`
+config, by default a random port is assigned. These connections can be secured with TLS by setting
+`agent.tls` to `true`.
+
+```yaml
+agent:
+  port: 7777
+  tls: true
+```
+
+It's possible to change
+[mirrord-agent settings](https://metalbear.co/mirrord/docs/reference/configuration/#root-agent)
+that are not exposed by the chart with the `agent.extraConfig` config, these include (but are not
+limited by).
+
+```yaml
+agent:
+  extraConfig:
+    agent:
+      metrics: "0.0.0.0:9000
+      annotations: { prometheus.io/scrape: "true" }
+      log_level: "mirrrod=debug,warn"
+```
+
 ### mirrord license server {#mirrord-license-server}
 
 [mirrord-license-server](./mirrord-license-server)
