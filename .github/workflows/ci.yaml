@@ -138,6 +138,21 @@ jobs:
         if: failure()
         run: kubectl logs -n mirrord deployment/mirrord-license-server
 
+  towncrier_check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - run: uv python install
+      - run: uv venv
+      - name: install towncrier
+        run: uv pip install towncrier==23.11.0
+      - name: verify newsfragment exist
+        run: uv run towncrier check
+
   ci-success:
       runs-on: ubuntu-latest
       name: ci-success
@@ -149,6 +164,7 @@ jobs:
           operator-install,
           operator-install-and-use,
           operator-install-with-license-server-and-use,
+          towncrier_check,
         ]
       steps:
         - name: CI succeeded
@@ -157,5 +173,6 @@ jobs:
           env:
             CI_SUCCESS: ${{ (needs.sanity.result == 'success') &&
               (needs.operator-install.result == 'success') &&
-              (needs.operator-install-and-use.result == 'success') }}
+              (needs.operator-install-and-use.result == 'success') &&
+              (needs.towncrier_check.result == 'success') }}
           run: echo $CI_SUCCESS && if [ "$CI_SUCCESS" == "true" ]; then echo "SUCCESS" && exit 0; else echo "FAILURE" && exit 1; fi
