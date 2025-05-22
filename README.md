@@ -83,7 +83,8 @@ license:
 
 - Enterprise license
 
-Enterprise users receive a `.pem` certificate that you can add directly to `license.data.license.pem`.
+Enterprise users receive a `.pem` certificate that you can add directly to
+`license.data.license.pem`.
 
 ```yaml
 license:
@@ -91,8 +92,11 @@ license:
     data:
       license.pem: |
         -----BEGIN CERTIFICATE-----
-        your-certificate...
+        thecertificate
         -----END CERTIFICATE-----
+        -----BEGIN PRIVATE KEY-----
+        thekey
+        -----END PRIVATE KEY-----
 ```
 
 Or you can create a secret with the following format:
