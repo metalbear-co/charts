@@ -390,7 +390,7 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
+  - name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
 spec:
   group: queues.mirrord.metalbear.co
   names:
