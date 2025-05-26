@@ -390,7 +390,7 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  - name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
+  name: mirrordworkloadqueueregistries.queues.mirrord.metalbear.co
 spec:
   group: queues.mirrord.metalbear.co
   names:
@@ -401,7 +401,7 @@ spec:
     singular: mirrordworkloadqueueregistry
   scope: Namespaced
   versions:
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
