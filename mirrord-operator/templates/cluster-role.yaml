@@ -114,6 +114,14 @@ rules:
   - mirrordsqssessions/status
   verbs:
   - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
 {{- if .Values.operator.mutatingWebhooks }}
 - apiGroups:
     - admissionregistration.k8s.io
