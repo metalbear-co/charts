@@ -123,6 +123,7 @@ rules:
     - get
     - delete
     - deletecollection
+    - create
 {{- end }}
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
