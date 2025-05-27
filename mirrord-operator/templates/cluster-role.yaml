@@ -122,6 +122,16 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.operator.mutatingWebhooks }}
+- apiGroups:
+    - admissionregistration.k8s.io
+  resources:
+    - mutatingwebhookconfigurations
+  verbs:
+    - delete
+    - deletecollection
+    - create
+{{- end }}
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:

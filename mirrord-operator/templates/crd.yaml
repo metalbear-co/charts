@@ -448,8 +448,20 @@ spec:
                       oneOf:
                       - required:
                         - envVar
+                      - required:
+                        - regexPattern
                       properties:
                         envVar:
+                          description: |-
+                            Name of an environment variable.
+
+                            References a single environment variable that contains the queue name. Only this one queue will be split.
+                          type: string
+                        regexPattern:
+                          description: |-
+                            Regex pattern for environment variable name.
+
+                            References multiple environment variables that can contain names of multiple queues. All found queues will be split.
                           type: string
                       type: object
                     queueType:
