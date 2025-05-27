@@ -120,7 +120,6 @@ rules:
   resources:
     - mutatingwebhookconfigurations
   verbs:
-    - get
     - delete
     - deletecollection
     - create
