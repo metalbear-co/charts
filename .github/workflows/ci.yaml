@@ -2,12 +2,12 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: [main, .+staging.+]
+    branches: [main, *staging*]
     paths:
       - "**.yaml"
       - "**.tpl"
   pull_request:
-    branches: [main, .+staging.+]
+    branches: [main, *staging*]
     paths:
       - "**.yaml"
       - "**.tpl"
