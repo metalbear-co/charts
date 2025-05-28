@@ -70,6 +70,11 @@ operator:
   ## This value can be overridden per topic with the `spec.splitTtl` field in the `MirrordKafkaTopicsConsumer` custom resource.
   # idleKafkaSplitTtlMillis: 30000
 
+  ##  You can adjust the format of the created kafka topic names to suit your needs. The default value is:
+  ## `mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}`
+  ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
+  # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m
