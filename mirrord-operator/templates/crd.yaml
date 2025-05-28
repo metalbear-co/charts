@@ -448,6 +448,10 @@ spec:
                         envVar:
                           type: string
                       type: object
+                    namesFromJsonMap:
+                      description: If set, the value read from `name_source` or `fallback_name` will be parsed as a JSON map. The values in this map will be used as queue names.
+                      nullable: true
+                      type: boolean
                     queueType:
                       enum:
                       - SQS
