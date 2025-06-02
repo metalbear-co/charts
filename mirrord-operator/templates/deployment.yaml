@@ -106,6 +106,10 @@ spec:
         - name: OPERATOR_KAFKA_SPLITTING_TTL
           value: {{ .Values.operator.idleKafkaSplitTtlMillis | quote }}
         {{- end }}
+        {{- if .Values.operator.kafkaSplittingTopicFormat }}
+        - name: OPERATOR_KAFKA_SPLITTING_TOPIC_FORMAT
+          value: {{ .Values.operator.kafkaSplittingTopicFormat | quote }}
+        {{- end }}
         - name: OPERATOR_COPY_TARGET_USE_AGENT_IMAGE
           value: {{ .Values.operator.copyTarget.useAgentImage | ternary "true" "false" | quote }}
         {{- if .Values.license.licenseServer }}
