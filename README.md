@@ -4,10 +4,8 @@
 
 The [mirrord operator](https://metalbear.co/mirrord/docs/overview/teams/) is a component
 that runs in your Kubernetes cluster and manages the concurrent use of mirrord by multiple
-users in the organization. With the operator, users don't need Kubernetes API permissions
-(RBAC is managed through the operator); agents are reused so multiple agents don't
-impersonate the same pod; and deployments can be impersonated so that traffic from all
-their pods is stolen/mirrored.
+users in the organization. For more details and a list of features of the mirrord Operator
+see [this](https://metalbear.co/mirrord/pricing/).
 
 - [mirrord-operator](./mirrord-operator)
 
