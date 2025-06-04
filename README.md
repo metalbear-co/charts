@@ -11,7 +11,7 @@ their pods is stolen/mirrored.
 
 - [mirrord-operator](./mirrord-operator)
 
-## mirrord license server
+## mirrord License Server
 
 The [mirrord license server](https://metalbear.co/mirrord/docs/managing-mirrord/license-server/)
 enables you to manage your organization’s seats without sending any data to mirrord’s
