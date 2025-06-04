@@ -46,7 +46,7 @@ Finally, install the chart:
 helm install -f values.yaml mirrord-operator metalbear/mirrord-operator
 ```
 
-## Detailed setup
+## Advanced Configuration
 
 Some mirrord operator features come **disabled** by default, and some additional
 configuration might be needed to tailor the operator for your environment.
