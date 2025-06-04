@@ -1,4 +1,4 @@
-# Metalbear Helm Charts
+# MetalBear Helm Charts
 
 ## mirrord Operator
 
