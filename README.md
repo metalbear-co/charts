@@ -2,7 +2,7 @@
 
 ## mirrord operator
 
-The [mirrod operator](https://metalbear.co/mirrord/docs/overview/teams/) is a component
+The [mirrord operator](https://metalbear.co/mirrord/docs/overview/teams/) is a component
 that runs in your Kubernetes cluster and manages the concurrent use of mirrord by multiple
 users in the organization. With the operator, users don't need Kubernetes API permissions
 (RBAC is managed through the operator); agents are reused so multiple agents don't
