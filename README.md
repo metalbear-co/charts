@@ -320,7 +320,7 @@ agent:
     agent:
       metrics: "0.0.0.0:9000
       annotations: { prometheus.io/scrape: "true" }
-      log_level: "mirrrod=debug,warn"
+      log_level: "mirrord=debug,warn"
 ```
 
 ### mirrord license server {#mirrord-license-server}
