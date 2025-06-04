@@ -199,7 +199,7 @@ operator:
 
 ---
 
-### mirrord-Agent Configuration
+### mirrord-agent Configuration
 
 Customize the mirrord-agent container:
 
