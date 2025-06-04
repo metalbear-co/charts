@@ -17,6 +17,8 @@ servers. It can aggregate license metrics from multiple operators
 (useful if you’re running mirrord across multiple clusters) and provides visibility into
 seat usage across your organization.
 
+- The mirrord License Server is only supported in the mirrord Enterprise plan.
+
 - [mirrord-license-server](./mirrord-license-server)
 
 ## Quick Setup
