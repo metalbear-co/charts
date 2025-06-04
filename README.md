@@ -17,7 +17,7 @@ servers. It can aggregate license metrics from multiple operators
 (useful if you’re running mirrord across multiple clusters) and provides visibility into
 seat usage across your organization.
 
-- The mirrord License Server is only supported in the mirrord Enterprise plan.
+> The mirrord License Server is only supported in the mirrord Enterprise plan.
 
 - [mirrord-license-server](./mirrord-license-server)
 
@@ -37,8 +37,8 @@ Open `values.yaml` and populate the `license` with either your license key, or w
 license `.pem` certificate contents.
 
 Additionally, the mirrord Operator requires a certificate. You can either:
-* Set `certManager.enabled` to `false` and provide your own certificate in `tls.key`, `tls.crt`
-* Set `certManager.enabled` to `true` and [install cert-manager](https://cert-manager.io/docs/installation/helm/) in your cluster.
+- Set `certManager.enabled` to `false` and provide your own certificate in `tls.key`, `tls.crt`
+- Set `certManager.enabled` to `true` and [install cert-manager](https://cert-manager.io/docs/installation/helm/) in your cluster.
 
 Finally, install the chart:
 
@@ -55,7 +55,7 @@ In the following sections we'll help you in setting up `values.yaml` for both th
 operator and the mirrord license server (relevant only if you have a license `.pem` certificate
 and want to run the server on-premise).
 
-- Before proceeding, you'll need mirrord for Teams, you can find more information about
+> Before proceeding, you'll need mirrord for Teams, you can find more information about
   acquiring it from our [metalbear.co pricing](https://metalbear.co/mirrord/pricing/) page.
 
 ### mirrord operator
@@ -124,9 +124,9 @@ You can configure the kubernetes `namespace` that the operator will be deployed 
 affects where the mirrord agent pod is spawned when using the
 [copy target feature](https://metalbear.co/mirrord/docs/using-mirrord/copy-target/).
 
-- `createNamespace` is set to `true` by default, meaning that the `namespace`
+> `createNamespace` is set to `true` by default, meaning that the `namespace`
   (default `mirrord`) will be created on chart install, if it's set to `false`, then you
-  must create the `namespace`;
+  must create the `namespace`.
 
 If you want to limit which `namespace`s user's may use mirrord in, it can be accomplished
 with the `roleNamespaces` setting. Note that the `namespace`s must be created beforehand,
@@ -152,7 +152,7 @@ role:
       team: "platform"
 ```
 
-- At a cluster level, there's also support for a _basic_ operator user, that can be used to
+> At a cluster level, there's also support for a _basic_ operator user, that can be used to
   grant limited permissions (only the minimal things you must have on the cluster role).
   Think of this as a minimally privileged access that a user may have, when using mirrord.
 
@@ -208,7 +208,7 @@ operator:
     OPERATOR_METRICS_ADDR: "0.0.0.0:9000"
 ```
 
-- `extraEnv` may be used for more than just changing the prometheus address. It can be
+> `extraEnv` may be used for more than just changing the prometheus address. It can be
   especially useful when debugging the operator itself, or to change something in the operator
   that hasn't been exposed by the chart.
 
