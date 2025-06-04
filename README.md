@@ -1,6 +1,6 @@
 # Metalbear Helm Charts
 
-## mirrord operator
+## mirrord Operator
 
 The [mirrord operator](https://metalbear.co/mirrord/docs/overview/teams/) is a component
 that runs in your Kubernetes cluster and manages the concurrent use of mirrord by multiple
