@@ -21,7 +21,7 @@ seat usage across your organization.
 
 - [mirrord-license-server](./mirrord-license-server)
 
-## Quick setup
+## Quick Setup
 
 ```bash
 helm repo add metalbear https://metalbear-co.github.io/charts
