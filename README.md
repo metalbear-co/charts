@@ -61,7 +61,7 @@ helm install -f values.yaml mirrord-operator metalbear/mirrord-operator
 
 ### Operator License
 
-#### 🔑 Team License
+#### 🧑‍💻 Team License
 
 Set the license key directly:
 
@@ -77,7 +77,7 @@ license:
   keyRef: "my-secret:OPERATOR_LICENSE_KEY"
 ```
 
-#### 🛡️ Enterprise License
+#### 🧑‍💼 Enterprise License
 
 Paste the `.pem` certificate:
 
@@ -162,7 +162,7 @@ operator:
 
 ### Feature Toggles
 
-#### ✅ SQS Splitting
+#### 👥 SQS Splitting
 
 Enable SQS message routing for shared queues:
 
@@ -173,7 +173,7 @@ operator:
 
 More info: [SQS Splitting Docs](https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#sqs-splitting)
 
-#### ✅ Kafka Splitting
+#### 🪶 Kafka Splitting
 
 Enable topic-level session isolation for Kafka:
 
@@ -187,7 +187,7 @@ Learn about:
 - [Kafka setup](https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#kafka-splitting)
 - [TTL behavior](https://github.com/metalbear-co/charts/tree/main/mirrord-operator#sqs-queue-splitting)
 
-#### ✅ Copy Target
+#### 📝 Copy Target
 
 Control agent image usage:
 
