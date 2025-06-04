@@ -59,8 +59,6 @@ helm install -f values.yaml mirrord-operator metalbear/mirrord-operator
 
 ## Advanced Configuration
 
-> You’ll need [mirrord for Teams](https://metalbear.co/mirrord/pricing/) to continue.
-
 ### Operator License
 
 #### 🔑 Team License
@@ -232,7 +230,5 @@ Configure this chart if you use a `.pem` license and want full control of your s
 
 ## Useful Links
 
-- 🌐 [mirrord Documentation](https://metalbear.co/mirrord/docs/)
-- 📦 [Helm Charts on GitHub](https://github.com/metalbear-co/charts)
+- 🌐 [mirrord Documentation](https://metalbear.co/mirrord/docs/overview/introduction/)
 - 💰 [mirrord Pricing](https://metalbear.co/mirrord/pricing/)
-- 📋 [cert-manager Installation](https://cert-manager.io/docs/installation/helm/)
