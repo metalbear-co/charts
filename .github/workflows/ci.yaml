@@ -196,6 +196,7 @@ jobs:
           operator-install-and-use,
           operator-install-with-license-server-and-use,
           towncrier_check,
+          check-app-versions-equal,
         ]
       steps:
         - name: CI succeeded
@@ -205,5 +206,6 @@ jobs:
             CI_SUCCESS: ${{ (needs.sanity.result == 'success') &&
               (needs.operator-install.result == 'success') &&
               (needs.operator-install-and-use.result == 'success') &&
-              (needs.towncrier_check.result == 'success') }}
+              (needs.towncrier_check.result == 'success') &&
+              (needs.check-app-versions-equal.result == 'success') }}
           run: echo $CI_SUCCESS && if [ "$CI_SUCCESS" == "true" ]; then echo "SUCCESS" && exit 0; else echo "FAILURE" && exit 1; fi
