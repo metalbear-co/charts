@@ -22,6 +22,37 @@ jobs:
       - run: helm template mirrord-operator --set license.key=secret --debug
       - run: helm template mirrord-license-server --set license.key=secret --set license.file.data.license\\.pem=secret --debug
 
+  check-app-versions-equal:
+    runs-on: ubuntu-latest
+    name: check appVersions equal
+    steps:
+      - name: Checkout Chart.yaml files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            mirrord-operator/Chart.yaml
+            mirrord-license-server/Chart.yaml
+          sparse-checkout-cone-mode: false
+      - name: Read operator appVersion specified in the chart
+        id: read-operator-app-version
+        run: |
+          app=$(grep '^appVersion:' ./mirrord-operator/Chart.yaml | cut -d'"' -f2)
+          echo "operator-app-version=$app" >> "$GITHUB_OUTPUT"
+      - name: Read license server appVersion specified in the chart
+        id: read-license-server-app-version
+        run: |
+          app=$(grep '^appVersion:' ./mirrord-license-server/Chart.yaml | cut -d'"' -f2)
+          echo "license-server-app-version=$app" >> "$GITHUB_OUTPUT"
+      - name: Print values
+        run: |
+          echo Operator appVersion from the chart: ${{ steps.read-operator-app-version.outputs.operator-app-version }}
+          echo License server appVersion from the chart: ${{ steps.read-license-server-app-version.outputs.license-server-app-version }}
+      - name: Assert appVersions equal
+        run: |
+          if [ "${{ steps.read-operator-app-version.outputs.operator-app-version }}" != "${{ steps.read-license-server-app-version.outputs.license-server-app-version }}" ]; then
+            exit 1
+          fi
+
   operator-install:
     runs-on: ubuntu-latest
     name: install chart
