@@ -55,4 +55,11 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - mirrordoperators/certificate
   verbs:
   - create
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordclusterprofiles
+  verbs:
+  - get
+  - list
 {{- end }}

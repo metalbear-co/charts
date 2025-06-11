@@ -1,1 +1,0 @@
-Removed the depcrecated `MirrordProfile` CRD. The name `MirrordProfile` will be re-introduced for namespaced profile CRD.
