@@ -22,6 +22,37 @@ jobs:
       - run: helm template mirrord-operator --set license.key=secret --debug
       - run: helm template mirrord-license-server --set license.key=secret --set license.file.data.license\\.pem=secret --debug
 
+  check-app-versions-equal:
+    runs-on: ubuntu-latest
+    name: check appVersions equal
+    steps:
+      - name: Checkout Chart.yaml files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            mirrord-operator/Chart.yaml
+            mirrord-license-server/Chart.yaml
+          sparse-checkout-cone-mode: false
+      - name: Read operator appVersion specified in the chart
+        id: read-operator-app-version
+        run: |
+          app=$(grep '^appVersion:' ./mirrord-operator/Chart.yaml | cut -d'"' -f2)
+          echo "operator-app-version=$app" >> "$GITHUB_OUTPUT"
+      - name: Read license server appVersion specified in the chart
+        id: read-license-server-app-version
+        run: |
+          app=$(grep '^appVersion:' ./mirrord-license-server/Chart.yaml | cut -d'"' -f2)
+          echo "license-server-app-version=$app" >> "$GITHUB_OUTPUT"
+      - name: Print values
+        run: |
+          echo Operator appVersion from the chart: ${{ steps.read-operator-app-version.outputs.operator-app-version }}
+          echo License server appVersion from the chart: ${{ steps.read-license-server-app-version.outputs.license-server-app-version }}
+      - name: Assert appVersions equal
+        run: |
+          if [ "${{ steps.read-operator-app-version.outputs.operator-app-version }}" != "${{ steps.read-license-server-app-version.outputs.license-server-app-version }}" ]; then
+            exit 1
+          fi
+
   operator-install:
     runs-on: ubuntu-latest
     name: install chart
@@ -138,6 +169,21 @@ jobs:
         if: failure()
         run: kubectl logs -n mirrord deployment/mirrord-license-server
 
+  towncrier_check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - run: uv python install
+      - run: uv venv
+      - name: install towncrier
+        run: uv pip install towncrier==23.11.0
+      - name: verify newsfragment exist
+        run: uv run towncrier check
+
   ci-success:
       runs-on: ubuntu-latest
       name: ci-success
@@ -149,6 +195,8 @@ jobs:
           operator-install,
           operator-install-and-use,
           operator-install-with-license-server-and-use,
+          towncrier_check,
+          check-app-versions-equal,
         ]
       steps:
         - name: CI succeeded
@@ -157,5 +205,7 @@ jobs:
           env:
             CI_SUCCESS: ${{ (needs.sanity.result == 'success') &&
               (needs.operator-install.result == 'success') &&
-              (needs.operator-install-and-use.result == 'success') }}
+              (needs.operator-install-and-use.result == 'success') &&
+              (needs.towncrier_check.result == 'success') &&
+              (needs.check-app-versions-equal.result == 'success') }}
           run: echo $CI_SUCCESS && if [ "$CI_SUCCESS" == "true" ]; then echo "SUCCESS" && exit 0; else echo "FAILURE" && exit 1; fi
