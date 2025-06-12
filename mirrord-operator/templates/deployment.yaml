@@ -120,7 +120,7 @@ spec:
           value: {{ .Values.license.allowSeatOverages | ternary "true" "false" | quote }}
         {{- if .Values.operator.jiraWebhookUrl }}
         - name: OPERATOR_JIRA_WEBHOOK_URL
-          value: {{ .Values.license.licenseServer | quote }}
+          value: {{ .Values.operator.jiraWebhookUrl | quote }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
