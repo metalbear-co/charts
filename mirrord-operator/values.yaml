@@ -110,6 +110,11 @@ operator:
     # to use the target's image, set this value to false and make sure it has sleep binary
     useAgentImage: true
 
+  ## The URL of the Jira webhook to enable integration with the mirrord for Jira app. 
+  ## If this is set, the operator will attempt to send session duration metrics to the Jira app
+  ## every time a user session ends.
+  # jiraWebhookUrl: "https://example.atlassian-dev.net/x1/random-hash"
+
 agent:
   ## example
   ##
