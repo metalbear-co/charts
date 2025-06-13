@@ -38,6 +38,13 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - deletecollection
   - delete
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles
+  verbs:
+  - get
+  - list
 {{- end }}
 
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}
