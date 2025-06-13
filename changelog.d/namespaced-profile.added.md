@@ -1,0 +1,1 @@
+Added namespaced mirrord profile `MirrordProfile`. Granted get and list permission to the mirrord-operator-user role.
