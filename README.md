@@ -11,7 +11,7 @@ This repository contains Helm charts for deploying [mirrord](https://metalbear.c
 
 ## mirrord Operator
 
-The [mirrord Operator](https://metalbear.co/mirrord/docs/overview/teams/) is a Kubernetes component that facilitates the concurrent use of mirrord by multiple team members. 
+The [mirrord Operator](https://metalbear.co/mirrord/docs/overview/teams/) is a Kubernetes component that facilitates the concurrent use of mirrord by multiple team members.
 
 For full feature details, visit the [mirrord pricing page](https://metalbear.co/mirrord/pricing/).
 
@@ -143,8 +143,12 @@ operator:
   image: ghcr.io/metalbear-co/operator
   podAnnotations:
     prometheus.io/scrape: "true"
+  ## Applied only to pods.
   podLabels:
     environment: staging
+  ## Applied to ALL resources (Deployment, Service, etc).
+  labels:
+    team: platform
   limits:
     cpu: 200m
     memory: 200Mi
