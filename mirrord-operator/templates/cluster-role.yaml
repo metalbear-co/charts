@@ -90,6 +90,8 @@ rules:
   - mirrordworkloadqueueregistries
   verbs:
   - list
+  - watch
+  - get
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
