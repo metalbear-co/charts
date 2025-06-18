@@ -1,1 +1,0 @@
-Add configuration value for the Jira webhook URL for mirrord Jira app integration.
