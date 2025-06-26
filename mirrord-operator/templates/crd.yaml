@@ -1493,6 +1493,64 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
+  name: mirrordprofiles.profiles.mirrord.metalbear.co
+spec:
+  group: profiles.mirrord.metalbear.co
+  names:
+    kind: MirrordProfile
+    plural: mirrordprofiles
+    singular: mirrordprofile
+  scope: Namespaced
+  versions:
+  - name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordProfileSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Custom namespaced resource for storing a reusable mirrord config template.
+
+              Can be selected from the user's mirrord config.
+
+              Examle: ```json { "profile": "my-namespace/my-profile" } ```
+            properties:
+              featureAdjustments:
+                description: |-
+                  A list of adjustments to be made in the user's feature config.
+
+                  The adjustments are applied in order.
+                items:
+                  description: A single adjustment to the mirrord config's `feature` section.
+                  properties:
+                    change:
+                      description: The change to be made in the user's config.
+                      enum:
+                      - incoming-mirror
+                      - incoming-steal
+                      - incoming-off
+                      - dns-remote
+                      - dns-off
+                      - outgoing-remote
+                      - outgoing-off
+                      type: string
+                  required:
+                  - change
+                  type: object
+                type: array
+            required:
+            - featureAdjustments
+            type: object
+        required:
+        - spec
+        title: MirrordProfile
+        type: object
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
   name: mirrordclusterprofiles.profiles.mirrord.metalbear.co
 spec:
   group: profiles.mirrord.metalbear.co

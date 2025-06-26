@@ -31,6 +31,15 @@ operator:
   image: ghcr.io/metalbear-co/operator
   podAnnotations: {}
   podLabels: {}
+
+  ## Custom labels to be added to all Kubernetes resources created by this chart.
+  ## These labels will be applied to higher-level resources like Deployments, Services, etc.
+  ## For pod-specific labels, use operator.podLabels instead.
+  ## Example:
+  ## labels:
+  ##   team: platform
+  labels: {}
+
   jsonLog: false
   # Define additional environment variables for the operator.
   extraEnv: {}
@@ -48,7 +57,7 @@ operator:
 
   # imagePullSecrets:
   #   - name: value
-  
+
   ## stop using container args for agent config, as now you can just use agent.extraConfig
   ## also imagePullSecrets is re-used from operator.imagePullSecrets
   # containerArgs:
@@ -69,7 +78,7 @@ operator:
   ## Similarly, stopping the last Kafka splitting session requires another patch, that reverts the first one.
   ## If the target workload takes a long time to restart, it may be desirable to keep the Kafka splits alive longer,
   ## so that the next Kafka splitting session will not have to patch the workload again.
-  ## 
+  ##
   ## This value can be overridden per topic with the `spec.splitTtl` field in the `MirrordKafkaTopicsConsumer` custom resource.
   # idleKafkaSplitTtlMillis: 30000
 
@@ -113,10 +122,15 @@ operator:
     # to use the target's image, set this value to false and make sure it has sleep binary
     useAgentImage: true
 
+  ## The URL of the Jira webhook to enable integration with the mirrord for Jira app.
+  ## If this is set, the operator will attempt to send session duration metrics to the Jira app
+  ## every time a user session ends.
+  # jiraWebhookUrl: "https://example.atlassian-dev.net/x1/random-hash"
+
 agent:
   ## example
   ##
-  ## image: 
+  ## image:
   ##   registry: "your-internal.registry.io/metalbear-co/agent"
   ##   tag: "latest"
   ##
@@ -124,7 +138,7 @@ agent:
   ##
   ## image: "your-internal.registry.io/metalbear-co/agent:latest"
   ##
-  # image: 
+  # image:
     # registry: "ghcr.io/metalbear-co/mirrord"
     # tag: "latest"
 
@@ -163,7 +177,7 @@ license:
   # licenseServer: http://mirrord-operator-license-server.mirrord.svc
 
   # For enterprise licenses the operator can allow usage for more than the max amount of seats.
-  # 
+  #
   # Set this value to `false` to disable this allowance to go over the max seats count.
   allowSeatOverages: true
 
@@ -188,7 +202,7 @@ tls:
   certManager:
     enabled: false
     createIssuer: true
-    
+
     issuer: mirrord-operator-issuer
     certificate: mirrord-operator-tls
 
