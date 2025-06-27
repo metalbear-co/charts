@@ -5,6 +5,9 @@ helm.sh/chart: {{ printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" 
 app.kubernetes.io/instance: {{ $.Release.Name }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
+{{- if .Values.operator.labels }}
+{{- toYaml .Values.operator.labels | nindent 0 }}
+{{- end }}
 {{- end }}
 
 {{/* rules needed to use mirrord and can be namespaced*/}}
@@ -38,6 +41,13 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - deletecollection
   - delete
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles
+  verbs:
+  - get
+  - list
 {{- end }}
 
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}
@@ -55,4 +65,11 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - mirrordoperators/certificate
   verbs:
   - create
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordclusterprofiles
+  verbs:
+  - get
+  - list
 {{- end }}
