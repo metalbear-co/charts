@@ -74,7 +74,7 @@ Or use a Kubernetes secret:
 
 ```yaml
 license:
-  keyRef: "my-secret:OPERATOR_LICENSE_KEY"
+  keyRef: "license-server-key"
 ```
 
 #### 🧑‍💼 Enterprise License
