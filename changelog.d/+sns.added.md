@@ -1,1 +1,1 @@
-sns field in queue registry CRD - for splitting SQS queues based on SNS message attributes.
+Added the `sns` field to `MirrordWorkloadQueueRegistry` CRD - for splitting SQS queues based on SNS message attributes.
