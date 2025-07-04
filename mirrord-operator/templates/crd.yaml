@@ -439,19 +439,43 @@ spec:
                     - nameSource
                     - queueType
                   properties:
+                    fallbackName:
+                      description: 'Fallback queue name, if the source specified in `nameSource` is not present on the target. If the configured source is not present and the fallback is used - the configured source will be used to make the target use the temporary queue. For example, if `nameSource` is `envVar: MEME_QUEUE_NAME`, but `MEME_QUEUE_NAME` is not present in the target, and `IncomingMemeQueue.fifo` was set as a fallback queue name, then the target will be modified to include the environment variable `MEME_QUEUE_NAME`, with the name of the temporary queue as a value. Setting a fallback name only makes sense if the target application indeed uses the defined queue name source to override the source it uses on its absence.'
+                      nullable: true
+                      type: string
                     nameSource:
                       description: Where the application gets the queue name from. Will be used to read messages from that queue and distribute them to the output queues. When running with mirrord and splitting this queue, applications will get a modified name from that source.
                       oneOf:
                       - required:
                         - envVar
+                      - required:
+                        - regexPattern
                       properties:
                         envVar:
+                          description: |-
+                            Name of an environment variable.
+
+                            References a single environment variable that contains the queue name. Only this one queue will be split.
+                          type: string
+                        regexPattern:
+                          description: |-
+                            Regex pattern for environment variable name.
+
+                            References multiple environment variables that can contain names of multiple queues. All found queues will be split.
                           type: string
                       type: object
+                    namesFromJsonMap:
+                      description: If set, the value read from `name_source` or `fallback_name` will be parsed as a JSON map. The values in this map will be used as queue names.
+                      nullable: true
+                      type: boolean
                     queueType:
                       enum:
                       - SQS
                       type: string
+                    sns:
+                      description: When this is set, the mirrord SQS splitting operator will try to parse SQS messages as json objects that are created when SQS messages are created from SNS notifications. The filters will then be matched also against the message attributes that are found inside the body of the SQS message, and originate in SNS notification attributes.
+                      nullable: true
+                      type: boolean
                     tags:
                       additionalProperties:
                         type: string
