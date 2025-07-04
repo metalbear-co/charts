@@ -29,7 +29,7 @@ rules:
   - get
   - list
   - watch
-# For patching target workloads: scale down for copy target and env injection for queue splitting.
+# For patching and unpatching target workloads: scale down for copy target and env injection for queue splitting.
 - apiGroups:
   - apps
   resources:
@@ -116,15 +116,8 @@ rules:
   - mirrordsqssessions/status
   verbs:
   - update
-- apiGroups:
-  - ''
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-{{- if .Values.operator.mutatingWebhooks }}
+{{- end }}
+# For deleting previous mutating webhook configs
 - apiGroups:
     - admissionregistration.k8s.io
   resources:
@@ -132,8 +125,29 @@ rules:
   verbs:
     - delete
     - deletecollection
+# For deleting previously mutated pods
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - delete
+  - deletecollection
+{{- if .Values.operator.mutatingWebhooks }}
+# For creating mutating webhook configs
+- apiGroups:
+    - admissionregistration.k8s.io
+  resources:
+    - mutatingwebhookconfigurations
+  verbs:
     - create
-{{- end }}
+# For fetching the operator cluster role
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - clusterroles
+  verbs:
+    - get
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:
@@ -158,6 +172,16 @@ rules:
   - queues.mirrord.metalbear.co
   resources:
   - mirrordkafkatopicsconsumers
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
   verbs:
   - get
   - list
