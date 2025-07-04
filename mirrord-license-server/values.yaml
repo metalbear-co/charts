@@ -41,7 +41,8 @@ server:
   #   kubernetes.io/os: linux
 
   # Port for license-server to listen on.
-  port: 80
+  # avoid using lower port since it might conflict with security policies.
+  port: 8080
 
 license:
   key: ""

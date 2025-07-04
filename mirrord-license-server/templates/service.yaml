@@ -9,7 +9,10 @@ metadata:
 spec:
   ports:
   - name: https
-    port: {{ or .Values.service.port .Values.server.port }}
+    # backward compatibility with old values.yaml
+    # where we either did service.port or server.port
+    # but no reason for this to match server.port.
+    port: {{ or .Values.service.port 80 }}
     targetPort: https
   selector:
     app: mirrord-license-server
