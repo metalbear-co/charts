@@ -9,6 +9,9 @@ metadata:
 spec:
   ports:
   - name: https
+    # backward compatibility with old values.yaml
+    # where we either did service.port or server.port
+    # but no reason for this to match server.port.
     port: {{ or .Values.service.port 80 }}
     targetPort: https
   selector:
