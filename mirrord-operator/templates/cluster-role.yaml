@@ -213,6 +213,14 @@ rules:
   - list
   - get
   - watch
+{{- if .Values.operator.isolatePodsRestart }}
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - patch
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
