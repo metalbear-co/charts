@@ -1,0 +1,1 @@
+Bumped operator chart version to fix previous release.
