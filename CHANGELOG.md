@@ -1,3 +1,28 @@
+## [mirrord-operator-1.30.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.30.0) - 2025-07-09
+
+### Added
+- Added the `sns` field to `MirrordWorkloadQueueRegistry` CRD - for splitting SQS queues based on SNS message attributes.
+
+
+### Changed
+
+- App version update to 3.117.0.
+- Fix `keyRef` docs to talk about the secret.
+- Added a custom strategy for restarting target workloads.
+- Default license server port changed to be 8080, service port to be either service.port or 80
+
+
+### Internal
+
+- Adjusted operator's ClusterRole permissions for switching workload patch mode, added `OPERATOR_MUTATING_WEBHOOKS` env variable to the operator deployment.
+
+## [mirrord-operator-license-server-1.0.20](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.20) - 2025-07-09
+
+
+### Changed
+
+- App version update to 3.117.0.
+
 ## [mirrord-operator-1.29.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.29.2) - 2025-07-01
 
 
