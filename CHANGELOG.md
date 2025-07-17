@@ -4,7 +4,7 @@
 
 - App version update to 3.118.0.
 
-## [mirrord-operator-license-server-1.0.22](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.20) - 2025-07-09
+## [mirrord-operator-license-server-1.0.22](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.22) - 2025-07-17
 
 ### Changed
 
