@@ -164,6 +164,7 @@ agent:
   #  tolerations:
   #    - operator: Exists
   #  privileged: true
+  #  passthrough_mirroring: false
 
 license:
   key: ""
