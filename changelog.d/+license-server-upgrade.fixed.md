@@ -1,0 +1,1 @@
+Adjusted mirrord-license-server strategy to fix an upgrade issue originating from a ReadWriteOnce PVC.
