@@ -12,6 +12,9 @@ spec:
   selector:
     matchLabels:
       app: mirrord-license-server
+  strategy:
+    # This is needed, as the license server uses a ReadWriteOnce PVC.
+    type: Recreate
   template:
     metadata:
       labels:
