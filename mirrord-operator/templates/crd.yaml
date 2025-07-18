@@ -837,7 +837,7 @@ spec:
                   When this is set, an implicit `sasl.mechanism=OAUTHBEARER` property is added.
                 nullable: true
                 properties:
-                  aws-region:
+                  awsRegion:
                     description: |-
                       AWS region of the MSK cluster.
 
