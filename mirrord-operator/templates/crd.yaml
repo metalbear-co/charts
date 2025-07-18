@@ -768,8 +768,10 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories: []
     kind: MirrordKafkaClientConfig
     plural: mirrordkafkaclientconfigs
+    shortNames: []
     singular: mirrordkafkaclientconfig
   scope: Namespaced
   versions:
@@ -781,6 +783,10 @@ spec:
     - description: Name of Secret to load from.
       jsonPath: .spec.loadFromSecret
       name: SECRET
+      type: string
+    - description: Kind of SASL OAUTH token provider.
+      jsonPath: .spec.saslOauthTokenProvider
+      name: SASL_OAUTH_TOKEN_PROVIDER
       type: string
     name: v1alpha
     schema:
@@ -824,6 +830,29 @@ spec:
                   - name
                   type: object
                 type: array
+              saslOauthTokenProvider:
+                description: |-
+                  Optional kind of SASL Oauth token provider to use when authenticating with Kafka.
+
+                  When this is set, an implicit `sasl.mechanism=OAUTHBEARER` property is added.
+                nullable: true
+                properties:
+                  aws-region:
+                    description: |-
+                      AWS region of the MSK cluster.
+
+                      Required when `kind` is `MSK`.
+                    nullable: true
+                    type: string
+                  kind:
+                    description: |-
+                      Kind of the token provider.
+
+                      Right now the only supported value is `MSK`, which stands for Amazon Managed Streaming for Apache Kafka.
+                    type: string
+                required:
+                - kind
+                type: object
             required:
             - properties
             type: object
@@ -833,6 +862,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
