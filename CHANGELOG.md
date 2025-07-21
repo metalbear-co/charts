@@ -1,3 +1,10 @@
+## [mirrord-operator-license-server-1.0.23](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.23) - 2025-07-21
+
+### Changed
+
+- Adjusted mirrord-license-server strategy to fix an upgrade issue originating
+ from a ReadWriteOnce PVC
+
 ## [mirrord-operator-1.31.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.31.0) - 2025-07-17
 
 ### Changed
