@@ -24,3 +24,32 @@ jobs:
         with:
           charts_dir: .
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.1.0
+
+      - name: Install yq
+        run: sudo apt-get update && sudo apt-get install -y yq
+
+      - name: Enable OCI support
+        run: echo "HELM_EXPERIMENTAL_OCI=1" >> $GITHUB_ENV
+
+      - name: Package Helm chart
+        run: helm package mirrord-operator
+
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Helm chart to GHCR
+        run: |
+          CHART_VERSION=$(yq '.version' mirrord-operator/Chart.yaml)
+          helm chart save mirrord-operator-${CHART_VERSION}.tgz ghcr.io/${{ github.repository_owner }}/mirrord-operator:${CHART_VERSION}
+          helm chart push ghcr.io/${{ github.repository_owner }}/mirrord-operator:${CHART_VERSION}
+
+      - name: Package License Server Helm chart
+        run: helm package mirrord-license-server
+
+      - name: Push License Server Helm chart to GHCR
+        run: |
+          LICENSE_CHART_VERSION=$(yq '.version' mirrord-license-server/Chart.yaml)
+          helm chart save mirrord-license-server-${LICENSE_CHART_VERSION}.tgz ghcr.io/${{ github.repository_owner }}/mirrord-license-server:${LICENSE_CHART_VERSION}
+          helm chart push ghcr.io/${{ github.repository_owner }}/mirrord-license-server:${LICENSE_CHART_VERSION}
