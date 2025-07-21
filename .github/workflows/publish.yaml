@@ -38,7 +38,7 @@ jobs:
 
       - name: Push Helm chart to GHCR
         run: |
-          CHART_VERSION=$(yq '.version' mirrord-operator/Chart.yaml)
+          CHART_VERSION=$(yq -r '.version' mirrord-operator/Chart.yaml)
           helm push mirrord-operator-${CHART_VERSION}.tgz oci://ghcr.io/${{ github.repository_owner }}/mirrord-operator:${CHART_VERSION}
 
       - name: Package License Server Helm chart
@@ -46,5 +46,5 @@ jobs:
 
       - name: Push License Server Helm chart to GHCR
         run: |
-          LICENSE_CHART_VERSION=$(yq '.version' mirrord-license-server/Chart.yaml)
+          LICENSE_CHART_VERSION=$(yq -r '.version' mirrord-license-server/Chart.yaml)
           helm push mirrord-license-server-${LICENSE_CHART_VERSION}.tgz oci://ghcr.io/${{ github.repository_owner }}/mirrord-license-server:${LICENSE_CHART_VERSION}
