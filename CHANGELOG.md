@@ -6,7 +6,7 @@
 
 ## [mirrord-operator-1.32.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.32.0) - 2025-07-22
 
-### Changed
+### Added
 
 - Added an option to configure operator's log level.
 
