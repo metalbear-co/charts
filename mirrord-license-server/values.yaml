@@ -14,6 +14,11 @@ server:
   podLabels: {}
   jsonLog: false
 
+  # Sets log level for the license server container.
+  #
+  # See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
+  logLevel: mirrord=info,operator=info
+
   # imagePullSecrets:
   #   - name: value
   
