@@ -167,6 +167,10 @@ agent:
   #  passthrough_mirroring: false
 
 license:
+  # if you configure gsmRef other license fetching strategies are ignored
+  # the Google secrets manager(GSM) url have to be in the format used in the example down here.
+  # the client authentication flow uses Application Default Credentials (ADC)
+  gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
   key: ""
   file:
     secret: mirrord-operator-license
