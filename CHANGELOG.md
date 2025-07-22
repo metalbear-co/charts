@@ -1,3 +1,25 @@
+## [mirrord-operator-license-server-1.0.24](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.24) - 2025-07-22
+
+### Changed
+
+- App version update to 3.118.1.
+
+
+### Internal
+
+- Add pushing the chart to OCI.
+
+## [mirrord-operator-1.31.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.31.1) - 2025-07-22
+
+### Changed
+
+- App version update to 3.118.1.
+
+
+### Internal
+
+- Add pushing the chart to OCI.
+
 ## [mirrord-operator-license-server-1.0.23](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.0.23) - 2025-07-21
 
 ### Changed
