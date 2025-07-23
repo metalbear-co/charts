@@ -71,6 +71,11 @@ operator:
   ## You can use this only if using Enterprise license.
   disableTelemetries: false
 
+  # Sets log level for the operator container.
+  #
+  # See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
+  logLevel: mirrord=info,operator=info
+
   ## Controls how long (in seconds) a session is allowed to live for.
   # maxSessionTimeSeconds: 3600
 

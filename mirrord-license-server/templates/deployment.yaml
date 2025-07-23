@@ -64,7 +64,7 @@ spec:
       - args: ["license-server"]
         env:
         - name: RUST_LOG
-          value: warn,operator=info
+          value: {{ .Values.server.logLevel }}
         - name: ADDRESS
           value: {{ printf "0.0.0.0:%d" (int .Values.server.port ) }}
         - name: DATABASE_URL
