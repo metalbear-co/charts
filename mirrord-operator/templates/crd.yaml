@@ -784,9 +784,9 @@ spec:
       jsonPath: .spec.loadFromSecret
       name: SECRET
       type: string
-    - description: Kind of SASL OAUTH token provider.
-      jsonPath: .spec.saslOauthTokenProvider
-      name: SASL_OAUTH_TOKEN_PROVIDER
+    - description: Additional authentication config.
+      jsonPath: .spec.authenticationExtra
+      name: AUTHENTICATION_EXTRA
       type: string
     name: v1alpha
     schema:
@@ -796,6 +796,28 @@ spec:
           spec:
             description: Configuration to use when creating operator's Kafka client. Resources of this kind should live in the operator's namespace.
             properties:
+              authenticationExtra:
+                description: Additional authentication configuration.
+                nullable: true
+                properties:
+                  awsRegion:
+                    description: |-
+                      AWS region of the MSK cluster.
+
+                      Required when `kind` is `MSK_IAM`.
+                    nullable: true
+                    type: string
+                  kind:
+                    description: |-
+                      Authentication kind.
+
+                      Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER authentication with Amazon Managed Streaming for Apache Kafka.
+
+                      When this is set to `MSK_IAM`, additional properties are merged into the configuration: 1. `sasl.mechanism=OAUTHBEARER` 2. `security.protocol=SASL_SSL`
+                    type: string
+                required:
+                - kind
+                type: object
               loadFromSecret:
                 description: |-
                   Namespace and name of a `Secret` to use as another source of properties.
@@ -830,29 +852,6 @@ spec:
                   - name
                   type: object
                 type: array
-              saslOauthTokenProvider:
-                description: |-
-                  Optional kind of SASL Oauth token provider to use when authenticating with Kafka.
-
-                  When this is set, an implicit `sasl.mechanism=OAUTHBEARER` property is added.
-                nullable: true
-                properties:
-                  awsRegion:
-                    description: |-
-                      AWS region of the MSK cluster.
-
-                      Required when `kind` is `MSK`.
-                    nullable: true
-                    type: string
-                  kind:
-                    description: |-
-                      Kind of the token provider.
-
-                      Right now the only supported value is `MSK`, which stands for Amazon Managed Streaming for Apache Kafka.
-                    type: string
-                required:
-                - kind
-                type: object
             required:
             - properties
             type: object
