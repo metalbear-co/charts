@@ -145,7 +145,7 @@ spec:
         - secretRef:
             name: {{ .Values.license.keyRef }}
         {{- else }}
-          {{- required "Either keyRef, pemRef, file or key value is required for license!" .Values.license.keyRef }}
+          {{- required "Either keyRef, pemRef, gsmRef, file or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
