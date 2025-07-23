@@ -204,6 +204,8 @@ sa:
 
   ## aws role arn to annotate for eks iam assumption
   # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
+  # gpc role to annotate for gke workload identity iam assumption
+  # roleGke: mirrord-operator@<project-id>.iam.gserviceaccount.com
 
 tls:
   secret: mirrord-operator-tls
