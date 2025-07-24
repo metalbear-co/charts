@@ -172,6 +172,11 @@ agent:
   #  passthrough_mirroring: false
 
 license:
+  ## ID of a secret from the Google Secrets Manager.
+  ##
+  ## If provided, the operator will fetch the license file from this secret.
+  ## The operator will use Application Default Credentials.
+  # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
   key: ""
   file:
     secret: mirrord-operator-license
@@ -199,6 +204,8 @@ sa:
 
   ## aws role arn to annotate for eks iam assumption
   # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
+  # gpc role to annotate for gke workload identity iam assumption
+  # roleGke: mirrord-operator@<project-id>.iam.gserviceaccount.com
 
 tls:
   secret: mirrord-operator-tls
