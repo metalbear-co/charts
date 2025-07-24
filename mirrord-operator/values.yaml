@@ -177,6 +177,8 @@ license:
   ## If provided, the operator will fetch the license file from this secret.
   ## The operator will use Application Default Credentials.
   # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+  # If provided the license key will be fetched from google secret manager
+  # gsmKeyRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
   key: ""
   file:
     secret: mirrord-operator-license
