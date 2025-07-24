@@ -130,7 +130,10 @@ spec:
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- if or .Values.license.file.data .Values.license.pemRef }}
+        {{- if .Values.license.gsmRef }}
+        - name: OPERATOR_LICENSE_GSM_REF
+        - value: {{ .Values.license.gsmRef }}
+        {{- else if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
         {{- else if .Values.license.key }}
@@ -142,7 +145,7 @@ spec:
         - secretRef:
             name: {{ .Values.license.keyRef }}
         {{- else }}
-          {{- required "Either keyRef, pemRef, file or key value is required for license!" .Values.license.keyRef }}
+          {{- required "Either keyRef, pemRef, gsmRef, file or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
