@@ -192,6 +192,78 @@ spec:
                     nullable: true
                     type: object
                 type: object
+              splitQueues:
+                default:
+                  filters: []
+                  requireFilter: false
+                description: Split queues policy that defines requirements for mirrord `feature.split_queues` config.
+                properties:
+                  filters:
+                    description: A set of queue filter policies that need to be satisfied in a mirrord session.
+                    items:
+                      description: Filter rules for matching queues. Queues are matched using `queue_id` regex and `queue_type`.
+                      properties:
+                        filterRules:
+                          description: A set of rules for filters used against the matching queues.
+                          oneOf:
+                          - required:
+                            - allOf
+                          - required:
+                            - anyOf
+                          properties:
+                            allOf:
+                              items:
+                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
+                                properties:
+                                  key:
+                                    description: Key of the filter.
+                                    type: string
+                                  value:
+                                    description: Regex that's used to match against the filter value.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                            anyOf:
+                              items:
+                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
+                                properties:
+                                  key:
+                                    description: Key of the filter.
+                                    type: string
+                                  value:
+                                    description: Regex that's used to match against the filter value.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                          type: object
+                        queueId:
+                          description: A regex used for matching queue ids.
+                          type: string
+                        queueType:
+                          description: The queue type this policy applies to.
+                          enum:
+                          - SQS
+                          - Kafka
+                          type: string
+                      required:
+                      - filterRules
+                      - queueId
+                      - queueType
+                      type: object
+                    type: array
+                  requireFilter:
+                    description: When set to true, require message filter being used in split queues.
+                    type: boolean
+                required:
+                - filters
+                - requireFilter
+                type: object
               targetPath:
                 description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
                 nullable: true
@@ -391,6 +463,78 @@ spec:
                     description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
+                type: object
+              splitQueues:
+                default:
+                  filters: []
+                  requireFilter: false
+                description: Split queues policy that defines requirements for mirrord `feature.split_queues` config.
+                properties:
+                  filters:
+                    description: A set of queue filter policies that need to be satisfied in a mirrord session.
+                    items:
+                      description: Filter rules for matching queues. Queues are matched using `queue_id` regex and `queue_type`.
+                      properties:
+                        filterRules:
+                          description: A set of rules for filters used against the matching queues.
+                          oneOf:
+                          - required:
+                            - allOf
+                          - required:
+                            - anyOf
+                          properties:
+                            allOf:
+                              items:
+                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
+                                properties:
+                                  key:
+                                    description: Key of the filter.
+                                    type: string
+                                  value:
+                                    description: Regex that's used to match against the filter value.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                            anyOf:
+                              items:
+                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
+                                properties:
+                                  key:
+                                    description: Key of the filter.
+                                    type: string
+                                  value:
+                                    description: Regex that's used to match against the filter value.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                          type: object
+                        queueId:
+                          description: A regex used for matching queue ids.
+                          type: string
+                        queueType:
+                          description: The queue type this policy applies to.
+                          enum:
+                          - SQS
+                          - Kafka
+                          type: string
+                      required:
+                      - filterRules
+                      - queueId
+                      - queueType
+                      type: object
+                    type: array
+                  requireFilter:
+                    description: When set to true, require message filter being used in split queues.
+                    type: boolean
+                required:
+                - filters
+                - requireFilter
                 type: object
               targetPath:
                 description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
