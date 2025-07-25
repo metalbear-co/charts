@@ -77,8 +77,15 @@ spec:
         - name: TLS_KEY_PATH
           value: /tls/tls.key
         {{- end }}
+        {{- if .Values.license.file.data }}
         - name: LICENSE_PATH
           value: /license/license.pem
+        {{- else if .Values.license.gsmRef }}
+        - name: OPERATOR_LICENSE_GSM_REF
+          value: {{ .Values.license.gsmRef }}
+        {{- else }}
+          {{- fail "Either .license.file.data or .license.gsmRef value is required" }}
+        {{- end }}
         {{- if .Values.license.key  }}
         - name: LICENSE_KEY
           value: {{ .Values.license.key }}
@@ -87,7 +94,7 @@ spec:
         - secretRef:
             name: {{ .Values.license.keyRef }}
         {{- else }}
-          {{- required "Either keyRef, key value is required for license!" .Values.license.keyRef }}
+          {{- fail "Either .license.keyRef or .license.key value is required" }}
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
@@ -135,9 +142,11 @@ spec:
         secret:
           secretName: {{ .Values.tls.secret }}
       {{- end }}
+      {{- if .Values.license.file.data }}
       - name: license-volume
         secret:
           secretName: {{ .Values.license.file.secret }}
+      {{- end }}
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc
