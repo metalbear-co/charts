@@ -77,8 +77,13 @@ spec:
         - name: TLS_KEY_PATH
           value: /tls/tls.key
         {{- end }}
+        {{- if or .Values.license.file.data }}
         - name: LICENSE_PATH
           value: /license/license.pem
+        {{- else if .Values.license.gsmRef }}
+        - name: OPERATOR_LICENSE_GSM_REF
+          value: {{ .Values.license.gsmRef }}
+        {{- end }}
         {{- if .Values.license.key  }}
         - name: LICENSE_KEY
           value: {{ .Values.license.key }}
@@ -135,9 +140,11 @@ spec:
         secret:
           secretName: {{ .Values.tls.secret }}
       {{- end }}
+      {{- if .Values.license.file.data }}
       - name: license-volume
         secret:
           secretName: {{ .Values.license.file.secret }}
+      {{- end }}
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc
