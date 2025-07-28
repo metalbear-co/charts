@@ -768,10 +768,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordKafkaClientConfig
     plural: mirrordkafkaclientconfigs
-    shortNames: []
     singular: mirrordkafkaclientconfig
   scope: Namespaced
   versions:
