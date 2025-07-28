@@ -172,6 +172,15 @@ agent:
   #  passthrough_mirroring: false
 
 license:
+  ## ID of a secret from the Google Secrets Manager.
+  ##
+  ## If provided, the operator will fetch the license file from this secret.
+  ##
+  ## To access the secret, the operator will use Application Default Credentials.
+  ## The easiest way to provide credentials is by allowing the operator's
+  ## Kubernetes ServiceAccount to impersonate a GCP service account.
+  ## This can be done with `.sa.gcpSa` setting.
+  # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
   key: ""
   file:
     secret: mirrord-operator-license
@@ -197,8 +206,10 @@ service:
 sa:
   name: mirrord-operator
 
-  ## aws role arn to annotate for eks iam assumption
+  ## AWS role ARN to use for IAM role assumption.
   # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
+  ## GCP service account to impersonate.
+  # gcpSa: <iam-sa-name>@<iam-sa-project-id>.iam.gserviceaccount.com
 
 tls:
   secret: mirrord-operator-tls

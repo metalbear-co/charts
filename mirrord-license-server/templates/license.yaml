@@ -10,5 +10,5 @@ stringData:
   {{- toYaml .Values.license.file.data | nindent 2 }}
 {{- end }}
 {{- /*
-don't create secret if using keyRef or pemRef
+don't create secret if using gsmRef
 */}}

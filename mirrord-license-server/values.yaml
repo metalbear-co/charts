@@ -50,6 +50,15 @@ server:
   port: 8080
 
 license:
+  ## ID of a secret from the Google Secrets Manager.
+  ##
+  ## If provided, the license server will fetch the license file from this secret.
+  ##
+  ## To access the secret, the license server will use Application Default Credentials.
+  ## The easiest way to provide credentials is by allowing the license server's
+  ## Kubernetes ServiceAccount to impersonate a GCP service account.
+  ## This can be done with `.sa.gcpSa` setting.
+  # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
   key: ""
   file:
     secret: mirrord-operator-license-server-license
@@ -79,6 +88,9 @@ pvc:
 
 sa:
   name: mirrord-operator-license-server
+
+  ## GCP service account to impersonate.
+  # gcpSa: <iam-sa-name>@<iam-sa-project-id>.iam.gserviceaccount.com
 
 tls:
   secret: mirrord-operator-license-server-tls
