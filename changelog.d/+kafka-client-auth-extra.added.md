@@ -1,1 +1,0 @@
-Added an option to additional authentication config in the `MirrordKafkaClientConfig`.
