@@ -231,6 +231,11 @@ Refer to the [agent configuration docs](https://metalbear.co/mirrord/docs/refere
 Configure this chart if you use a `.pem` license and want full control of your seat usage on-premise. See full instructions in the [license server docs](https://metalbear.co/mirrord/docs/managing-mirrord/license-server/).
 
 ---
+## Contributing
+
+When contributing to this repo, make sure to use a branch rather than a fork.
+
+---
 
 ## Useful Links
 
