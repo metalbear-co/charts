@@ -233,7 +233,9 @@ Configure this chart if you use a `.pem` license and want full control of your s
 ---
 ## Contributing
 
-When contributing to this repo, make sure to use a branch rather than a fork.
+The workflow for creating pull requests to this repo from forks doesn't work at the moment. When contributing, create a pull request from a fork, and one of our team members will manually ensure it goes through CI and is merged.
+
+Team members contributing to this repo should create a branch instead of a fork.
 
 ---
 
