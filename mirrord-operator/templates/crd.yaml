@@ -194,7 +194,6 @@ spec:
                 type: object
               splitQueues:
                 default:
-                  filters: []
                   requireFilter: false
                 description: Split queues policy that defines requirements for mirrord `feature.split_queues` config.
                 properties:
@@ -210,37 +209,24 @@ spec:
                             - allOf
                           - required:
                             - anyOf
+                          - required:
+                            - key
                           properties:
                             allOf:
                               items:
-                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
-                                properties:
-                                  key:
-                                    description: Key of the filter.
-                                    type: string
-                                  value:
-                                    description: Regex that's used to match against the filter value.
-                                    nullable: true
-                                    type: string
-                                required:
-                                - key
-                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
                               type: array
                             anyOf:
                               items:
-                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
-                                properties:
-                                  key:
-                                    description: Key of the filter.
-                                    type: string
-                                  value:
-                                    description: Regex that's used to match against the filter value.
-                                    nullable: true
-                                    type: string
-                                required:
-                                - key
-                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
                               type: array
+                            key:
+                              description: Key of the filter.
+                              type: string
+                            value:
+                              description: Regex that's used to match against the filter value.
+                              nullable: true
+                              type: string
                           type: object
                         queueId:
                           description: A regex used for matching queue ids.
@@ -258,11 +244,9 @@ spec:
                       type: object
                     type: array
                   requireFilter:
-                    description: When set to true, require message filter being used in split queues.
+                    default: false
+                    description: When set to true, require a message filter to be used in split queues.
                     type: boolean
-                required:
-                - filters
-                - requireFilter
                 type: object
               targetPath:
                 description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
@@ -466,7 +450,6 @@ spec:
                 type: object
               splitQueues:
                 default:
-                  filters: []
                   requireFilter: false
                 description: Split queues policy that defines requirements for mirrord `feature.split_queues` config.
                 properties:
@@ -482,37 +465,24 @@ spec:
                             - allOf
                           - required:
                             - anyOf
+                          - required:
+                            - key
                           properties:
                             allOf:
                               items:
-                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
-                                properties:
-                                  key:
-                                    description: Key of the filter.
-                                    type: string
-                                  value:
-                                    description: Regex that's used to match against the filter value.
-                                    nullable: true
-                                    type: string
-                                required:
-                                - key
-                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
                               type: array
                             anyOf:
                               items:
-                                description: A single filter rule. When `value` is none, a filter with the specified `key` is required. When `value` is specified, the filter value under `key` must match the rule in `value`.
-                                properties:
-                                  key:
-                                    description: Key of the filter.
-                                    type: string
-                                  value:
-                                    description: Regex that's used to match against the filter value.
-                                    nullable: true
-                                    type: string
-                                required:
-                                - key
-                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
                               type: array
+                            key:
+                              description: Key of the filter.
+                              type: string
+                            value:
+                              description: Regex that's used to match against the filter value.
+                              nullable: true
+                              type: string
                           type: object
                         queueId:
                           description: A regex used for matching queue ids.
@@ -530,11 +500,9 @@ spec:
                       type: object
                     type: array
                   requireFilter:
-                    description: When set to true, require message filter being used in split queues.
+                    default: false
+                    description: When set to true, require a message filter to be used in split queues.
                     type: boolean
-                required:
-                - filters
-                - requireFilter
                 type: object
               targetPath:
                 description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
