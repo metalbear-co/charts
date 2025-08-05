@@ -130,8 +130,11 @@ spec:
         - mountPath: /tls
           name: tls-volume
         {{- end }}
+        # Only when we have the license file.
+        {{- if .Values.license.file.data }}
         - mountPath: /license
           name: license-volume
+        {{- end }}
         # needed for the license-server create sqlite database
         - mountPath: /opt/mirrord/data
           name: data
@@ -142,6 +145,7 @@ spec:
         secret:
           secretName: {{ .Values.tls.secret }}
       {{- end }}
+      # Only when we have the license file.
       {{- if .Values.license.file.data }}
       - name: license-volume
         secret:
