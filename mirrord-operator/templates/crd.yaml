@@ -10,7 +10,7 @@ spec:
     singular: mirrordpolicy
   scope: Namespaced
   versions:
-    - name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPolicySpec via `CustomResource`
@@ -219,7 +219,7 @@ spec:
     singular: mirrordclusterpolicy
   scope: Cluster
   versions:
-    - name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterPolicySpec via `CustomResource`
