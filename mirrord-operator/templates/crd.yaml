@@ -5,15 +5,12 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordPolicy
     plural: mirrordpolicies
-    shortNames: []
     singular: mirrordpolicy
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+    - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPolicySpec via `CustomResource`
@@ -217,15 +214,12 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordClusterPolicy
     plural: mirrordclusterpolicies
-    shortNames: []
     singular: mirrordclusterpolicy
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+    - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterPolicySpec via `CustomResource`
