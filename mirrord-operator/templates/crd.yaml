@@ -21,6 +21,15 @@ spec:
 
               This policy applies only to resources living in the same namespace.
             properties:
+              appliesToCopyTargets:
+                default: false
+                description: |-
+                  Whether this policy applies also to sessions using the copy target feature.
+
+                  By default, policies don't apply to copy target sessions.
+
+                  Defaults to `false`.
+                type: boolean
               block:
                 description: List of features and operations blocked by this policy.
                 items:
@@ -29,6 +38,7 @@ spec:
                   - steal
                   - steal-without-filter
                   - mirror
+                  - copy-target-scale-down
                   type: string
                 type: array
               env:
@@ -219,6 +229,15 @@ spec:
 
               This policy applies to resources across all namespaces in the cluster.
             properties:
+              appliesToCopyTargets:
+                default: false
+                description: |-
+                  Whether this policy applies also to sessions using the copy target feature.
+
+                  By default, policies don't apply to copy target sessions.
+
+                  Defaults to `false`.
+                type: boolean
               block:
                 description: List of features and operations blocked by this policy.
                 items:
@@ -227,6 +246,7 @@ spec:
                   - steal
                   - steal-without-filter
                   - mirror
+                  - copy-target-scale-down
                   type: string
                 type: array
               env:
