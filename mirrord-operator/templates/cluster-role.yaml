@@ -133,6 +133,17 @@ rules:
   verbs:
   - delete
   - deletecollection
+# For fetching the operator cluster role.
+# The role is used as an owner reference
+# for various native resources created by the operator.
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - clusterroles
+  resourceNames:
+    - mirrord-operator
+  verbs:
+    - get
 {{- if .Values.operator.mutatingWebhooks }}
 # For creating mutating webhook configs
 - apiGroups:
@@ -141,13 +152,6 @@ rules:
     - mutatingwebhookconfigurations
   verbs:
     - create
-# For fetching the operator cluster role
-- apiGroups:
-    - rbac.authorization.k8s.io
-  resources:
-    - clusterroles
-  verbs:
-    - get
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:
