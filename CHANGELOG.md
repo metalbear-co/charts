@@ -1,3 +1,17 @@
+## [mirrord-operator-license-server-1.2.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.2.2) - 2025-08-07
+
+### Changed
+
+- Updated app version to 3.119.2.
+
+## [mirrord-operator-1.34.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.34.2) - 2025-08-07
+
+### Changed
+
+- Updated app version to 3.119.2.
+- The operator's cluster role now always allows for fetching itself.
+- Added definition of policy for blocking scaledown when copying the target.
+
 ## [mirrord-operator-license-server-1.2.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.2.1) - 2025-07-30
 
 ### Changed
