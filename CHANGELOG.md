@@ -1,3 +1,15 @@
+## [mirrord-operator-license-server-1.2.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.2.3) - 2025-08-08
+
+### Changed
+
+- Updated app version to 3.120.0.
+
+## [mirrord-operator-1.34.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.34.3) - 2025-08-08
+
+### Changed
+
+- Updated app version to 3.120.0.
+
 ## [mirrord-operator-license-server-1.2.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.2.2) - 2025-08-07
 
 ### Changed
