@@ -126,6 +126,10 @@ spec:
           value: {{ .Values.operator.mutatingWebhooks | ternary "true" "false" | quote }}
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
+        {{- if .Values.operator.sqsSplittingLingerTimeout }}
+        - name: OPERATOR_SQS_SPLITTING_LINGER_TIMEOUT
+          value: {{ .Values.operator.sqsSplittingLingerTimeout | quote }}
+        {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
           value: {{ $val | quote }}

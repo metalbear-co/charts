@@ -96,6 +96,15 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
+  
+  ## Linger timeout for SQS splits.
+  ## An active SQS split keep the target consumer patched to read from temporary SQS queues created by the operator.
+  ## Once all SQS sessions have finished, the SQS split still remains active (lingers)
+  ## until the temporary queues have been emptied by that consumer.
+  ## In case of misconfiguration or frequent failures, this can lead to the consumer being patch indefinitely.
+  ## This setting allows for specifying a timeout on the linger time (in milliseconds).
+  # sqsSplittingLingerTimeout: 60000
+
   ## This should be enough for around 200~ concurrent sessions.
   limits:
     cpu: 200m
