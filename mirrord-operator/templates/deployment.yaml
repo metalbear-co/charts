@@ -74,6 +74,8 @@ spec:
           value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_KAFKA_SPLITTING
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_MYSQL_BRANCHING
+          value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"
@@ -84,6 +86,8 @@ spec:
           value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG
           value: /mirrord-config/agent-config.yaml
+        - name: OPERATOR_MYSQL_BRANCH_CONFIG
+          value: /mirrord-config/mysql-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
