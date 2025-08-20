@@ -49,6 +49,8 @@ operator:
   kafkaSplitting: false
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
+  # Has to be set to `true` in order to use the MySQL database branching feature.
+  mysqlBranching: false 
   # Has to be set to `true` in order to allow the operator to set mutating webhooks in order to
   # make modifications to target workloads in a way that is compatible with ArgoCD auto syncing.
   mutatingWebhooks: false
