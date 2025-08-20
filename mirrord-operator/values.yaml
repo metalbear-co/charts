@@ -98,10 +98,10 @@ operator:
 
   
   ## Linger timeout for SQS splits.
-  ## An active SQS split keep the target consumer patched to read from temporary SQS queues created by the operator.
+  ## An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   ## Once all SQS sessions have finished, the SQS split still remains active (lingers)
   ## until the temporary queues have been emptied by that consumer.
-  ## In case of misconfiguration or frequent failures, this can lead to the consumer being patch indefinitely.
+  ## In case of misconfiguration or frequent failures, this can lead to the consumer being patched indefinitely.
   ## This setting allows for specifying a timeout on the linger time (in milliseconds).
   # sqsSplittingLingerTimeout: 60000
 
