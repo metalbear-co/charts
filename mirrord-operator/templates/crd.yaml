@@ -1712,28 +1712,22 @@ spec:
                 type: string
               target:
                 anyOf:
-                - anyOf:
-                  - required:
-                    - deployment
-                  - required:
-                    - pod
-                  - required:
-                    - rollout
-                  - required:
-                    - job
-                  - required:
-                    - cron_job
-                  - required:
-                    - stateful_set
-                  - required:
-                    - service
-                  - required:
-                    - replica_set
-                - description: |-
-                    A target that has been added in the operator, but the current version of mirrord doesn't know about.
-
-                    Should be ignored in most cases.
-                  type: string
+                - required:
+                  - deployment
+                - required:
+                  - pod
+                - required:
+                  - rollout
+                - required:
+                  - job
+                - required:
+                  - cron_job
+                - required:
+                  - stateful_set
+                - required:
+                  - service
+                - required:
+                  - replica_set
                 description: Target k8s resource to extract connection source info from.
                 properties:
                   container:
