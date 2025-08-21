@@ -225,6 +225,27 @@ rules:
   verbs:
   - patch
 {{- end }}
+{{- if .Values.operator.mysqlBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mysqlbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mysqlbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
