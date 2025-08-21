@@ -48,6 +48,15 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - get
   - list
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mysqlbranchdatabases
+  verbs:
+  - get
+  - list
+  - create
+  - watch
 {{- end }}
 
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}
