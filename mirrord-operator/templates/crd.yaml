@@ -1782,9 +1782,7 @@ spec:
                   properties:
                     id:
                       description: Session id.
-                      format: uint64
-                      minimum: 0.0
-                      type: integer
+                      type: string
                     owner:
                       description: Owner info of the session.
                       properties:
