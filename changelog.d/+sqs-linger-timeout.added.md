@@ -1,0 +1,1 @@
+Added a configuration option for SQS split linger timeout.
