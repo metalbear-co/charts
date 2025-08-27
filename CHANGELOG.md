@@ -1,3 +1,19 @@
+## [mirrord-operator-license-server-1.3.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.3.1) - 2025-08-27
+
+### Changed
+
+- Updated app version to 3.123.0.
+
+## [mirrord-operator-1.36.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.36.0) - 2025-08-27
+
+### Added
+
+- Added a configuration option for SQS split linger timeout.
+
+### Changed
+
+- Updated app version to 3.123.0.
+
 ## [mirrord-operator-license-server-1.3.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.3.0) - 2025-08-22
 
 ### Changed
