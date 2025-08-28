@@ -31,3 +31,7 @@ data:
     {{- if .Values.agent.extraConfig }}
     {{- .Values.agent.extraConfig | toYaml | nindent 4 }}
     {{- end }}
+  mysql-branch-config.yaml: |-
+    {{- if and .Values.operator.mysqlBranching .Values.operator.mysqlBranchConfig }}
+    {{- toYaml .Values.operator.mysqlBranchConfig | nindent 4 }}
+    {{- end }}
