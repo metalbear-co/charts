@@ -1702,6 +1702,7 @@ spec:
                 type: object
               databaseName:
                 description: MySQL database name.
+                nullable: true
                 type: string
               id:
                 description: ID derived by mirrord CLI.
@@ -1711,7 +1712,8 @@ spec:
                 nullable: true
                 type: string
               target:
-                anyOf:
+                description: Target k8s resource to extract connection source info from.
+                oneOf:
                 - required:
                   - deployment
                 - required:
@@ -1728,7 +1730,6 @@ spec:
                   - service
                 - required:
                   - replica_set
-                description: Target k8s resource to extract connection source info from.
                 properties:
                   container:
                     nullable: true
@@ -1760,7 +1761,6 @@ spec:
                 type: integer
             required:
             - connectionSource
-            - databaseName
             - id
             - target
             - ttlSecs
