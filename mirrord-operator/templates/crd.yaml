@@ -505,6 +505,15 @@ spec:
                   type: object
                 description: A map of the queues that should be split. The key is used by users to associate filters to the right queues.
                 type: object
+              workloadRestartTimeout:
+                description: |-
+                  Timeout for waiting until workload patch takes effect, that is - at least one pod reads from the main temporary queue.
+
+                  Specified in seconds. Defaults to 120s.
+                format: uint32
+                minimum: 0.0
+                nullable: true
+                type: integer
             required:
             - consumer
             - queues
