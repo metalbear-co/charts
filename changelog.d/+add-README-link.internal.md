@@ -1,1 +1,0 @@
-Link to license server section in `README.md` license key config.

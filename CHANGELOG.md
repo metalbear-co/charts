@@ -1,3 +1,21 @@
+## [mirrord-operator-license-server-1.4.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.0) - 2025-09-02
+
+### Changed
+
+- Updated app version to 3.124.0.
+
+## [mirrord-operator-1.37.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.37.0) - 2025-09-02
+
+### Changed
+
+- Updated app version to 3.124.0.
+- Added CRD, feature flag and config map for MySQL branching.
+- `workloadRestartTimeout` field for `MirrordWorkloadQueueRegistry`, that controls the timeout for the target workload to restart on the first SQS session start of a target.
+
+### Internal
+
+- Link to license server section in `README.md` license key config.
+
 ## [mirrord-operator-license-server-1.3.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.3.2) - 2025-09-01
 
 ### Changed
