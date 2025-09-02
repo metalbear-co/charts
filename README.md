@@ -101,6 +101,8 @@ license:
   pemRef: "mirrord-operator-license-pem:license.pem"
 ```
 
+> NOTE: When using the license server, you may need to configure the license certificate and keys differently. See [the section below](#mirrord-license-server-chart) for more details.
+
 ---
 
 ### Namespace & Role Configuration
@@ -224,9 +226,9 @@ Refer to the [agent configuration docs](https://metalbear.co/mirrord/docs/refere
 
 ---
 
-## mirrord License Server
+## mirrord License Server chart
 
-[mirrord-license-server](./mirrord-license-server)
+Chart source: [mirrord-license-server](./mirrord-license-server)
 
 Configure this chart if you use a `.pem` license and want full control of your seat usage on-premise. See full instructions in the [license server docs](https://metalbear.co/mirrord/docs/managing-mirrord/license-server/).
 
