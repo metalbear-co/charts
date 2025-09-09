@@ -1,0 +1,1 @@
+`operator.isolatePodsRestart` is now enabled by default.
