@@ -20,5 +20,5 @@ stringData:
   OPERATOR_LICENSE_KEY: {{ .Values.license.key }}
 {{- end }}
 {{- /*
-don't create secret if using keyRef or pemRef
+only create the secret if license PEM was provided
 */}}

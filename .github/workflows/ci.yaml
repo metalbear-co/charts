@@ -33,7 +33,7 @@ jobs:
     # don't run CI on drafts
     if: github.event.pull_request.draft == false
     outputs:
-      yaml_changed: ${{ steps.changed-rs.outputs.any_changed }}
+      yaml_changed: ${{ steps.changed-yaml.outputs.any_changed }}
       tpl_changed: ${{ steps.changed-markdown.outputs.any_changed }}
       ci_changed: ${{ steps.changed-ci.outputs.any_changed }}
     steps:

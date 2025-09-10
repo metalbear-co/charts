@@ -77,14 +77,12 @@ spec:
         - name: TLS_KEY_PATH
           value: /tls/tls.key
         {{- end }}
-        {{- if .Values.license.file.data }}
-        - name: LICENSE_PATH
-          value: /license/license.pem
-        {{- else if .Values.license.gsmRef }}
+        {{- if .Values.license.gsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF
           value: {{ .Values.license.gsmRef }}
         {{- else }}
-          {{- fail "Either .license.file.data or .license.gsmRef value is required" }}
+        - name: LICENSE_PATH
+          value: /license/license.pem
         {{- end }}
         {{- if .Values.license.key  }}
         - name: LICENSE_KEY
@@ -130,8 +128,8 @@ spec:
         - mountPath: /tls
           name: tls-volume
         {{- end }}
-        # Only when we have the license file.
-        {{- if .Values.license.file.data }}
+        {{- if not .Values.license.gsmRef }}
+        # Only when we have the license in a k8s secret.
         - mountPath: /license
           name: license-volume
         {{- end }}
@@ -145,8 +143,8 @@ spec:
         secret:
           secretName: {{ .Values.tls.secret }}
       {{- end }}
-      # Only when we have the license file.
-      {{- if .Values.license.file.data }}
+      {{- if not .Values.license.gsmRef }}
+      # Only when we have the license in a k8s secret.
       - name: license-volume
         secret:
           secretName: {{ .Values.license.file.secret }}
