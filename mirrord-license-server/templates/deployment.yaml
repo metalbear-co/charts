@@ -129,7 +129,7 @@ spec:
           name: tls-volume
         {{- end }}
         {{- if not .Values.license.gsmRef }}
-        # Only when we have the license file.
+        # Only when we have the license in a k8s secret.
         - mountPath: /license
           name: license-volume
         {{- end }}
