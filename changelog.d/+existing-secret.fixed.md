@@ -1,1 +1,0 @@
-Fixed a bug in the license server's templates that prevented using the license stored in a pre-existing Kubernetes secret.

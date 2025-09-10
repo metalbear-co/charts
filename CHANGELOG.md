@@ -1,3 +1,15 @@
+## [mirrord-operator-license-server-1.4.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.1) - 2025-09-10
+
+### Fixed
+
+- Fixed a bug in the templates that prevented using the license stored in a pre-existing Kubernetes secret.
+
+## [mirrord-operator-1.37.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.37.1) - 2025-09-10
+
+### Changed
+
+- `operator.isolatePodsRestart` is now enabled by default.
+
 ## [mirrord-operator-license-server-1.4.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.0) - 2025-09-02
 
 ### Changed
