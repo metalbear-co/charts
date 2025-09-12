@@ -144,7 +144,7 @@ spec:
         {{- end }}
         {{- if .Values.license.gsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF
-        - value: {{ .Values.license.gsmRef }}
+          value: {{ .Values.license.gsmRef }}
         {{- else if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
