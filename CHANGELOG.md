@@ -1,4 +1,4 @@
-## [mirrord-operator-license-server-1.5.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.0) - 2025-09-17
+## [mirrord-operator-license-server-1.4.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.3) - 2025-09-17
 
 
 ### Changed
