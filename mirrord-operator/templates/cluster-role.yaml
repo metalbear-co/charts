@@ -125,6 +125,7 @@ rules:
   verbs:
     - delete
     - deletecollection
+    - list
 # For deleting previously mutated pods
 - apiGroups:
   - ""
