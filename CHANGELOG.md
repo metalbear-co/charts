@@ -1,4 +1,20 @@
-## [mirrord-operator-1.38.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.2) - 2025-09-11
+## [mirrord-operator-license-server-1.4.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.3) - 2025-09-17
+
+
+### Changed
+
+- Bump license-server to 3.126.0
+
+
+## [mirrord-operator-1.38.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.38.1) - 2025-09-17
+
+
+### Changed
+
+- Bump operator to 3.126.0
+
+
+## [mirrord-operator-license-server-1.4.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.2) - 2025-09-11
 
 
 ### Changed
