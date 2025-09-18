@@ -153,6 +153,9 @@ rules:
     - mutatingwebhookconfigurations
   verbs:
     - create
+    - get
+    - update
+    - patch
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:
