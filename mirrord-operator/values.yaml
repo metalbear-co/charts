@@ -53,7 +53,7 @@ operator:
   mysqlBranching: false 
   # Has to be set to `true` in order to allow the operator to set mutating webhooks in order to
   # make modifications to target workloads in a way that is compatible with ArgoCD auto syncing.
-  mutatingWebhooks: false
+  mutatingWebhooks: true
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # Note that this is setting is ignored if `mutatingWebhooks` is set to `false`.
   # This strategy can be used if standard restart procedure is not working for the target workload.
