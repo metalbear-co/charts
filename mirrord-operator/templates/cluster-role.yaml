@@ -125,6 +125,7 @@ rules:
   verbs:
     - delete
     - deletecollection
+    - list
 # For deleting previously mutated pods
 - apiGroups:
   - ""
@@ -152,6 +153,9 @@ rules:
     - mutatingwebhookconfigurations
   verbs:
     - create
+    - get
+    - update
+    - patch
 {{- end }}
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:
@@ -246,6 +250,21 @@ rules:
   - update
   - patch
 {{- end }}
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclusterworkloadpatches
+  - mirrordclusterworkloadpatchrequests
+  - mirrordclusterworkloadpatchrequests/status
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - deletecollection
+  - update
+  - patch
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

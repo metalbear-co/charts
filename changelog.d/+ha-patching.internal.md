@@ -1,0 +1,1 @@
+Added custom resource definitions for HA patching.

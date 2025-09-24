@@ -1833,3 +1833,211 @@ spec:
     subresources:
       status: {}
 {{ end }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclusterworkloadpatches.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    kind: MirrordClusterWorkloadPatch
+    plural: mirrordclusterworkloadpatches
+    singular: mirrordclusterworkloadpatch
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: API version of the workload.
+      jsonPath: .spec.workloadRef.apiVersion
+      name: WORKLOAD-API-VERSION
+      type: string
+    - description: Kind of the workload.
+      jsonPath: .spec.workloadRef.kind
+      name: WORKLOAD-KIND
+      type: string
+    - description: Name of the workload.
+      jsonPath: .spec.workloadRef.name
+      name: WORKLOAD-NAME
+      type: string
+    - description: Namespace of the workload.
+      jsonPath: .spec.workloadRef.namespace
+      name: WORKLOAD-NAMESPACE
+      type: string
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterWorkloadPatchSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Internal resource, representing operator patch state of some workload.
+
+              This is an aggregated state of accepted [`MirrordClusterWorkloadPatchRequest`]s.
+            properties:
+              requests:
+                description: |-
+                  Collection of accepted [`MirrordClusterWorkloadPatchRequest`]s.
+
+                  These requests will be enforced on the workload.
+                items:
+                  description: An accepted [`MirrordClusterWorkloadPatchRequest`], part of [`MirrordClusterWorkloadPatch`].
+                  properties:
+                    envVars:
+                      description: Environment variables to be set in the pod template.
+                      items:
+                        properties:
+                          container:
+                            type: string
+                          value:
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - container
+                        - value
+                        - variable
+                        type: object
+                      type: array
+                    replicas:
+                      description: |-
+                        Number of replicas to be set in the workload spec.
+
+                        [`None`] means that replicas should not be patched.
+                      format: int32
+                      nullable: true
+                      type: integer
+                    uid:
+                      description: UID of the origin [`MirrordClusterWorkloadPatchRequest`] resource.
+                      type: string
+                  required:
+                  - envVars
+                  - uid
+                  type: object
+                type: array
+              workloadRef:
+                description: Reference to the workload being patched.
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - apiVersion
+                - kind
+                - name
+                - namespace
+                type: object
+            required:
+            - requests
+            - workloadRef
+            type: object
+        required:
+        - spec
+        title: MirrordClusterWorkloadPatch
+        type: object
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclusterworkloadpatchrequests.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    kind: MirrordClusterWorkloadPatchRequest
+    plural: mirrordclusterworkloadpatchrequests
+    singular: mirrordclusterworkloadpatchrequest
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: API version of the workload.
+      jsonPath: .spec.workloadRef.apiVersion
+      name: WORKLOAD-API-VERSION
+      type: string
+    - description: Kind of the workload.
+      jsonPath: .spec.workloadRef.kind
+      name: WORKLOAD-KIND
+      type: string
+    - description: Name of the workload.
+      jsonPath: .spec.workloadRef.name
+      name: WORKLOAD-NAME
+      type: string
+    - description: Namespace of the workload.
+      jsonPath: .spec.workloadRef.namespace
+      name: WORKLOAD-NAMESPACE
+      type: string
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterWorkloadPatchRequestSpec via `CustomResource`
+        properties:
+          spec:
+            description: Internal resource, representing an operator request to patch some workload.
+            properties:
+              envVars:
+                description: Environment variables to be set in the pod template.
+                items:
+                  properties:
+                    container:
+                      type: string
+                    value:
+                      type: string
+                    variable:
+                      type: string
+                  required:
+                  - container
+                  - value
+                  - variable
+                  type: object
+                type: array
+              replicas:
+                description: |-
+                  Number of replicas to be set in the workload spec.
+
+                  [`None`] means that replicas should not be patched.
+                format: int32
+                nullable: true
+                type: integer
+              workloadRef:
+                description: Reference to the workload being patched.
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - apiVersion
+                - kind
+                - name
+                - namespace
+                type: object
+            required:
+            - envVars
+            - workloadRef
+            type: object
+          status:
+            nullable: true
+            properties:
+              accepted:
+                type: boolean
+            required:
+            - accepted
+            type: object
+        required:
+        - spec
+        title: MirrordClusterWorkloadPatchRequest
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
