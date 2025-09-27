@@ -83,4 +83,10 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - get
   - list
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordclusteroperatorusercredentials
+  verbs:
+  - create
 {{- end }}
