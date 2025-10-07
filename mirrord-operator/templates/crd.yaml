@@ -2041,3 +2041,155 @@ spec:
     storage: true
     subresources:
       status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclustersessions.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    kind: MirrordClusterSession
+    plural: mirrordclustersessions
+    singular: mirrordclustersession
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: User unique ID..
+      jsonPath: .spec.owner.userId
+      name: USER ID
+      type: string
+    - description: User local POSIX name.
+      jsonPath: .spec.owner.username
+      name: USERNAME
+      type: string
+    - description: User hostname.
+      jsonPath: .spec.owner.hostname
+      name: HOSTNAME
+      type: string
+    - description: User Kubernetes name.
+      jsonPath: .spec.owner.k8sUsername
+      name: K8S USER
+      type: string
+    - description: Namespace of the session.
+      jsonPath: .spec.namespace
+      name: NAMESPACE
+      type: string
+    - description: Target of the session.
+      jsonPath: .spec.target
+      name: TARGET
+      type: string
+    - description: Time when the session was started.
+      jsonPath: .metadata.creationTimestamp
+      name: STARTED AT
+      type: date
+    - description: Time when the session was closed.
+      jsonPath: .metadata.deletionTimestamp
+      name: CLOSED AT
+      type: date
+    - description: Reason for which the session was closed.
+      jsonPath: .status.closed.reason
+      name: CLOSE REASON
+      type: string
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterSessionSpec via `CustomResource`
+        properties:
+          spec:
+            properties:
+              jiraMetrics:
+                description: Resources needed to report session metrics to the mirrord Jira app.
+                nullable: true
+                properties:
+                  branchName:
+                    description: The user's current git branch.
+                    type: string
+                required:
+                - branchName
+                type: object
+              namespace:
+                description: Kubernetes namespace of the session.
+                type: string
+              owner:
+                description: Owner of this session
+                properties:
+                  hostname:
+                    description: Hostname of the machine where the CLI command was executed.
+                    type: string
+                  k8sUsername:
+                    description: Name of the Kubernetes user who's identity was assumed by the CLI.
+                    type: string
+                  userId:
+                    description: Unique ID.
+                    type: string
+                  username:
+                    description: Name of the POSIX user that executed the CLI command.
+                    type: string
+                required:
+                - hostname
+                - k8sUsername
+                - userId
+                - username
+                type: object
+              target:
+                description: |-
+                  Target of the session.
+
+                  None for targetless sessions.
+                nullable: true
+                properties:
+                  apiVersion:
+                    description: Kubernetes resource apiVersion.
+                    type: string
+                  container:
+                    description: Name of the container defined in the Pod spec.
+                    type: string
+                  kind:
+                    description: Kubernetes resource kind.
+                    type: string
+                  name:
+                    description: Kubernetes resource name.
+                    type: string
+                required:
+                - apiVersion
+                - container
+                - kind
+                - name
+                type: object
+            required:
+            - namespace
+            - owner
+            type: object
+          status:
+            description: Describes an owner of a mirrord session.
+            nullable: true
+            properties:
+              closed:
+                description: If the session has been closed, describes the reason.
+                nullable: true
+                properties:
+                  message:
+                    description: Optional human friendly message.
+                    nullable: true
+                    type: string
+                  reason:
+                    description: Short reason in PascalCase.
+                    type: string
+                required:
+                - reason
+                type: object
+              connectedTimestamp:
+                description: Last time when the session was observed to have an open user connection.
+                format: date-time
+                nullable: true
+                type: string
+            type: object
+        required:
+        - spec
+        title: MirrordClusterSession
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
