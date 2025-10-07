@@ -1,1 +1,0 @@
-`operator.mutatingWebhooks` setting is now enabled by default.

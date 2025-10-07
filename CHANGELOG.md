@@ -1,3 +1,24 @@
+## [mirrord-operator-license-server-1.4.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.4) - 2025-10-06
+
+
+### Changed
+
+- Bump license-server to 3.127.0
+
+
+## [mirrord-operator-1.39.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.0) - 2025-10-06
+
+
+### Changed
+
+- Bump operator to 3.127.0
+- `operator.mutatingWebhooks` setting is now enabled by default.
+
+### Internal
+
+- Added custom resource definitions for HA patching.
+- Added the RBAC permission required for clients to create `MirrordClusterOperatorUserCredential`.
+
 ## [mirrord-operator-license-server-1.4.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.3) - 2025-09-17
 
 
