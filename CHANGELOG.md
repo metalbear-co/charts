@@ -13,6 +13,7 @@
 
 - Bump operator to 3.127.1
 
+
 ## [mirrord-operator-license-server-1.4.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.4) - 2025-10-06
 
 
