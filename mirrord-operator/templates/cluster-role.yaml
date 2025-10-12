@@ -184,6 +184,24 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkasessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkasessions/status
+  verbs:
+  - update
 {{- end }}
 {{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
 - apiGroups:

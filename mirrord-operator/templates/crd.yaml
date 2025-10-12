@@ -1102,6 +1102,182 @@ spec:
         type: object
     served: true
     storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordkafkasessions.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    kind: MirrordKafkaSession
+    plural: mirrordkafkasessions
+    singular: mirrordkafkasession
+  scope: Namespaced
+  versions:
+  - name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordKafkaSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: The operator creates this object when a user runs mirrord against a target that is a Kafka consumer.
+            properties:
+              topicConsumer:
+                description: The target of this session.
+                properties:
+                  container:
+                    description: If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    nullable: true
+                    type: string
+                  name:
+                    type: string
+                  workloadType:
+                    description: A workload that is a consumer of a topic that is being split.
+                    enum:
+                    - Deployment
+                    - Rollout
+                    type: string
+                required:
+                - name
+                - workloadType
+                type: object
+              topicFilters:
+                additionalProperties:
+                  additionalProperties:
+                    type: string
+                  type: object
+                description: For each topic_id, a mapping from attribute name, to attribute value regex. The topic_id for a topic is determined at the topic registry. It is not (necessarily) The name of the topic on Kafka.
+                type: object
+              sessionId:
+                description: The id of the mirrord exec session, from the operator.
+                type: string
+            required:
+            - topicConsumer
+            - topicFilters
+            - sessionId
+            type: object
+          status:
+            nullable: true
+            oneOf:
+            - required:
+              - Starting
+            - required:
+              - RegisteringFilters
+            - required:
+              - Ready
+            - required:
+              - StartError
+            - required:
+              - CleanupError
+            properties:
+              CleanupError:
+                properties:
+                  details:
+                    nullable: true
+                    properties:
+                      topicNames:
+                        additionalProperties:
+                          properties:
+                            originalName:
+                              type: string
+                            outputName:
+                              type: string
+                          required:
+                          - originalName
+                          - outputName
+                          type: object
+                        description: Topic ID -> old and new topic names.
+                        type: object
+                    required:
+                    - topicNames
+                    type: object
+                  error:
+                    description: Representation of Kafka errors for the status of Kafka session resources.
+                    properties:
+                      reason:
+                        description: Human-readable explanation of what went wrong.
+                        type: string
+                      statusCode:
+                        description: HTTP code for operator response.
+                        format: uint16
+                        minimum: 0.0
+                        type: integer
+                    required:
+                    - reason
+                    - statusCode
+                    type: object
+                required:
+                - error
+                type: object
+              Ready:
+                properties:
+                  topicNames:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Topic ID -> old and new topic names.
+                    type: object
+                required:
+                - topicNames
+                type: object
+              RegisteringFilters:
+                description: Kafka operator sets this status before it starts registering filters, so that if anything fails during the registration of filters, we have all the topics we need to delete on cleanup.
+                properties:
+                  topicNames:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Topic ID -> old and new topic names.
+                    type: object
+                required:
+                - topicNames
+                type: object
+              StartError:
+                description: Representation of Kafka errors for the status of Kafka session resources.
+                properties:
+                  reason:
+                    description: Human-readable explanation of what went wrong.
+                    type: string
+                  statusCode:
+                    description: HTTP code for operator response.
+                    format: uint16
+                    minimum: 0.0
+                    type: integer
+                required:
+                - reason
+                - statusCode
+                type: object
+              Starting:
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
+            type: object
+        required:
+        - spec
+        title: MirrordKafkaSession
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
 {{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1
