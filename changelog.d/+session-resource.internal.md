@@ -1,0 +1,1 @@
+Added `MirrordClusterSession` CRD.
