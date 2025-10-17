@@ -99,13 +99,13 @@ operator:
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
   
-  ## Linger timeout for SQS splits.
-  ## An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
-  ## Once all SQS sessions have finished, the SQS split still remains active (lingers)
-  ## until the temporary queues have been emptied by that consumer.
-  ## In case of misconfiguration or frequent failures, this can lead to the consumer being patched indefinitely.
-  ## This setting allows for specifying a timeout on the linger time (in milliseconds).
-  # sqsSplittingLingerTimeout: 60000
+  # Linger timeout for SQS splits.
+  # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
+  # Once all SQS sessions have finished, the SQS split still remains active (lingers)
+  # until the temporary queues have been emptied by that consumer.
+  # In case of misconfiguration or frequent failures, this can lead to the consumer being patched indefinitely.
+  # This setting allows for specifying a timeout on the linger time (in milliseconds).
+  sqsSplittingLingerTimeout: 60000
 
   ## Control whether the operator waits for patched pods to become ready when starting Kafka/SQS splitting sessions.
   ## This option defaults to true (maintaining existing behavior) but can be set to false to speed up
