@@ -1709,6 +1709,33 @@ spec:
                         type: object
                     type: object
                 type: object
+              copy:
+                default:
+                  mode: empty
+                  tables: {}
+                description: Options for copying data from source database to the branch.
+                properties:
+                  mode:
+                    description: The default copy mode for the branch.
+                    enum:
+                    - empty
+                    - schema
+                    - data
+                    type: string
+                  tables:
+                    additionalProperties:
+                      properties:
+                        filter:
+                          description: Data that matches the filter will be copied. For MySQL, this filter is a `where` clause that looks like `username = 'alice'`.
+                          nullable: true
+                          type: string
+                      type: object
+                    description: An optional list of tables whose schema and data will be copied based on their table level copy config. Only compatible with `Empty` and `Schema` copy mode.
+                    type: object
+                required:
+                - mode
+                - tables
+                type: object
               databaseName:
                 description: MySQL database name.
                 nullable: true
