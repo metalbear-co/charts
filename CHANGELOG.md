@@ -1,3 +1,24 @@
+## [mirrord-operator-license-server-1.4.6](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.6) - 2025-10-22
+
+
+### Changed
+
+- Bumped appVersion to 3.128.0.
+
+
+## [mirrord-operator-1.39.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.2) - 2025-10-22
+
+
+## Fixed
+
+- Fixed `queueSplittingwaitForReadyTarget` indent.
+
+### Changed
+
+- `values.yaml` now uses a default of 60s for lingering SQS queues timeout.
+- Bumped appVersion to 3.128.0.
+
+
 ## [mirrord-operator-license-server-1.4.5](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.5) - 2025-10-09
 
 
