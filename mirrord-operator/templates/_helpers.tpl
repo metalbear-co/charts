@@ -58,6 +58,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - list
   - create
   - watch
+  - delete
 {{- end }}
 {{- end }}
 

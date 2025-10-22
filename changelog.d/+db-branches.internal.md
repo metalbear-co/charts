@@ -1,0 +1,1 @@
+Add delete because of the operator db-branches destroy command. 

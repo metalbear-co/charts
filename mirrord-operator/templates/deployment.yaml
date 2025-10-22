@@ -135,8 +135,8 @@ spec:
           value: {{ .Values.operator.sqsSplittingLingerTimeout | quote }}
         {{- end }}
         {{- if .Values.operator.queueSplittingWaitForReadyTarget }}
-          - name: OPERATOR_QUEUE_SPLITTING_WAIT_FOR_READY_TARGET
-            value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
+        - name: OPERATOR_QUEUE_SPLITTING_WAIT_FOR_READY_TARGET
+          value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
