@@ -256,6 +256,8 @@ rules:
   - mirrordclusterworkloadpatches
   - mirrordclusterworkloadpatchrequests
   - mirrordclusterworkloadpatchrequests/status
+  - mirrordclustersessions
+  - mirrordclustersessions/status
   verbs:
   - list
   - get
