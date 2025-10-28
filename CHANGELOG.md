@@ -1,3 +1,15 @@
+## [mirrord-operator-1.39.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.3) - 2025-10-28
+
+
+## Fixed
+
+- Fixed handling of `false` value for `queueSplittingWaitForReadyTarget`.
+
+### Internal
+
+- Added delete db branches permission to the operator user role.
+- Added `MirrordClusterSession` CRD.
+
 ## [mirrord-operator-license-server-1.4.6](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.6) - 2025-10-22
 
 
