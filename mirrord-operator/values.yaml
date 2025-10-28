@@ -110,7 +110,7 @@ operator:
   ## Control whether the operator waits for patched pods to become ready when starting Kafka/SQS splitting sessions.
   ## This option defaults to true (maintaining existing behavior) but can be set to false to speed up
   ## session start time in environments where pod readiness waiting is not necessary or causes delays due to cluster conditions.
-  # queueSplittingWaitForReadyTarget: false
+  queueSplittingWaitForReadyTarget: true
 
   ## This should be enough for around 200~ concurrent sessions.
   limits:
