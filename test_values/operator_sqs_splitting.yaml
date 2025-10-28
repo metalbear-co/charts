@@ -1,5 +1,5 @@
 operator:
-  queueSplittingWaitForReadyTarget: true
+  queueSplittingWaitForReadyTarget: false
 
 license:
   file:
