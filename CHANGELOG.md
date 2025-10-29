@@ -1,3 +1,26 @@
+## [mirrord-operator-1.39.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.4) - 2025-10-29
+
+
+## Changed
+
+- Bumped `appVersion` to `3.129.0`.
+
+### Internal
+
+- Added `contents` and `packages` write permissions to the release workflow.
+- Updated MySQL branch CRD with data copy configuration.
+
+## [mirrord-operator-license-server-1.4.7](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.7) - 2025-10-29
+
+
+## Changed
+
+- Bumped `appVersion` to `3.129.0`.
+
+### Internal
+
+- Added `contents` and `packages` write permissions to the release workflow.
+
 ## [mirrord-operator-1.39.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.3) - 2025-10-28
 
 
