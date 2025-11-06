@@ -1,3 +1,21 @@
+## [mirrord-operator-1.40.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.0) - 2025-11-06
+
+
+## Added
+
+- You can now override the image tag (which defaults to the `appVersion`) by setting the `operator.imageTag` value.
+
+## Changed
+
+- Bumped `appVersion` to `3.129.1`.
+- Added labels and annotations to the mysql branch config example.
+
+## [mirrord-operator-license-server-1.4.8](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.8) - 2025-11-06
+
+## Changed
+
+- Bumped `appVersion` to `3.129.1`.
+
 ## [mirrord-operator-1.39.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.4) - 2025-10-29
 
 
