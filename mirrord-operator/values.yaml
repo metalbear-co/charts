@@ -29,8 +29,12 @@ clusterRole:
 
 operator:
   image: ghcr.io/metalbear-co/operator
-  podAnnotations: {}
-  podLabels: {}
+
+  # Set this value to specify a tag to use instead of the `appVersion`.
+  # imageTag: test
+
+  podAnnotations: { }
+  podLabels: { }
 
   ## Custom labels to be added to all Kubernetes resources created by this chart.
   ## These labels will be applied to higher-level resources like Deployments, Services, etc.

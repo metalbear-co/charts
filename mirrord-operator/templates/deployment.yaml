@@ -157,7 +157,7 @@ spec:
         {{- else }}
           {{- required "Either keyRef, pemRef, gsmRef, file or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
-        image: {{ .Values.operator.image }}:{{ .Chart.AppVersion }}
+        image: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: IfNotPresent
         {{- if .Values.operator.containerArgs }}
         args:
