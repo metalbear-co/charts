@@ -5,4 +5,4 @@ license:
       license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
 
 operator:
-  imageTag: test
+  imageTag: 3.128.0
