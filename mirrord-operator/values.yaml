@@ -165,6 +165,8 @@ operator:
     ##   imagePullSecrets:
     ##     - name: "mysql-registry-secret"
     ##   imagePullPolicy: "IfNotPresent"
+    ##   labels: { "role": "database" }
+    ##   annotations: { "db.branch/owner-team": "platform" }
     ##   volume:
     ##     name: "mysql-data"
     ##     emptyDir:

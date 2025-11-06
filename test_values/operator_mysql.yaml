@@ -1,0 +1,25 @@
+operator:
+  mysqlBranching: true
+  mysqlBranchConfig:
+    dbPod:
+      image:
+        registry: "mysql"
+      volume:
+        name: "mysql-beautiful-data"
+        emptyDir:
+          sizeLimit: "1Gi"
+      labels: { "role": "database" }
+      annotations: { "db.branch/owner-team": "platform" }
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
