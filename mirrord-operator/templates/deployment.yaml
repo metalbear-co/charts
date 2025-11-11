@@ -76,6 +76,8 @@ spec:
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
           value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_PG_BRANCHING
+          value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"
