@@ -1939,7 +1939,7 @@ spec:
               id:
                 description: ID derived by mirrord CLI.
                 type: string
-              pgVersion:
+              postgresVersion:
                 description: PostgreSQL server image version, e.g. "8.0".
                 nullable: true
                 type: string
