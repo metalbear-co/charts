@@ -95,7 +95,7 @@ spec:
           {{- fail "Either .license.keyRef or .license.key value is required" }}
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ default "IfNotPresent" .Values.server.imagePullPolicy }}
         livenessProbe:
           httpGet:
             path: /health
