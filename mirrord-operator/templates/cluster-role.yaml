@@ -250,6 +250,27 @@ rules:
   - update
   - patch
 {{- end }}
+{{- if .Values.operator.pgBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
 - apiGroups:
   - mirrord.metalbear.co
   resources:

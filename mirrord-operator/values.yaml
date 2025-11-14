@@ -168,6 +168,17 @@ operator:
     ##   labels: { "role": "database" }
     ##   annotations: { "db.branch/owner-team": "platform" }
     ##   volume:
+
+  # pgBranchConfig:
+    ## example
+    ##
+    ## dbPod:
+    ##   image:
+    ##     registry: "custom-postgres-registry"
+    ##   imagePullSecrets:
+    ##     - name: "postgres-registry-secret"
+    ##   imagePullPolicy: "IfNotPresent"
+    ##   volume:
     ##     name: "mysql-data"
     ##     emptyDir:
     ##       sizeLimit: "1Gi"
