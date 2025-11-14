@@ -90,6 +90,8 @@ spec:
           value: /mirrord-config/agent-config.yaml
         - name: OPERATOR_MYSQL_BRANCH_CONFIG
           value: /mirrord-config/mysql-branch-config.yaml
+        - name: OPERATOR_PG_BRANCH_CONFIG
+          value: /mirrord-config/pg-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt

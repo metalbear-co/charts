@@ -35,3 +35,7 @@ data:
     {{- if and .Values.operator.mysqlBranching .Values.operator.mysqlBranchConfig }}
     {{- toYaml .Values.operator.mysqlBranchConfig | nindent 4 }}
     {{- end }}
+  pg-branch-config.yaml: |-
+    {{- if and .Values.operator.pgBranching .Values.operator.pgBranchConfig }}
+    {{- toYaml .Values.operator.pgBranchConfig | nindent 4 }}
+    {{- end }}
