@@ -30,6 +30,9 @@ clusterRole:
 operator:
   image: ghcr.io/metalbear-co/operator
 
+  # Override the pull policy, useful for local development.
+  # imagePullPolicy: Always
+
   # Set this value to specify a tag to use instead of the `appVersion`.
   # imageTag: test
 
@@ -54,7 +57,7 @@ operator:
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
   # Has to be set to `true` in order to use the MySQL database branching feature.
-  mysqlBranching: false 
+  mysqlBranching: false
   # Has to be set to `true` in order to allow the operator to set mutating webhooks in order to
   # make modifications to target workloads in a way that is compatible with ArgoCD auto syncing.
   mutatingWebhooks: true
@@ -102,7 +105,7 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
-  
+
   # Linger timeout for SQS splits.
   # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   # Once all SQS sessions have finished, the SQS split still remains active (lingers)
