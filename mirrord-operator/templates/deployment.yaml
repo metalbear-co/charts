@@ -140,6 +140,8 @@ spec:
         {{- end }}
         - name: OPERATOR_QUEUE_SPLITTING_WAIT_FOR_READY_TARGET
           value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
+        - name: OPERATOR_IMAGE
+          value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
           value: {{ $val | quote }}
