@@ -1,9 +1,10 @@
+## [mirrord-operator-license-server-1.4.8](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.9) - 2025-11-06
 
 ## Changed
 
 - Bumped `appVersion` to `3.129.2`.
 
-## [mirrord-operator-license-server-1.4.8](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.8) - 2025-11-06
+## [mirrord-operator-1.40.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.1) - 2025-11-06
 
 ## Changed
 
@@ -14,8 +15,6 @@
 ## Added
 
 - You can now override the image tag (which defaults to the `appVersion`) by setting the `operator.imageTag` value.
-
-## [mirrord-operator-1.40.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.0) - 2025-11-06
 
 ## Changed
 
