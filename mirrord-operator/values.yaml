@@ -29,8 +29,15 @@ clusterRole:
 
 operator:
   image: ghcr.io/metalbear-co/operator
-  podAnnotations: {}
-  podLabels: {}
+
+  # Override the pull policy, useful for local development.
+  # imagePullPolicy: Always
+
+  # Set this value to specify a tag to use instead of the `appVersion`.
+  # imageTag: test
+
+  podAnnotations: { }
+  podLabels: { }
 
   ## Custom labels to be added to all Kubernetes resources created by this chart.
   ## These labels will be applied to higher-level resources like Deployments, Services, etc.
@@ -50,7 +57,7 @@ operator:
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
   # Has to be set to `true` in order to use the MySQL database branching feature.
-  mysqlBranching: false 
+  mysqlBranching: false
   # Has to be set to `true` in order to allow the operator to set mutating webhooks in order to
   # make modifications to target workloads in a way that is compatible with ArgoCD auto syncing.
   mutatingWebhooks: true
@@ -82,7 +89,8 @@ operator:
   # maxSessionTimeSeconds: 3600
 
   ## Controls how long (in milliseconds) a session can live when there are no pods ready to be targeted.
-  # noPodTargetsSessionTimeoutMillis: 6000
+  ## When this value is not set when installing the chart, the default value of 60000 (60 seconds) is used.
+  # noPodTargetsSessionTimeoutMillis: 60000
 
   ## Default TTL (in milliseconds) for idle Kafka splits.
   ## For any given topic, starting the first Kafka splitting session requires patching the target workload.
@@ -98,7 +106,7 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
-  
+
   # Linger timeout for SQS splits.
   # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   # Once all SQS sessions have finished, the SQS split still remains active (lingers)
@@ -161,6 +169,8 @@ operator:
     ##   imagePullSecrets:
     ##     - name: "mysql-registry-secret"
     ##   imagePullPolicy: "IfNotPresent"
+    ##   labels: { "role": "database" }
+    ##   annotations: { "db.branch/owner-team": "platform" }
     ##   volume:
 
   # pgBranchConfig:
