@@ -2183,6 +2183,16 @@ spec:
                 - kind
                 - name
                 type: object
+              copyTarget:
+                description: Copy target configuration for this session.
+                nullable: true
+                properties:
+                  scaledown:
+                    description: Whether to scale down the original target.
+                    type: boolean
+                required:
+                - scaledown
+                type: object
             required:
             - namespace
             - owner
@@ -2210,6 +2220,34 @@ spec:
                 format: date-time
                 nullable: true
                 type: string
+              copyTarget:
+                description: Copy target information for this session.
+                nullable: true
+                properties:
+                  copiedPodStatus:
+                    description: Status of the produced copied pod. Null if there is no valid pod at the moment.
+                    nullable: true
+                    properties:
+                      name:
+                        description: Name of the copied pod.
+                        type: string
+                      namespace:
+                        description: Namespace of the copied pod.
+                        type: string
+                      targetContainer:
+                        description: Target container name in the copied pod.
+                        type: string
+                    required:
+                    - name
+                    - namespace
+                    - targetContainer
+                    type: object
+                  name:
+                    description: Name of the CopyTargetCrd, used by CLI when making connections.
+                    type: string
+                required:
+                - name
+                type: object
             type: object
         required:
         - spec
