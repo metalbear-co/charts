@@ -9,6 +9,7 @@ metadata:
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
 spec:
+  replicas: {{ .Values.operator.replicas | default 3 }}
   selector:
     matchLabels:
       app: mirrord-operator
@@ -60,6 +61,10 @@ spec:
           value: {{ .Values.operator.logLevel }}
         - name: OPERATOR_ADDR
           value: {{ printf "0.0.0.0:%d" (int .Values.operator.port ) }}
+        - name: OPERATOR_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: OPERATOR_NAMESPACE
           value: {{ .Values.namespace }}
         - name: OPERATOR_SERVICE_NAME
@@ -168,13 +173,15 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.operator.port }}
+            port: 8443
             scheme: HTTPS
           periodSeconds: 5
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
+        - containerPort: 8443
+          name: health
         {{- if .Values.operator.metrics }}
         - containerPort: 9000
           name: metrics
@@ -182,7 +189,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.operator.port }}
+            port: 8443
             scheme: HTTPS
           periodSeconds: 5
         resources:

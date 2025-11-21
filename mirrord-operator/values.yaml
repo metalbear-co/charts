@@ -28,6 +28,11 @@ clusterRole:
     labels: {}
 
 operator:
+  # Number of operator replicas for high availability
+  # With multiple replicas, only one will be the leader at a time
+  # Other replicas will be in standby mode, ready to take over
+  replicas: 3
+  
   image: ghcr.io/metalbear-co/operator
 
   # Override the pull policy, useful for local development.
