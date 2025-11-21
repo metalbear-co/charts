@@ -145,6 +145,23 @@ rules:
     - mirrord-operator
   verbs:
     - get
+# For leader election
+- apiGroups:
+    - coordination.k8s.io
+  resources:
+    - leases
+  verbs:
+    - get
+    - create
+    - update
+    - patch
+# For patching operator pod with leader label
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - patch
 {{- if .Values.operator.mutatingWebhooks }}
 # For creating mutating webhook configs
 - apiGroups:

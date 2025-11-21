@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   labels:
     app: mirrord-operator
@@ -9,6 +9,7 @@ metadata:
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
 spec:
+  replicas: {{ .Values.operator.replicas | default 3 }}
   selector:
     matchLabels:
       app: mirrord-operator
@@ -172,13 +173,15 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.operator.port }}
-            scheme: HTTPS
+            port: 8080
+            scheme: HTTP
           periodSeconds: 5
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
+        - containerPort: 8080
+          name: health
         {{- if .Values.operator.metrics }}
         - containerPort: 9000
           name: metrics
@@ -186,8 +189,8 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.operator.port }}
-            scheme: HTTPS
+            port: 8080
+            scheme: HTTP
           periodSeconds: 5
         resources:
           requests:
