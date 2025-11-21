@@ -173,14 +173,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8080
-            scheme: HTTP
+            port: 8443
+            scheme: HTTPS
           periodSeconds: 5
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
-        - containerPort: 8080
+        - containerPort: 8443
           name: health
         {{- if .Values.operator.metrics }}
         - containerPort: 9000
@@ -189,8 +189,8 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: 8080
-            scheme: HTTP
+            port: 8443
+            scheme: HTTPS
           periodSeconds: 5
         resources:
           requests:
