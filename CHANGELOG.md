@@ -1,5 +1,31 @@
-## [mirrord-operator-1.40.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.0) - 2025-11-06
+## [mirrord-operator-license-server-1.4.9](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.9) - 2025-11-20
 
+## Changed
+
+- Bumped `appVersion` to `3.130.0`.
+
+## [mirrord-operator-1.40.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.1) - 2025-11-20
+
+
+### Added
+
+- You can now override the chart's `imagePullPolicy` value with
+  `server.imagePullPolicy` and `operator.imagePullPolicy` when installing the
+  license server and operator, respectively.
+
+
+### Changed
+
+- Bumped `appVersion` to `3.130.0`.
+- Improved docs for operator.noPodTargetsSessionTimeoutMillis value.
+
+
+### Internal
+
+- Fail when we fail to download the mirrord binary instead of downloading a
+  "Not Found" response and trying to use it a mirrord binary.
+
+## [mirrord-operator-1.40.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.0) - 2025-11-06
 
 ## Added
 
