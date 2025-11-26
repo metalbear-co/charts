@@ -9,7 +9,7 @@ metadata:
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: {{ .Values.operator.replicas | default 3 }}
+  replicas: {{ .Values.operator.replicas | default 1 }}
   selector:
     matchLabels:
       app: mirrord-operator
@@ -180,8 +180,6 @@ spec:
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
-        - containerPort: {{ .Values.operator.port }}
-          name: health
         {{- if .Values.operator.metrics }}
         - containerPort: 9000
           name: metrics

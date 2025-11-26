@@ -28,10 +28,10 @@ clusterRole:
     labels: {}
 
 operator:
-  # Number of operator replicas for high availability
-  # With multiple replicas, only one will be the leader at a time
-  # Other replicas will be in standby mode, ready to take over
-  replicas: 3
+  # Number of operator replicas for high availability.
+  # With multiple replicas, only one of them will be the leader and serve traffic.
+  # Other replicas will be in standby mode, ready to take over.
+  replicas: 1
   
   image: ghcr.io/metalbear-co/operator
 

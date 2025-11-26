@@ -37,3 +37,11 @@ rules:
   - create
   - update
   - patch
+# For patching operator pod with leader label
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - patch
