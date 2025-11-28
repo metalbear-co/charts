@@ -28,7 +28,9 @@ jobs:
           charts_dir: .
 
       - name: Set up Helm
-        uses: azure/setup-helm@v4.1.0
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: 'v4.0.0'
 
       - name: Install yq
         run: sudo apt-get update && sudo apt-get install -y yq
