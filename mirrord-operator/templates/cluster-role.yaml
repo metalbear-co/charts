@@ -258,6 +258,7 @@ rules:
   - mirrordclusterworkloadpatchrequests/status
   - mirrordclustersessions
   - mirrordclustersessions/status
+  - mirrordclusterexternalresources
   verbs:
   - list
   - get
