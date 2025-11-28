@@ -166,13 +166,6 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
-      - name: check operator pod status
-        run: |
-          echo "Checking operator deployment status..."
-          kubectl get pods -n mirrord
-          kubectl get deployment -n mirrord mirrord-operator -o yaml
-          echo "Operator pod logs:"
-          kubectl logs -n mirrord deployment/mirrord-operator --tail=50 || true
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
@@ -230,13 +223,6 @@ jobs:
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
             ./mirrord-operator --wait
-      - name: check operator pod status
-        run: |
-          echo "Checking operator deployment status..."
-          kubectl get pods -n mirrord
-          kubectl get deployment -n mirrord mirrord-operator -o yaml
-          echo "Operator pod logs:"
-          kubectl logs -n mirrord deployment/mirrord-operator --tail=50 || true
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
