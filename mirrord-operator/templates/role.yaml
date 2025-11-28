@@ -27,3 +27,21 @@ rules:
   - get
   - list
   - watch
+# For leader election when running multiple replicas
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - create
+  - update
+  - patch
+# For patching operator pod with leader label
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - patch

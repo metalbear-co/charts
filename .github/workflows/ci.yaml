@@ -75,6 +75,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.1.0
+        with:
+          version: '3.19.2'
       - run: helm template mirrord-operator --set license.key=secret --debug
       - run: helm template mirrord-license-server --set license.key=secret --set license.file.data.license\\.pem=secret --debug
 
@@ -125,6 +127,8 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
+        with:
+          version: '3.19.2'
       - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
         run: kubectl create namespace namespace1 && kubectl create namespace namespace2
       - name: check installing the chart with various `values` yamls
@@ -144,6 +148,8 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
+        with:
+          version: '3.19.2'
       - name: prepare operator license
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
@@ -189,6 +195,8 @@ jobs:
           cpus: 'max'
           memory: '4gb'
       - uses: azure/setup-helm@v4.1.0
+        with:
+          version: '3.19.2'
       - name: prepare operator license
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
