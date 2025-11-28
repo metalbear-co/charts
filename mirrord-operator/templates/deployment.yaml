@@ -9,7 +9,6 @@ metadata:
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: {{ .Values.operator.replicas | default 1 }}
   selector:
     matchLabels:
       app: mirrord-operator

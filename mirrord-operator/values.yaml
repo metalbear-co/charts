@@ -28,15 +28,6 @@ clusterRole:
     labels: {}
 
 operator:
-  # Number of operator replicas for high availability.
-  # With multiple replicas, only one of them will be the leader and serve traffic.
-  # Other replicas will be in standby mode, ready to take over.
-  replicas: 1
-  
-  # Enable leader election for high availability with multiple replicas.
-  # When enabled, only the leader pod will receive traffic via the service.
-  leaderElection: false
-  
   image: ghcr.io/metalbear-co/operator
 
   # Override the pull policy, useful for local development.
