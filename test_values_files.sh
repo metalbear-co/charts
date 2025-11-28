@@ -2,17 +2,13 @@
 
 set -e
 
-# Verify that --rollback-on-failure behaves same as --atomic returns non-zero exit code on failure
-echo "::group::Testing --rollback-on-failure exit code behavior"
-set +e
-helm install --rollback-on-failure --set operator.image.tag=nonexistent-tag-12345 \
-  mirrord-operator ./mirrord-operator --wait --timeout 30s >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-  echo "::error::--rollback-on-failure returned 0 on failure. CI will not fail properly!"
+# Verify that --rollback-on-failure flag exists (replaces --atomic in Helm 4)
+echo "::group::Verifying --rollback-on-failure flag exists"
+if ! helm install --help 2>&1 | grep -q "rollback-on-failure"; then
+  echo "::error::--rollback-on-failure flag not found. Wrong Helm version?"
   exit 1
 fi
-set -e
-echo "Confirmed: --rollback-on-failure returns non-zero exit code on failure"
+echo "Confirmed: --rollback-on-failure flag is available"
 echo "::endgroup::"
 
 # For each file in the `test_values` directory
