@@ -13,5 +13,7 @@ spec:
     targetPort: https
   selector:
     app: mirrord-operator
+    {{- if .Values.operator.leaderElection }}
     mirrord-operator-leader: "true"
+    {{- end }}
   type: ClusterIP

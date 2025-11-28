@@ -165,7 +165,6 @@ jobs:
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
-            --set operator.imageTag=79cad89 \
             ./mirrord-operator --wait
       - name: check operator pod status
         run: |
@@ -177,9 +176,9 @@ jobs:
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
-          timeout_seconds: 80
-          max_attempts: 10
-          retry_wait_seconds: 8
+          timeout_seconds: 10
+          max_attempts: 5
+          retry_wait_seconds: 1
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
@@ -230,7 +229,6 @@ jobs:
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
-            --set operator.imageTag=79cad89 \
             ./mirrord-operator --wait
       - name: check operator pod status
         run: |
@@ -242,9 +240,9 @@ jobs:
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
-          timeout_seconds: 60
-          max_attempts: 10
-          retry_wait_seconds: 6
+          timeout_seconds: 10
+          max_attempts: 5
+          retry_wait_seconds: 1
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
