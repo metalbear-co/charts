@@ -13,5 +13,4 @@ spec:
     targetPort: https
   selector:
     app: mirrord-operator
-    mirrord-operator-leader: "true"
   type: ClusterIP
