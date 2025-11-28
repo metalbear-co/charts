@@ -165,6 +165,7 @@ jobs:
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
+            --set operator.imageTag=79cad89 \
             ./mirrord-operator --wait
       - name: check operator pod status
         run: |
@@ -229,6 +230,7 @@ jobs:
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
+            --set operator.imageTag=79cad89 \
             ./mirrord-operator --wait
       - name: check operator pod status
         run: |
