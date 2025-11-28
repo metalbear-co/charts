@@ -176,9 +176,9 @@ jobs:
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
-          timeout_seconds: 30
+          timeout_seconds: 80
           max_attempts: 10
-          retry_wait_seconds: 3
+          retry_wait_seconds: 8
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
