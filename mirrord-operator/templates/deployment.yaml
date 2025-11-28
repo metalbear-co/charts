@@ -60,6 +60,10 @@ spec:
           value: {{ .Values.operator.logLevel }}
         - name: OPERATOR_ADDR
           value: {{ printf "0.0.0.0:%d" (int .Values.operator.port ) }}
+        - name: OPERATOR_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: OPERATOR_NAMESPACE
           value: {{ .Values.namespace }}
         - name: OPERATOR_SERVICE_NAME
