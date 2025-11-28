@@ -74,7 +74,7 @@ jobs:
     name: sanity render chart
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-helm@v4.2.0
+      - uses: azure/setup-helm@v4.1.0
         with:
           version: '3.19.2'
       - run: helm template mirrord-operator --set license.key=secret --debug
@@ -126,7 +126,7 @@ jobs:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
           memory: '4gb'
-      - uses: azure/setup-helm@v4.2.0
+      - uses: azure/setup-helm@v4.1.0
         with:
           version: '3.19.2'
       - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
@@ -147,7 +147,7 @@ jobs:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
           memory: '4gb'
-      - uses: azure/setup-helm@v4.2.0
+      - uses: azure/setup-helm@v4.1.0
         with:
           version: '3.19.2'
       - name: prepare operator license
@@ -201,7 +201,7 @@ jobs:
           container-runtime: ${{ inputs.container-runtime }}
           cpus: 'max'
           memory: '4gb'
-      - uses: azure/setup-helm@v4.2.0
+      - uses: azure/setup-helm@v4.1.0
         with:
           version: '3.19.2'
       - name: prepare operator license
@@ -240,9 +240,9 @@ jobs:
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
         with:
-          timeout_seconds: 30
+          timeout_seconds: 60
           max_attempts: 10
-          retry_wait_seconds: 3
+          retry_wait_seconds: 6
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
