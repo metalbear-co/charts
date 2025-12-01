@@ -131,7 +131,7 @@ spec:
           value: {{ .Values.operator.jiraWebhookUrl | quote }}
         {{- end }}
         - name: OPERATOR_MUTATING_WEBHOOKS
-          value: {{ .Values.operator.mutatingWebhooks | ternary "true" "false" | quote }}
+          value: "true"
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
         {{- if .Values.operator.sqsSplittingLingerTimeout }}

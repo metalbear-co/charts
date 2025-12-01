@@ -1,0 +1,1 @@
+Removed `operator.mutatingWebhooks` setting from the mirrord-operator chart's `values.yaml`. Mutating webhooks are now always enabled.
