@@ -117,15 +117,6 @@ rules:
   verbs:
   - update
 {{- end }}
-# For deleting previous mutating webhook configs
-- apiGroups:
-    - admissionregistration.k8s.io
-  resources:
-    - mutatingwebhookconfigurations
-  verbs:
-    - delete
-    - deletecollection
-    - list
 # For deleting previously mutated pods
 - apiGroups:
   - ""
@@ -145,8 +136,7 @@ rules:
     - mirrord-operator
   verbs:
     - get
-{{- if .Values.operator.mutatingWebhooks }}
-# For creating mutating webhook configs
+# For creating and managing mutating webhook configs.
 - apiGroups:
     - admissionregistration.k8s.io
   resources:
@@ -156,7 +146,9 @@ rules:
     - get
     - update
     - patch
-{{- end }}
+    - delete
+    - deletecollection
+    - list
 {{- if .Values.operator.kafkaSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
