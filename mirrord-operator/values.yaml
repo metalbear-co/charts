@@ -36,8 +36,8 @@ operator:
   # Set this value to specify a tag to use instead of the `appVersion`.
   # imageTag: test
 
-  podAnnotations: { }
-  podLabels: { }
+  podAnnotations: {}
+  podLabels: {}
 
   ## Custom labels to be added to all Kubernetes resources created by this chart.
   ## These labels will be applied to higher-level resources like Deployments, Services, etc.
@@ -58,6 +58,8 @@ operator:
   applicationPauseAutoSync: false
   # Has to be set to `true` in order to use the MySQL database branching feature.
   mysqlBranching: false
+  # Has to be set to `true` in order to use the PostgreSQL database branching feature.
+  pgBranching: false
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # This strategy can be used if standard restart procedure is not working for the target workload.
   isolatePodsRestart: true
@@ -102,7 +104,6 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
-
   # Linger timeout for SQS splits.
   # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   # Once all SQS sessions have finished, the SQS split still remains active (lingers)
@@ -144,7 +145,6 @@ operator:
   # can communicate on that port if it doesn't work then.
   port: 443
 
-
   copyTarget:
     # by default, the operator will create a dummy container using the agent image
     # as it is guaranteed to have a sleep binary. If you want the operator
@@ -157,27 +157,50 @@ operator:
   # jiraWebhookUrl: "https://example.atlassian-dev.net/x1/random-hash"
 
   # mysqlBranchConfig:
-    ## example
-    ##
-    ## dbPod:
-    ##   image:
-    ##     registry: "custom-mysql-registry"
-    ##   imagePullSecrets:
-    ##     - name: "mysql-registry-secret"
-    ##   imagePullPolicy: "IfNotPresent"
-    ##   labels: { "role": "database" }
-    ##   annotations: { "db.branch/owner-team": "platform" }
-    ##   volume:
-    ##     name: "mysql-data"
-    ##     emptyDir:
-    ##       sizeLimit: "1Gi"
-    ##   resources:
-    ##     requests:
-    ##       cpu: "500m"
-    ##       memory: "512Mi"
-    ##     limits:
-    ##       cpu: "1"
-    ##       memory: "1Gi"
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     registry: "custom-mysql-registry"
+  ##   imagePullSecrets:
+  ##     - name: "mysql-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "mysql-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
+
+  # pgBranchConfig:
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     registry: "custom-postgres-registry"
+  ##   imagePullSecrets:
+  ##     - name: "postgres-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "pg-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
 
 agent:
   ## example
@@ -191,9 +214,8 @@ agent:
   ## image: "your-internal.registry.io/metalbear-co/agent:latest"
   ##
   # image:
-    # registry: "ghcr.io/metalbear-co/mirrord"
-    # tag: "latest"
-
+  # registry: "ghcr.io/metalbear-co/mirrord"
+  # tag: "latest"
 
   # If you want the operator to secure agent connections with TLS, set this value to true.
   # This option requires agent version at least 3.97.0.

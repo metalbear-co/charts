@@ -1860,6 +1860,203 @@ spec:
       status: {}
 {{ end }}
 ---
+{{ if .Values.operator.pgBranching }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: pgbranchdatabases.dbs.mirrord.metalbear.co
+spec:
+  group: dbs.mirrord.metalbear.co
+  names:
+    kind: PgBranchDatabase
+    plural: pgbranchdatabases
+    singular: pgbranchdatabase
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for PgBranchDatabaseSpec via `CustomResource`
+        properties:
+          spec:
+            properties:
+              connectionSource:
+                description: Database connection info from the workload.
+                oneOf:
+                - required:
+                  - url
+                properties:
+                  url:
+                    description: A complete connection URL.
+                    oneOf:
+                    - required:
+                      - env
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                type: object
+              copy:
+                default:
+                  mode: empty
+                description: Options for copying data from source database to the branch.
+                properties:
+                  mode:
+                    description: The default copy mode for the branch.
+                    enum:
+                    - empty
+                    - schema
+                    - all
+                    type: string
+                  tables:
+                    additionalProperties:
+                      properties:
+                        filter:
+                          description: Data that matches the filter will be copied. For PostgreSQL, this filter is a `where` clause that looks like `username = 'alice'`.
+                          nullable: true
+                          type: string
+                      type: object
+                    description: An optional list of tables whose schema and data will be copied based on their table level copy config. Only compatible with `Empty` and `Schema` copy mode.
+                    nullable: true
+                    type: object
+                required:
+                - mode
+                type: object
+              databaseName:
+                description: PostgreSQL database name.
+                nullable: true
+                type: string
+              id:
+                description: ID derived by mirrord CLI.
+                type: string
+              postgresVersion:
+                description: PostgreSQL server image version, e.g. "17".
+                nullable: true
+                type: string
+              target:
+                description: Target k8s resource to extract connection source info from.
+                oneOf:
+                - required:
+                  - deployment
+                - required:
+                  - pod
+                - required:
+                  - rollout
+                - required:
+                  - job
+                - required:
+                  - cron_job
+                - required:
+                  - stateful_set
+                - required:
+                  - service
+                - required:
+                  - replica_set
+                properties:
+                  container:
+                    nullable: true
+                    type: string
+                  cron_job:
+                    type: string
+                  deployment:
+                    description: <!--${internal}--> Deployment to mirror.
+                    type: string
+                  job:
+                    type: string
+                  pod:
+                    description: <!--${internal}--> Pod to mirror.
+                    type: string
+                  replica_set:
+                    type: string
+                  rollout:
+                    description: <!--${internal}--> Rollout to mirror.
+                    type: string
+                  service:
+                    type: string
+                  stateful_set:
+                    type: string
+                type: object
+              ttlSecs:
+                description: The duration in seconds this branch database will live idling.
+                format: uint64
+                minimum: 0.0
+                type: integer
+            required:
+            - connectionSource
+            - id
+            - target
+            - ttlSecs
+            type: object
+          status:
+            nullable: true
+            properties:
+              expireTime:
+                description: Time when the branch database should be deleted.
+                format: date-time
+                type: string
+              phase:
+                enum:
+                - Pending
+                - Ready
+                type: string
+              sessionInfo:
+                additionalProperties:
+                  properties:
+                    id:
+                      description: Session id.
+                      type: string
+                    owner:
+                      description: Owner info of the session.
+                      properties:
+                        hostname:
+                          description: Creator hostname.
+                          type: string
+                        k8sUsername:
+                          description: Creator Kubernetes username.
+                          type: string
+                        userId:
+                          description: Unique ID.
+                          type: string
+                        username:
+                          description: Creator local username.
+                          type: string
+                      required:
+                      - hostname
+                      - k8sUsername
+                      - userId
+                      - username
+                      type: object
+                  required:
+                  - id
+                  - owner
+                  type: object
+                default: {}
+                description: Information of sessions that are using this branch database.
+                type: object
+            required:
+            - expireTime
+            - phase
+            type: object
+        required:
+        - spec
+        title: PgBranchDatabase
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{ end }}
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
