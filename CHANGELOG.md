@@ -1,8 +1,23 @@
-## [mirrord-operator-license-server-1.4.9](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.9) - 2025-11-20
+## [mirrord-operator-license-server-1.4.10](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.10) - 2025-12-04
 
 ## Changed
 
-- Bumped `appVersion` to `3.130.0`.
+- Bumped `appVersion` to `3.131.0`.
+
+## [mirrord-operator-1.40.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.2) - 2025-12-04
+
+### Changed
+
+- Bumped `appVersion` to `3.131.0`.
+
+### Removed
+
+- Removed `operator.mutatingWebhooks` setting from the mirrord-operator chart's `values.yaml`. Mutating webhooks are now always enabled.
+
+### Internal
+
+- Added CRD for HA copy target.
+- Added CRD for PostgreSQL branching.
 
 ## [mirrord-operator-1.40.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.1) - 2025-11-20
 
