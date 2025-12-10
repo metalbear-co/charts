@@ -7,13 +7,13 @@
 
 ## Changed
 
-- Bumped `appVersion` to `3.132.0`.
+- Bumped `appVersion` to `3.132.1`.
 
 ## [mirrord-operator-license-server-1.4.11](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.11) - 2025-12-10
 
 ## Changed
 
-- Bumped `appVersion` to `3.132.0`.
+- Bumped `appVersion` to `3.132.1`.
 
 
 ## [mirrord-operator-license-server-1.4.10](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.10) - 2025-12-04
