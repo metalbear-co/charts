@@ -2321,6 +2321,40 @@ spec:
         properties:
           spec:
             properties:
+              ciInfo:
+                description: CI info when a session is started with `mirrord ci start`.
+                nullable: true
+                properties:
+                  environment:
+                    description: Staging, production, test, nightly, ...
+                    nullable: true
+                    type: string
+                  pipeline:
+                    description: Pipeline/job name, e.g. "e2e-tests".
+                    nullable: true
+                    type: string
+                  provider:
+                    description: CI provider, e.g. "github", "gitlab", ...
+                    nullable: true
+                    type: string
+                  triggeredBy:
+                    description: PR, manual, push, ...
+                    nullable: true
+                    type: string
+                type: object
+              copyTarget:
+                description: |-
+                  Copy target configuration for this session.
+
+                  Set when the session uses a copied pod.
+                nullable: true
+                properties:
+                  scaledown:
+                    description: Whether the original target should be scaled down.
+                    type: boolean
+                required:
+                - scaledown
+                type: object
               jiraMetrics:
                 description: Resources needed to report session metrics to the mirrord Jira app.
                 nullable: true
@@ -2380,22 +2414,12 @@ spec:
                 - kind
                 - name
                 type: object
-              copyTarget:
-                description: Copy target configuration for this session.
-                nullable: true
-                properties:
-                  scaledown:
-                    description: Whether to scale down the original target.
-                    type: boolean
-                required:
-                - scaledown
-                type: object
             required:
             - namespace
             - owner
             type: object
           status:
-            description: Describes an owner of a mirrord session.
+            description: Status of a mirrord session.
             nullable: true
             properties:
               closed:
@@ -2418,11 +2442,14 @@ spec:
                 nullable: true
                 type: string
               copyTarget:
-                description: Copy target information for this session.
+                description: Copy target status for sessions using a copied pod.
                 nullable: true
                 properties:
                   copiedPodStatus:
-                    description: Status of the produced copied pod. Null if there is no valid pod at the moment.
+                    description: |-
+                      Status of the produced copied pod.
+
+                      `None` if there is no valid pod at the moment.
                     nullable: true
                     properties:
                       name:
@@ -2432,7 +2459,7 @@ spec:
                         description: Namespace of the copied pod.
                         type: string
                       targetContainer:
-                        description: Target container name in the copied pod.
+                        description: Name of the target container in the copied pod.
                         type: string
                     required:
                     - name
@@ -2454,7 +2481,6 @@ spec:
     storage: true
     subresources:
       status: {}
----
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
