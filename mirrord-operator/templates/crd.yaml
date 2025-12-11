@@ -2272,10 +2272,8 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordClusterSession
     plural: mirrordclustersessions
-    shortNames: []
     singular: mirrordclustersession
   scope: Cluster
   versions:
