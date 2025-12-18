@@ -1695,6 +1695,7 @@ spec:
                     oneOf:
                     - required:
                       - env
+                    - required:
                       - envFrom
                     properties:
                       env:
@@ -1904,6 +1905,7 @@ spec:
                     oneOf:
                     - required:
                       - env
+                    - required:
                       - envFrom
                     properties:
                       env:
