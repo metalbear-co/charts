@@ -1,3 +1,22 @@
+## [mirrord-operator-1.41.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.41.0) - 2025-12-22
+
+
+### Added
+
+- Added `ciInfo` to mirrordclusterssessions spec.
+
+
+## Changed
+
+- Bumped `appVersion` to `3.133.0`.
+
+## [mirrord-operator-license-server-1.4.12](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.12) - 2025-12-22
+
+
+## Changed
+
+- Bumped `appVersion` to `3.133.0`.
+
 ## [mirrord-operator-1.40.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.40.3) - 2025-12-10
 
 
