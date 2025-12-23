@@ -1695,9 +1695,22 @@ spec:
                     oneOf:
                     - required:
                       - env
+                    - required:
+                      - envFrom
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the the pod template.
                         properties:
                           container:
                             nullable: true
@@ -1892,9 +1905,22 @@ spec:
                     oneOf:
                     - required:
                       - env
+                    - required:
+                      - envFrom
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the the pod template.
                         properties:
                           container:
                             nullable: true
