@@ -1,3 +1,22 @@
+## [mirrord-operator-1.42.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.42.0) - 2025-12-24
+
+
+### Added
+
+- Added `envFrom` as a new type of connection source for DB branching.
+
+
+## Changed
+
+- Bumped `appVersion` to `3.134.0`.
+
+## [mirrord-operator-license-server-1.4.13](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.13) - 2025-12-24
+
+
+## Changed
+
+- Bumped `appVersion` to `3.134.0`.
+
 ## [mirrord-operator-1.41.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.41.0) - 2025-12-22
 
 
