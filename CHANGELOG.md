@@ -4,7 +4,6 @@
 ### Added
 
 - Added `envFrom` as a new type of connection source for DB branching.
-  [#env-from](https://github.com/metalbear-co/charts/issues/env-from)
 
 
 ## Changed
