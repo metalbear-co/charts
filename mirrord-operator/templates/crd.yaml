@@ -1962,6 +1962,28 @@ spec:
                 description: PostgreSQL database name.
                 nullable: true
                 type: string
+              iamAuth:
+                description: IAM authentication configuration for the source database. Use this when the source database (RDS, Cloud SQL) requires IAM auth instead of passwords.
+                nullable: true
+                oneOf:
+                - required:
+                  - type
+                properties:
+                  type:
+                    description: Type of IAM authentication.
+                    enum:
+                    - aws_rds
+                    - gcp_cloud_sql
+                    type: string
+                  region:
+                    description: AWS region where the RDS instance is located (only for aws_rds type).
+                    nullable: true
+                    type: string
+                  region_env:
+                    description: Name of the environment variable containing the AWS region (only for aws_rds type).
+                    nullable: true
+                    type: string
+                type: object
               id:
                 description: ID derived by mirrord CLI.
                 type: string
