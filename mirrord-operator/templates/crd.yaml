@@ -1976,13 +1976,95 @@ spec:
                     - gcp_cloud_sql
                     type: string
                   region:
-                    description: AWS region where the RDS instance is located (only for aws_rds type).
+                    description: AWS region source (only for aws_rds type). If not specified, uses AWS_REGION or AWS_DEFAULT_REGION.
                     nullable: true
-                    type: string
-                  region_env:
-                    description: Name of the environment variable containing the AWS region (only for aws_rds type).
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
+                  access_key_id:
+                    description: AWS Access Key ID source (only for aws_rds type). If not specified, uses AWS_ACCESS_KEY_ID.
                     nullable: true
-                    type: string
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
+                  secret_access_key:
+                    description: AWS Secret Access Key source (only for aws_rds type). If not specified, uses AWS_SECRET_ACCESS_KEY.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
+                  session_token:
+                    description: AWS Session Token source (only for aws_rds type). If not specified, uses AWS_SESSION_TOKEN.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
+                  credentials:
+                    description: GCP service account credentials source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_APPLICATION_CREDENTIALS.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
+                  project:
+                    description: GCP project ID source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_CLOUD_PROJECT.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
                 type: object
               id:
                 description: ID derived by mirrord CLI.
