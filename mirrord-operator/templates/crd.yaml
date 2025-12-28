@@ -2035,8 +2035,8 @@ spec:
                     - type
                     - variable
                     type: object
-                  credentials:
-                    description: GCP service account credentials source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_APPLICATION_CREDENTIALS.
+                  credentials_json:
+                    description: Inline GCP service account JSON credentials (only for gcp_cloud_sql type). Pass credentials directly from an env var instead of mounting a file.
                     nullable: true
                     properties:
                       type:
