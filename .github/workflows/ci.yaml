@@ -168,7 +168,7 @@ jobs:
             --set operator.podAnnotations."annotation\.metalbear\.co/version"="latest" \
             --set operator.podLabels."label\.metalbear\.co/name"="operator" \
             --set operator.podLabels."label\.metalbear\.co/version"="latest" \
-            --set operator.replicas=${{ matrix.replicas }}
+            --set operator.replicas=${{ matrix.replicas }} \
             ./mirrord-operator --wait
       - name: wait for the operator status
         uses: metalbear-co/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68
