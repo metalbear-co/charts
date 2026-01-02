@@ -12,6 +12,7 @@ spec:
   selector:
     matchLabels:
       app: mirrord-operator
+  replicas: {{ .Values.operator.replicas }}
   template:
     metadata:
       labels:

@@ -30,6 +30,12 @@ clusterRole:
 operator:
   image: ghcr.io/metalbear-co/operator
 
+  # Number of replicas of the operator's deployment.
+  # At all times, only one of the replicas acts as the leader and serves mirrord sessions.
+  # Additional replicas remain in a standby mode,
+  # ready to resume the work in case the leader exits (e.g. due to node failure).
+  replicas: 1
+
   # Override the pull policy, useful for local development.
   # imagePullPolicy: Always
 
