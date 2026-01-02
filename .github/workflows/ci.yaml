@@ -175,7 +175,7 @@ jobs:
         with:
           timeout_seconds: 10
           max_attempts: 5
-          retry_wait_seconds: 1
+          retry_wait_seconds: 2
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
@@ -192,7 +192,7 @@ jobs:
         with:
           timeout_seconds: 10
           max_attempts: 5
-          retry_wait_seconds: 1
+          retry_wait_seconds: 2
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
@@ -206,7 +206,7 @@ jobs:
         with:
           timeout_seconds: 10
           max_attempts: 5
-          retry_wait_seconds: 1
+          retry_wait_seconds: 2
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
