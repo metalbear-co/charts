@@ -213,6 +213,9 @@ jobs:
       - name: get operator logs
         if: failure()
         run: kubectl logs -n mirrord deployment/mirrord-operator
+      - name: get operator APIService
+        if: failure()
+        run: kubectl get apiservice v1.operator.metalbear.co -o yaml
 
   operator-install-with-license-server-and-use:
     runs-on: ubuntu-latest
