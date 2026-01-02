@@ -179,8 +179,10 @@ jobs:
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: download latest mirrord binary
         run: curl --fail-with-body -LO https://github.com/metalbear-co/mirrord/releases/latest/download/mirrord_linux_x86_64 && chmod +x ./mirrord_linux_x86_64
+      # Run mirrord session after installing the operator on a clean cluster.
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
+      # Run mirrord session after deleting the operator leader pod.
       - name: delete operator leader pod
         run: kubectl delete pods -n mirrord -l app=mirrord-operator,mirrord-operator-leader=true
       - name: wait for operator deployment to reach stable state
@@ -194,6 +196,7 @@ jobs:
           command: kubectl get mirrordoperators.operator.metalbear.co operator -o yaml
       - name: run dummy mirrord session
         run: MIRRORD_OPERATOR_ENABLE=true MIRRORD_TELEMETRY=false ./mirrord_linux_x86_64 exec -- echo whatever
+      # Run mirrord session after restarting the whole operator deployment.
       - name: restart operator deployment
         run: kubectl rollout restart deploy mirrord-operator -n mirrord
       - name: wait for operator deployment to reach stable state
