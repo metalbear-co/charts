@@ -2270,6 +2270,21 @@ spec:
                     - type
                     - variable
                     type: object
+                  credentials_path:
+                    description: Path to GCP service account JSON key file (only for gcp_cloud_sql type). The file must be accessible from the init container.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - env
+                        type: string
+                      variable:
+                        description: Name of the environment variable containing the file path.
+                        type: string
+                    required:
+                    - type
+                    - variable
+                    type: object
                   project:
                     description: GCP project ID source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_CLOUD_PROJECT.
                     nullable: true
