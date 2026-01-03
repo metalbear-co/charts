@@ -1,0 +1,63 @@
+{{- if .Values.operator.multiCluster.enabled }}
+---
+# ClusterRole for Envoy (Primary Cluster)
+# This role allows the primary operator to manage multi-cluster sessions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mirrord-operator-envoy
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+rules:
+# Multi-cluster session management
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions/status
+  verbs:
+  - get
+  - update
+  - patch
+---
+# ClusterRole for cross-cluster Envoy access
+# This role is bound to the primary operator's service account in REMOTE clusters
+# It allows the primary operator to create cluster sessions (with multi-cluster fields) in remote clusters
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mirrord-operator-envoy-remote
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+rules:
+# Create and manage cluster sessions in remote clusters (reuses existing MirrordClusterSession CRD)
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclustersessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclustersessions/status
+  verbs:
+  - get
+  - watch
+{{- end }}
+

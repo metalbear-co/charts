@@ -72,6 +72,47 @@ operator:
   # Enable prometheus metrics endpoint
   metrics: false
 
+  # Multi-cluster configuration (Envoy)
+  # Enable this on the PRIMARY cluster only
+  multiCluster:
+    # Set to true to enable multi-cluster session orchestration
+    enabled: false
+    
+    # PRIMARY CLUSTER: Where Envoy runs, the entry point for users
+    # This cluster orchestrates multi-cluster sessions
+    # Can be management-only (not in clusterContexts) or have workloads
+    primaryCluster: ""
+    
+    # DEFAULT CLUSTER: Where stateful operations happen
+    # - DB branches are created here
+    # - File operations read/write from here
+    # - Outgoing traffic originates from here
+    # MUST be listed in clusterContexts (must have workloads)
+    defaultCluster: ""
+    
+    # Timeout for waiting for remote sessions to become ready (seconds)
+    remoteSessionTimeoutSecs: 30
+    
+    # WORKLOAD CLUSTERS: All clusters that have pods to target
+    # Traffic operations are broadcast to ALL clusters in this list
+    # If primaryCluster is in this list, it also receives traffic
+    # Key: logical cluster name, Value: kubeconfig context name
+    # Example:
+    # clusterContexts:
+    #   us-east-1: arn:aws:eks:us-east-1:123456789:cluster/prod-use1
+    #   us-west-2: arn:aws:eks:us-west-2:123456789:cluster/prod-usw2
+    #   eu-west-1: arn:aws:eks:eu-west-1:123456789:cluster/prod-euw1
+    clusterContexts: {}
+    
+    # Path to kubeconfig file containing all cluster contexts
+    # If not provided, uses ~/.kube/config from the operator pod
+    # kubeconfigPath: /etc/kubeconfig/config
+    
+    # Secret containing the kubeconfig for multi-cluster access
+    # The secret should have a key named "config" with the kubeconfig content
+    # If not provided, the operator will use in-cluster config
+    # kubeconfigSecret: mirrord-multi-cluster-kubeconfig
+
   # imagePullSecrets:
   #   - name: value
 

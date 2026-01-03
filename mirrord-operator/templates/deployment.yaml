@@ -28,6 +28,10 @@ spec:
           {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.operator.hostAliases }}
+      hostAliases:
+        {{- toYaml .Values.operator.hostAliases | nindent 8 }}
+      {{- end }}
       {{- if .Values.operator.imagePullSecrets }}
       imagePullSecrets:
         {{- range .Values.operator.imagePullSecrets }}
@@ -147,6 +151,20 @@ spec:
           value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
+        {{- if .Values.operator.multiCluster.enabled }}
+        - name: OPERATOR_MULTI_CLUSTER_ENABLED
+          value: "true"
+        - name: OPERATOR_MULTI_CLUSTER_TIMEOUT_SECS
+          value: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | quote }}
+        {{- if .Values.operator.multiCluster.kubeconfigPath }}
+        - name: OPERATOR_MULTI_CLUSTER_KUBECONFIG_PATH
+          value: {{ .Values.operator.multiCluster.kubeconfigPath }}
+        {{- end }}
+        {{- if .Values.operator.multiCluster.clusterContexts }}
+        - name: OPERATOR_MULTI_CLUSTER_CONTEXTS
+          value: {{ toJson .Values.operator.multiCluster.clusterContexts | quote }}
+        {{- end }}
+        {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
           value: {{ $val | quote }}
@@ -214,6 +232,11 @@ spec:
         {{- end }}
         - mountPath: /mirrord-config
           name: mirrord-config-volume
+        {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.kubeconfigSecret }}
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig-volume
+          readOnly: true
+        {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - mountPath: /license
           name: license-volume
@@ -226,6 +249,11 @@ spec:
       - name: mirrord-config-volume
         configMap:
           name: mirrord-configmap
+      {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.kubeconfigSecret }}
+      - name: kubeconfig-volume
+        secret:
+          secretName: {{ .Values.operator.multiCluster.kubeconfigSecret }}
+      {{- end }}
       {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
       - name: tls-volume
         secret:
