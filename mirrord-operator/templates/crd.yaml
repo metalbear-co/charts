@@ -98,7 +98,10 @@ spec:
                   incoming:
                     httpFilter:
                       headerFilter: null
-                description: Fine grained control over network features like specifying required HTTP filters.
+                  outgoing:
+                    allow: []
+                    block: []
+                description: Fine grained control over network features like specifying required HTTP filters and limiting outgoing connections.
                 properties:
                   incoming:
                     default:
@@ -125,6 +128,113 @@ spec:
                             nullable: true
                             type: string
                         type: object
+                    type: object
+                  outgoing:
+                    default:
+                      allow: []
+                      block: []
+                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    properties:
+                      allow:
+                        default: []
+                        description: List of allowed outgoing connections. If specified, only connections matching these rules will be permitted. Evaluated before `block` rules, so a connection that matches both will be blocked.
+                        items:
+                          description: A rule describing outgoing network connections (for either allow or block lists).
+                          properties:
+                            hostname:
+                              description: Regex pattern for matching hostnames.
+                              nullable: true
+                              type: string
+                            ipBlock:
+                              description: IP-based destination rules.
+                              nullable: true
+                              properties:
+                                cidr:
+                                  description: CIDR notation of the IP range (e.g., "10.0.0.0/16").
+                                  type: string
+                                except:
+                                  default: []
+                                  description: List of CIDR ranges to exclude from the IP range.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - cidr
+                              type: object
+                            ports:
+                              default: []
+                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              items:
+                                description: Port and protocol specification for outgoing connections.
+                                properties:
+                                  port:
+                                    description: Port number.
+                                    format: uint16
+                                    minimum: 0.0
+                                    type: integer
+                                  protocol:
+                                    description: Network protocol (TCP or UDP).
+                                    enum:
+                                    - TCP
+                                    - UDP
+                                    type: string
+                                required:
+                                - port
+                                - protocol
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      block:
+                        default: []
+                        description: List of blocked outgoing connections. If specified, connections matching these rules will be denied. Evaluated after `allow` rules, so a connection that matches both will be blocked.
+                        items:
+                          description: A rule describing outgoing network connections (for either allow or block lists).
+                          properties:
+                            hostname:
+                              description: Regex pattern for matching hostnames.
+                              nullable: true
+                              type: string
+                            ipBlock:
+                              description: IP-based destination rules.
+                              nullable: true
+                              properties:
+                                cidr:
+                                  description: CIDR notation of the IP range (e.g., "10.0.0.0/16").
+                                  type: string
+                                except:
+                                  default: []
+                                  description: List of CIDR ranges to exclude from the IP range.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - cidr
+                              type: object
+                            ports:
+                              default: []
+                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              items:
+                                description: Port and protocol specification for outgoing connections.
+                                properties:
+                                  port:
+                                    description: Port number.
+                                    format: uint16
+                                    minimum: 0.0
+                                    type: integer
+                                  protocol:
+                                    description: Network protocol (TCP or UDP).
+                                    enum:
+                                    - TCP
+                                    - UDP
+                                    type: string
+                                required:
+                                - port
+                                - protocol
+                                type: object
+                              type: array
+                          type: object
+                        type: array
                     type: object
                 type: object
               profileAllowlist:
@@ -306,7 +416,10 @@ spec:
                   incoming:
                     httpFilter:
                       headerFilter: null
-                description: Network operations policy that partialy mimics the mirrord network config.
+                  outgoing:
+                    allow: []
+                    block: []
+                description: Fine grained control over network features like specifying required HTTP filters and limiting outgoing connections.
                 properties:
                   incoming:
                     default:
@@ -333,6 +446,113 @@ spec:
                             nullable: true
                             type: string
                         type: object
+                    type: object
+                  outgoing:
+                    default:
+                      allow: []
+                      block: []
+                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    properties:
+                      allow:
+                        default: []
+                        description: List of allowed outgoing connections. If specified, only connections matching these rules will be permitted. Evaluated before `block` rules, so a connection that matches both will be blocked.
+                        items:
+                          description: A rule describing outgoing network connections (for either allow or block lists).
+                          properties:
+                            hostname:
+                              description: Regex pattern for matching hostnames.
+                              nullable: true
+                              type: string
+                            ipBlock:
+                              description: IP-based destination rules.
+                              nullable: true
+                              properties:
+                                cidr:
+                                  description: CIDR notation of the IP range (e.g., "10.0.0.0/16").
+                                  type: string
+                                except:
+                                  default: []
+                                  description: List of CIDR ranges to exclude from the IP range.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - cidr
+                              type: object
+                            ports:
+                              default: []
+                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              items:
+                                description: Port and protocol specification for outgoing connections.
+                                properties:
+                                  port:
+                                    description: Port number.
+                                    format: uint16
+                                    minimum: 0.0
+                                    type: integer
+                                  protocol:
+                                    description: Network protocol (TCP or UDP).
+                                    enum:
+                                    - TCP
+                                    - UDP
+                                    type: string
+                                required:
+                                - port
+                                - protocol
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      block:
+                        default: []
+                        description: List of blocked outgoing connections. If specified, connections matching these rules will be denied. Evaluated after `allow` rules, so a connection that matches both will be blocked.
+                        items:
+                          description: A rule describing outgoing network connections (for either allow or block lists).
+                          properties:
+                            hostname:
+                              description: Regex pattern for matching hostnames.
+                              nullable: true
+                              type: string
+                            ipBlock:
+                              description: IP-based destination rules.
+                              nullable: true
+                              properties:
+                                cidr:
+                                  description: CIDR notation of the IP range (e.g., "10.0.0.0/16").
+                                  type: string
+                                except:
+                                  default: []
+                                  description: List of CIDR ranges to exclude from the IP range.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - cidr
+                              type: object
+                            ports:
+                              default: []
+                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              items:
+                                description: Port and protocol specification for outgoing connections.
+                                properties:
+                                  port:
+                                    description: Port number.
+                                    format: uint16
+                                    minimum: 0.0
+                                    type: integer
+                                  protocol:
+                                    description: Network protocol (TCP or UDP).
+                                    enum:
+                                    - TCP
+                                    - UDP
+                                    type: string
+                                required:
+                                - port
+                                - protocol
+                                type: object
+                              type: array
+                          type: object
+                        type: array
                     type: object
                 type: object
               profileAllowlist:
