@@ -262,6 +262,13 @@ rules:
   - get
   - update
   - patch
+# For reading credentials from secrets when using credentials_path
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
 {{- end }}
 - apiGroups:
   - mirrord.metalbear.co
