@@ -4,7 +4,7 @@ filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
 underlines = ["", "", ""]
 template = "changelog.d/changelog_template.jinja"
-title_format = "## [{version}](https://github.com/metalbear-co/charts/tree/{version}) - {project_date}"
+title_format = "## [mirrord-operator-{version}](https://github.com/metalbear-co/charts/tree/mirrord-operator-{version}) - {project_date}"
 issue_format = "[#{issue}](https://github.com/metalbear-co/charts/issues/{issue})"
 wrap = true
 
