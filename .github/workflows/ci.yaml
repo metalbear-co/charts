@@ -84,11 +84,13 @@ jobs:
       - name: install towncrier
         run: uv pip install towncrier==23.11.0
       - name: verify operator newsfragment exist
+        id: operator_check
         if: ${{needs.changed_files.outputs.operator_changed == 'true'}}
         run: |
           uv run towncrier check --config mirrord-operator/towncrier.toml --dir mirrord-operator
           echo "passed=true" >> "$GITHUB_OUTPUT"
       - name: verify license server newsfragment exist
+        id: license_server_check
         if: ${{needs.changed_files.outputs.license_server_changed == 'true'}}
         run: |
           uv run towncrier check --config mirrord-license-server/towncrier.toml --dir mirrord-license-server
@@ -96,7 +98,7 @@ jobs:
       - name: require at least one newsfragment exists
         run: |
           operator="${{ steps.operator_check.outputs.passed }}"
-          license_server="${{ steps.license_check.outputs.passed }}"
+          license_server="${{ steps.license_server_check.outputs.passed }}"
           if [[ "$operator" != "true" && "$license_server" != "true" ]]; then
             echo "❌ Neither operator nor license server newsfragment checks ran successfully."
             exit 1
