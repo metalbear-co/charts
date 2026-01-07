@@ -39,3 +39,7 @@ data:
     {{- if and .Values.operator.pgBranching .Values.operator.pgBranchConfig }}
     {{- toYaml .Values.operator.pgBranchConfig | nindent 4 }}
     {{- end }}
+  mongodb-branch-config.yaml: |-
+    {{- if and .Values.operator.mongodbBranching .Values.operator.mongodbBranchConfig }}
+    {{- toYaml .Values.operator.mongodbBranchConfig | nindent 4 }}
+    {{- end }}
