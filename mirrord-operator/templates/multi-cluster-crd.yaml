@@ -90,6 +90,23 @@ spec:
               primaryCluster:
                 description: Primary cluster name
                 type: string
+              defaultCluster:
+                description: Default cluster for stateful operations (db_branches, etc.)
+                type: string
+              featureConfig:
+                description: Full feature configuration as JSON for multi-cluster mode
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              pgBranchNames:
+                description: PostgreSQL branch database names (created by primary before session init)
+                type: array
+                items:
+                  type: string
+              mysqlBranchNames:
+                description: MySQL branch database names (created by primary before session init)
+                type: array
+                items:
+                  type: string
           status:
             type: object
             properties:

@@ -194,12 +194,22 @@ spec:
           - {{ toYaml . }}
           {{- end }}
         {{- end }}
-        livenessProbe:
+        startupProbe:
           httpGet:
             path: /health
             port: {{ .Values.operator.port }}
             scheme: HTTPS
           periodSeconds: 5
+          timeoutSeconds: 10
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.operator.port }}
+            scheme: HTTPS
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 3
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
@@ -214,6 +224,8 @@ spec:
             port: {{ .Values.operator.port }}
             scheme: HTTPS
           periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           requests:
             cpu: 100m
