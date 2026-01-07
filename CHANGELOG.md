@@ -1,3 +1,23 @@
+## [mirrord-operator-1.43.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.43.0) - 2026-01-06
+
+
+### Added
+
+- Added an option to configure mirrord Operator's deployment replicas (`operator.replicas` in values.yaml).
+- Support for limiting outgoing connections from mirrord sessions using a kubernetes policy has been added to the operator.
+
+
+## Changed
+
+- Bumped `appVersion` to `3.135.1`.
+
+## [mirrord-operator-license-server-1.4.14](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.14) - 2026-01-06
+
+
+### Changed
+
+- Bumped `appVersion` to `3.135.1`.
+
 ## [mirrord-operator-1.42.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.42.0) - 2025-12-24
 
 
