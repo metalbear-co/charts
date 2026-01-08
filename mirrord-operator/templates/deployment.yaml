@@ -207,9 +207,9 @@ spec:
             path: /health
             port: {{ .Values.operator.port }}
             scheme: HTTPS
-          periodSeconds: 10
-          timeoutSeconds: 10
-          failureThreshold: 3
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 5
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
@@ -223,8 +223,8 @@ spec:
             path: /health
             port: {{ .Values.operator.port }}
             scheme: HTTPS
-          periodSeconds: 5
-          timeoutSeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 10
           failureThreshold: 3
         resources:
           requests:
