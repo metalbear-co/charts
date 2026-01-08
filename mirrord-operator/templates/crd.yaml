@@ -2036,6 +2036,10 @@ spec:
           status:
             nullable: true
             properties:
+              error:
+                description: Error message if the branch database failed to create.
+                nullable: true
+                type: string
               expireTime:
                 description: Time when the branch database should be deleted.
                 format: date-time
@@ -2044,6 +2048,7 @@ spec:
                 enum:
                 - Pending
                 - Ready
+                - Failed
                 type: string
               sessionInfo:
                 additionalProperties:
@@ -2484,6 +2489,10 @@ spec:
           status:
             nullable: true
             properties:
+              error:
+                description: Error message if the branch database failed to create.
+                nullable: true
+                type: string
               expireTime:
                 description: Time when the branch database should be deleted.
                 format: date-time
@@ -2492,6 +2501,7 @@ spec:
                 enum:
                 - Pending
                 - Ready
+                - Failed
                 type: string
               sessionInfo:
                 additionalProperties:
