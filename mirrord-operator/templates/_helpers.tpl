@@ -48,6 +48,20 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - get
   - list
+- apiGroups:
+  - preview.mirrord.metalbear.co
+  resources:
+  - previewsessions
+  - previewsessions/status
+  verbs:
+  - get
+  - list
+  - edit
+  - watch
+  - patch
+  - create
+  - update
+  - delete
 {{- if (default false .Values.operator.mysqlBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
