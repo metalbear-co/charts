@@ -103,15 +103,6 @@ operator:
     #   us-west-2: arn:aws:eks:us-west-2:123456789:cluster/prod-usw2
     #   eu-west-1: arn:aws:eks:eu-west-1:123456789:cluster/prod-euw1
     clusterContexts: {}
-    
-    # Path to kubeconfig file containing all cluster contexts
-    # If not provided, uses ~/.kube/config from the operator pod
-    # kubeconfigPath: /etc/kubeconfig/config
-    
-    # Secret containing the kubeconfig for multi-cluster access
-    # The secret should have a key named "config" with the kubeconfig content
-    # If not provided, the operator will use in-cluster config
-    # kubeconfigSecret: mirrord-multi-cluster-kubeconfig
 
   # imagePullSecrets:
   #   - name: value

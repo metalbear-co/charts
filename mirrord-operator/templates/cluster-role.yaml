@@ -286,27 +286,6 @@ rules:
   - update
   - patch
 {{- end }}
-# For private cluster sessions (Private Interface - runs on all clusters)
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - mirrordprivateclustersessions
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - mirrordprivateclustersessions/status
-  verbs:
-  - get
-  - update
-  - patch
 - apiGroups:
   - mirrord.metalbear.co
   resources:
