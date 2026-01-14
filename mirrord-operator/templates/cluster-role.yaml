@@ -263,6 +263,29 @@ rules:
   - update
   - patch
 {{- end }}
+{{- if .Values.operator.multiCluster.enabled }}
+# For multi-cluster sessions (Envoy)
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
 - apiGroups:
   - mirrord.metalbear.co
   resources:
