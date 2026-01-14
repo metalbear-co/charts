@@ -65,8 +65,14 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        - name: OPERATOR_POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
         - name: OPERATOR_NAMESPACE
-          value: {{ .Values.namespace }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         - name: OPERATOR_SERVICE_NAME
           value: mirrord-operator
         - name: OPERATOR_TELEMETRY_ENABLED
