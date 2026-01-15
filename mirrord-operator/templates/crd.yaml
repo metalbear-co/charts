@@ -2518,8 +2518,10 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories: []
     kind: MirrordClusterSession
     plural: mirrordclustersessions
+    shortNames: []
     singular: mirrordclustersession
   scope: Cluster
   versions:
@@ -2665,9 +2667,106 @@ spec:
             - owner
             type: object
           status:
-            description: Status of a mirrord session.
+            description: Describes an owner of a mirrord session.
             nullable: true
             properties:
+              agents:
+                default: []
+                description: Running agents status
+                items:
+                  description: Status of a mirrord session.
+                  properties:
+                    connectionInfo:
+                      description: Agent connection info to target's agents.
+                      nullable: true
+                      properties:
+                        agent_port:
+                          description: Port on which the agent accepts connections.
+                          format: uint16
+                          minimum: 0.0
+                          type: integer
+                        pod_name:
+                          description: Name of the pod that hosts the agent container.
+                          type: string
+                        pod_namespace:
+                          description: Namespace where the pod hosting the agent container lives.
+                          type: string
+                      required:
+                      - agent_port
+                      - pod_name
+                      - pod_namespace
+                      type: object
+                    ephemeral:
+                      description: If the agent is of the ephemeral variaty
+                      type: boolean
+                    error:
+                      description: Agent spawn error if there is one.
+                      nullable: true
+                      properties:
+                        message:
+                          description: Optional human friendly message.
+                          nullable: true
+                          type: string
+                        reason:
+                          description: Short reason in PascalCase.
+                          type: string
+                      required:
+                      - reason
+                      type: object
+                    phase:
+                      description: The phase of agent's pod.
+                      nullable: true
+                      type: string
+                    target:
+                      description: Resolved agent target.
+                      oneOf:
+                      - required:
+                        - targetless
+                      - required:
+                        - pod
+                      properties:
+                        pod:
+                          properties:
+                            container_id:
+                              description: Target's container id
+                              type: string
+                            container_name:
+                              description: Target's container name
+                              type: string
+                            name:
+                              description: Target name
+                              type: string
+                            namespace:
+                              description: Target namespace
+                              type: string
+                            uid:
+                              description: Target's pod uid
+                              type: string
+                          required:
+                          - container_id
+                          - container_name
+                          - name
+                          - namespace
+                          - uid
+                          type: object
+                        targetless:
+                          properties:
+                            namespace:
+                              description: Target namespace
+                              type: string
+                            uid:
+                              description: Target namespace uid
+                              type: string
+                          required:
+                          - namespace
+                          - uid
+                          type: object
+                      type: object
+                  required:
+                  - ephemeral
+                  - target
+                  type: object
+                type: array
               closed:
                 description: If the session has been closed, describes the reason.
                 nullable: true
