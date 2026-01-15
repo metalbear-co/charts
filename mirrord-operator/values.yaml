@@ -74,35 +74,72 @@ operator:
 
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
+  #
+  # ## How it works
+  #
+  # Clusters are discovered from Secrets with label `mirrord.metalbear.co/remote-cluster=true`.
+  # Each Secret contains credentials for a remote cluster:
+  #   - name: Logical cluster name (e.g., "staging-us-east")
+  #   - server: Kubernetes API server URL
+  #   - caData: CA certificate (base64 encoded)
+  #   - bearerToken: ServiceAccount token
+  #   - isDefault: "true" for the default cluster (stateful operations)
+  #
+  # Tokens are auto-refreshed using the TokenRequest API every 45 minutes.
+  #
+  # ## Setup
+  #
+  # 1. Create a ServiceAccount on each remote cluster (see remoteClusterSetup below)
+  # 2. Get the token and CA from each remote cluster
+  # 3. Create a Secret on the primary cluster for each remote cluster
+  # 4. Enable multiCluster.enabled = true on the primary cluster
+  #
   multiCluster:
     # Set to true to enable multi-cluster session orchestration
     enabled: false
     
-    # PRIMARY CLUSTER: Where Envoy runs, the entry point for users
-    # This cluster orchestrates multi-cluster sessions
-    # Can be management-only (not in clusterContexts) or have workloads
-    primaryCluster: ""
+    # PRIMARY CLUSTER: Name of this cluster (where Envoy runs)
+    # This is the entry point for users - they connect here
+    # The primary cluster orchestrates sessions across all clusters
+    primaryCluster: "primary"
     
-    # DEFAULT CLUSTER: Where stateful operations happen
+    # DEFAULT CLUSTER: Where stateful operations happen (optional)
     # - DB branches are created here
     # - File operations read/write from here
     # - Outgoing traffic originates from here
-    # MUST be listed in clusterContexts (must have workloads)
+    # If not set, uses the cluster with `isDefault: true` in its Secret
     defaultCluster: ""
     
-    # Timeout for waiting for remote sessions to become ready (seconds)
-    remoteSessionTimeoutSecs: 30
+    # Whether the primary cluster is management-only (no workloads)
+    # When true: Primary only runs Envoy, all sessions go to remote clusters
+    # When false: Primary is also a workload cluster
+    primaryIsManagementOnly: true
     
-    # WORKLOAD CLUSTERS: All clusters that have pods to target
-    # Traffic operations are broadcast to ALL clusters in this list
-    # If primaryCluster is in this list, it also receives traffic
-    # Key: logical cluster name, Value: kubeconfig context name
+    # Timeout for waiting for remote sessions to become ready (seconds)
+    remoteSessionTimeoutSecs: 300
+    
+    # Token refresh interval (seconds)
+    # Tokens are refreshed via TokenRequest API before expiry
+    tokenRefreshIntervalSecs: 2700  # 45 minutes
+    
+    # TTL for multi-cluster sessions (seconds)
+    # Sessions are deleted when no client has been connected for this duration
+    sessionTtlSecs: 60
+    
+    # Cluster credentials (creates Secrets for each cluster)
+    # Tokens are auto-refreshed via TokenRequest API
     # Example:
-    # clusterContexts:
-    #   us-east-1: arn:aws:eks:us-east-1:123456789:cluster/prod-use1
-    #   us-west-2: arn:aws:eks:us-west-2:123456789:cluster/prod-usw2
-    #   eu-west-1: arn:aws:eks:eu-west-1:123456789:cluster/prod-euw1
-    clusterContexts: {}
+    # clusters:
+    #   staging-us-east:
+    #     server: https://staging-us-east.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA
+    #     bearerToken: eyJhbGci...   # initial token (will be refreshed)
+    #     isDefault: true            # this is the default cluster
+    #   staging-eu-west:
+    #     server: https://staging-eu-west.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...
+    #     bearerToken: eyJhbGci...
+    clusters: {}
 
   # imagePullSecrets:
   #   - name: value

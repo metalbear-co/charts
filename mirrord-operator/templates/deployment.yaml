@@ -152,18 +152,23 @@ spec:
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         {{- if .Values.operator.multiCluster.enabled }}
-        - name: OPERATOR_MULTI_CLUSTER_ENABLED
+        # Multi-cluster configuration (Primary cluster)
+        - name: MIRRORD_IS_PRIMARY_CLUSTER
           value: "true"
-        - name: OPERATOR_MULTI_CLUSTER_TIMEOUT_SECS
+        - name: MIRRORD_PRIMARY_CLUSTER
+          value: {{ .Values.operator.multiCluster.primaryCluster | quote }}
+        {{- if .Values.operator.multiCluster.defaultCluster }}
+        - name: MIRRORD_DEFAULT_CLUSTER
+          value: {{ .Values.operator.multiCluster.defaultCluster | quote }}
+        {{- end }}
+        - name: PRIMARY_MANAGEMENT_ONLY
+          value: {{ .Values.operator.multiCluster.primaryIsManagementOnly | ternary "true" "false" | quote }}
+        - name: MIRRORD_REMOTE_SESSION_TIMEOUT
           value: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | quote }}
-        {{- if .Values.operator.multiCluster.kubeconfigPath }}
-        - name: OPERATOR_MULTI_CLUSTER_KUBECONFIG_PATH
-          value: {{ .Values.operator.multiCluster.kubeconfigPath }}
-        {{- end }}
-        {{- if .Values.operator.multiCluster.clusterContexts }}
-        - name: OPERATOR_MULTI_CLUSTER_CONTEXTS
-          value: {{ toJson .Values.operator.multiCluster.clusterContexts | quote }}
-        {{- end }}
+        - name: MIRRORD_SESSION_TTL
+          value: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 | quote }}
+        - name: MIRRORD_TOKEN_REFRESH_INTERVAL
+          value: {{ .Values.operator.multiCluster.tokenRefreshIntervalSecs | default 2700 | quote }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
@@ -244,11 +249,6 @@ spec:
         {{- end }}
         - mountPath: /mirrord-config
           name: mirrord-config-volume
-        {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.kubeconfigSecret }}
-        - mountPath: /etc/kubeconfig
-          name: kubeconfig-volume
-          readOnly: true
-        {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - mountPath: /license
           name: license-volume
@@ -261,11 +261,6 @@ spec:
       - name: mirrord-config-volume
         configMap:
           name: mirrord-configmap
-      {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.kubeconfigSecret }}
-      - name: kubeconfig-volume
-        secret:
-          secretName: {{ .Values.operator.multiCluster.kubeconfigSecret }}
-      {{- end }}
       {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
       - name: tls-volume
         secret:
