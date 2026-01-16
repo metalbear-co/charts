@@ -30,6 +30,15 @@ rules:
   - get
   - update
   - patch
+# Access targets for multi-cluster routing
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - targets
+  verbs:
+  - get
+  - list
+  - watch
 ---
 # ClusterRole for cross-cluster Envoy access
 # This role is bound to the primary operator's service account in REMOTE clusters
@@ -59,5 +68,22 @@ rules:
   verbs:
   - get
   - watch
+---
+# ClusterRoleBinding to bind mirrord-operator-envoy to the operator ServiceAccount
+# This allows the operator to manage multi-cluster sessions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-operator-envoy
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-operator-envoy
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.sa.name }}
+    namespace: {{ .Values.namespace }}
 {{- end }}
 
