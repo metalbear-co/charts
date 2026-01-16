@@ -153,12 +153,13 @@ spec:
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         {{- if .Values.operator.multiCluster.enabled }}
         # Multi-cluster configuration (Primary cluster)
+        # If multi-cluster is enabled, this cluster IS the primary
         - name: MIRRORD_MULTI_CLUSTER_ENABLED
           value: "true"
-        - name: MIRRORD_IS_PRIMARY_CLUSTER
-          value: "true"
-        - name: MIRRORD_PRIMARY_CLUSTER
-          value: {{ .Values.operator.multiCluster.primaryCluster | quote }}
+        {{- if .Values.operator.multiCluster.clusterName }}
+        - name: MIRRORD_CLUSTER_NAME
+          value: {{ .Values.operator.multiCluster.clusterName | quote }}
+        {{- end }}
         {{- if .Values.operator.multiCluster.defaultCluster }}
         - name: MIRRORD_DEFAULT_CLUSTER
           value: {{ .Values.operator.multiCluster.defaultCluster | quote }}
