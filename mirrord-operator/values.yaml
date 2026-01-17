@@ -102,11 +102,11 @@ operator:
     # Used for logging and session tracking
     # clusterName: "primary"
     
-    # DEFAULT CLUSTER: Where stateful operations happen (optional)
+    # DEFAULT CLUSTER: Where stateful operations happen (REQUIRED when multi-cluster enabled)
     # - DB branches are created here
     # - File operations read/write from here
     # - Outgoing traffic originates from here
-    # If not set, uses the cluster with `isDefault: true` in its Secret
+    # Must match the `name` of one of your cluster Secrets
     defaultCluster: ""
     
     # Whether the primary cluster is management-only (no workloads)
@@ -117,27 +117,38 @@ operator:
     # Timeout for waiting for remote sessions to become ready (seconds)
     remoteSessionTimeoutSecs: 300
     
-    # Token refresh interval (seconds)
-    # Tokens are refreshed via TokenRequest API before expiry
-    tokenRefreshIntervalSecs: 2700  # 45 minutes
-    
     # TTL for multi-cluster sessions (seconds)
     # Sessions are deleted when no client has been connected for this duration
     sessionTtlSecs: 60
     
     # Cluster credentials (creates Secrets for each cluster)
-    # Tokens are auto-refreshed via TokenRequest API
-    # Example:
+    #
+    # Authentication options (use ONE of these):
+    #   - bearerToken: ServiceAccount token (RECOMMENDED)
+    #       → Auto-refreshed every 45 min via TokenRequest API
+    #       → No manual rotation needed
+    #   - clientCertData + clientKeyData: mTLS client certificate auth
+    #       → NOT auto-refreshed (certs typically valid for months/years)
+    #       → You must manually rotate before expiry
+    #
+    # Example with bearer token (recommended):
     # clusters:
     #   staging-us-east:
     #     server: https://staging-us-east.example.com:6443
-    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA
-    #     bearerToken: eyJhbGci...   # initial token (will be refreshed)
-    #     isDefault: true            # this is the default cluster
+    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA 
+    #     bearerToken: eyJhbGci...   # initial token (will be auto-refreshed)
     #   staging-eu-west:
     #     server: https://staging-eu-west.example.com:6443
     #     caData: LS0tLS1CRUdJTi...
     #     bearerToken: eyJhbGci...
+    #
+    # Example with mTLS (for clusters requiring client certificate auth):
+    # clusters:
+    #   secure-cluster:
+    #     server: https://secure.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...       # CA cert 
+    #     clientCertData: LS0tLS1CRUdJ... # client cert
+    #     clientKeyData: LS0tLS1CRUdJ...  # client private key 
     clusters: {}
 
   # imagePullSecrets:

@@ -170,8 +170,6 @@ spec:
           value: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | quote }}
         - name: MIRRORD_SESSION_TTL
           value: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 | quote }}
-        - name: MIRRORD_TOKEN_REFRESH_INTERVAL
-          value: {{ .Values.operator.multiCluster.tokenRefreshIntervalSecs | default 2700 | quote }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
