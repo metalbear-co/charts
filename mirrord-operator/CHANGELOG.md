@@ -1,3 +1,9 @@
+## [mirrord-operator-1.43.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.43.1) - 2026-01-13
+
+### Changed
+
+- Bumped `appVersion` to `3.136.0`.
+
 ## [mirrord-operator-1.43.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.43.0) - 2026-01-06
 
 ### Added
