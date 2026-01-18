@@ -89,6 +89,8 @@ spec:
           value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PG_BRANCHING
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_MONGODB_BRANCHING
+          value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"
@@ -103,6 +105,8 @@ spec:
           value: /mirrord-config/mysql-branch-config.yaml
         - name: OPERATOR_PG_BRANCH_CONFIG
           value: /mirrord-config/pg-branch-config.yaml
+        - name: OPERATOR_MONGODB_BRANCH_CONFIG
+          value: /mirrord-config/mongodb-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt

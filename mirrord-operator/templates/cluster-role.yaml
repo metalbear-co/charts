@@ -263,6 +263,27 @@ rules:
   - update
   - patch
 {{- end }}
+{{- if .Values.operator.mongodbBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
 - apiGroups:
   - mirrord.metalbear.co
   resources:

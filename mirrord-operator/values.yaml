@@ -66,6 +66,8 @@ operator:
   mysqlBranching: false
   # Has to be set to `true` in order to use the PostgreSQL database branching feature.
   pgBranching: false
+  # Has to be set to `true` in order to use the MongoDB database branching feature.
+  mongodbBranching: false
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # This strategy can be used if standard restart procedure is not working for the target workload.
   isolatePodsRestart: true
@@ -198,6 +200,29 @@ operator:
   ##   annotations: { "db.branch/owner-team": "platform" }
   ##   volume:
   ##     name: "pg-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
+
+  # mongodbBranchConfig:
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     registry: "docker.io/library/mongo"
+  ##   imagePullSecrets:
+  ##     - name: "mongo-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "mongo-data"
   ##     emptyDir:
   ##       sizeLimit: "1Gi"
   ##   resources:
