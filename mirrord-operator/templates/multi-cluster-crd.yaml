@@ -107,6 +107,11 @@ spec:
                 type: array
                 items:
                   type: string
+              mongodbBranchNames:
+                description: MongoDB branch database names (created by primary before session init)
+                type: array
+                items:
+                  type: string
           status:
             type: object
             properties:

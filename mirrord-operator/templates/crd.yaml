@@ -3134,6 +3134,11 @@ spec:
                 type: array
                 items:
                   type: string
+              mongodbBranchNames:
+                description: MongoDB branch database names (created by primary in multi-cluster)
+                type: array
+                items:
+                  type: string
             required:
             - namespace
             - owner
