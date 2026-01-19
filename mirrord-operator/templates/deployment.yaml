@@ -28,6 +28,10 @@ spec:
           {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.operator.hostNetwork }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
       {{- if .Values.operator.hostAliases }}
       hostAliases:
         {{- toYaml .Values.operator.hostAliases | nindent 8 }}
@@ -41,8 +45,8 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        {{/* Allow low port using ip_unprivileged_port_start */}}
-        {{- if lt (int .Values.operator.port) 1024 -}}
+        {{/* Allow low port using ip_unprivileged_port_start (not allowed with hostNetwork) */}}
+        {{- if and (lt (int .Values.operator.port) 1024) (not .Values.operator.hostNetwork) -}}
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
           value: {{ .Values.operator.port | quote}}
