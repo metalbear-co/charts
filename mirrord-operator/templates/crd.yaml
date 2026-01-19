@@ -2036,6 +2036,10 @@ spec:
           status:
             nullable: true
             properties:
+              error:
+                description: Error message if the branch database failed to create.
+                nullable: true
+                type: string
               expireTime:
                 description: Time when the branch database should be deleted.
                 format: date-time
@@ -2044,6 +2048,7 @@ spec:
                 enum:
                 - Pending
                 - Ready
+                - Failed
                 type: string
               sessionInfo:
                 additionalProperties:
@@ -2182,11 +2187,463 @@ spec:
                 description: PostgreSQL database name.
                 nullable: true
                 type: string
+              iamAuth:
+                description: IAM authentication configuration for the source database. Use this when the source database (RDS, Cloud SQL) requires IAM auth instead of passwords.
+                nullable: true
+                oneOf:
+                - required:
+                  - type
+                properties:
+                  type:
+                    description: Type of IAM authentication.
+                    enum:
+                    - aws_rds
+                    - gcp_cloud_sql
+                    type: string
+                  region:
+                    description: AWS region source (only for aws_rds type). If not specified, uses AWS_REGION or AWS_DEFAULT_REGION.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  access_key_id:
+                    description: AWS Access Key ID source (only for aws_rds type). If not specified, uses AWS_ACCESS_KEY_ID.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  secret_access_key:
+                    description: AWS Secret Access Key source (only for aws_rds type). If not specified, uses AWS_SECRET_ACCESS_KEY.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  session_token:
+                    description: AWS Session Token source (only for aws_rds type). If not specified, uses AWS_SESSION_TOKEN.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  credentials_json:
+                    description: Inline GCP service account JSON credentials (only for gcp_cloud_sql type). Pass credentials directly from an env var instead of mounting a file.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  credentials_path:
+                    description: Path to GCP service account JSON key file (only for gcp_cloud_sql type). The file must be accessible from the init container.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                  project:
+                    description: GCP project ID source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_CLOUD_PROJECT.
+                    nullable: true
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                type: object
               id:
                 description: ID derived by mirrord CLI.
                 type: string
               postgresVersion:
                 description: PostgreSQL server image version, e.g. "17".
+                nullable: true
+                type: string
+              target:
+                description: Target k8s resource to extract connection source info from.
+                oneOf:
+                - required:
+                  - deployment
+                - required:
+                  - pod
+                - required:
+                  - rollout
+                - required:
+                  - job
+                - required:
+                  - cron_job
+                - required:
+                  - stateful_set
+                - required:
+                  - service
+                - required:
+                  - replica_set
+                properties:
+                  container:
+                    nullable: true
+                    type: string
+                  cron_job:
+                    type: string
+                  deployment:
+                    description: <!--${internal}--> Deployment to mirror.
+                    type: string
+                  job:
+                    type: string
+                  pod:
+                    description: <!--${internal}--> Pod to mirror.
+                    type: string
+                  replica_set:
+                    type: string
+                  rollout:
+                    description: <!--${internal}--> Rollout to mirror.
+                    type: string
+                  service:
+                    type: string
+                  stateful_set:
+                    type: string
+                type: object
+              ttlSecs:
+                description: The duration in seconds this branch database will live idling.
+                format: uint64
+                minimum: 0.0
+                type: integer
+            required:
+            - connectionSource
+            - id
+            - target
+            - ttlSecs
+            type: object
+          status:
+            nullable: true
+            properties:
+              error:
+                description: Error message if the branch database failed to create.
+                nullable: true
+                type: string
+              expireTime:
+                description: Time when the branch database should be deleted.
+                format: date-time
+                type: string
+              phase:
+                enum:
+                - Pending
+                - Ready
+                - Failed
+                type: string
+              sessionInfo:
+                additionalProperties:
+                  properties:
+                    id:
+                      description: Session id.
+                      type: string
+                    owner:
+                      description: Owner info of the session.
+                      properties:
+                        hostname:
+                          description: Creator hostname.
+                          type: string
+                        k8sUsername:
+                          description: Creator Kubernetes username.
+                          type: string
+                        userId:
+                          description: Unique ID.
+                          type: string
+                        username:
+                          description: Creator local username.
+                          type: string
+                      required:
+                      - hostname
+                      - k8sUsername
+                      - userId
+                      - username
+                      type: object
+                  required:
+                  - id
+                  - owner
+                  type: object
+                default: {}
+                description: Information of sessions that are using this branch database.
+                type: object
+            required:
+            - expireTime
+            - phase
+            type: object
+        required:
+        - spec
+        title: PgBranchDatabase
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{ end }}
+---
+{{ if .Values.operator.mongodbBranching }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mongodbbranchdatabases.dbs.mirrord.metalbear.co
+spec:
+  group: dbs.mirrord.metalbear.co
+  names:
+    kind: MongodbBranchDatabase
+    plural: mongodbbranchdatabases
+    singular: mongodbbranchdatabase
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MongodbBranchDatabaseSpec via `CustomResource`
+        properties:
+          spec:
+            properties:
+              connectionSource:
+                description: Database connection info from the workload.
+                oneOf:
+                - required:
+                  - url
+                properties:
+                  url:
+                    description: A complete connection URL.
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    properties:
+                      env:
+                        description: Environment variable with value defined directly in the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        description: Environment from resource reference in the the pod template.
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                    type: object
+                type: object
+              copy:
+                default:
+                  mode: empty
+                description: Options for copying data from source database to the branch.
+                properties:
+                  collections:
+                    additionalProperties:
+                      properties:
+                        filter:
+                          description: 'Data that matches the filter will be copied. For MongoDB, this filter is a JSON query document like {"age": {"$gte": 18}}.'
+                          nullable: true
+                          type: string
+                      type: object
+                    description: An optional map of collection names to their copy configurations. When specified, only these collections will be copied with their respective filters.
+                    nullable: true
+                    type: object
+                  mode:
+                    description: The copy mode for the branch. 'empty' creates an empty database, 'all' copies all collections with data.
+                    enum:
+                    - empty
+                    - all
+                    type: string
+                required:
+                - mode
+                type: object
+              databaseName:
+                description: MongoDB database name.
+                nullable: true
+                type: string
+              id:
+                description: ID derived by mirrord CLI.
+                type: string
+              mongodbVersion:
+                description: MongoDB server image version, e.g. "7.0".
                 nullable: true
                 type: string
               target:
@@ -2295,7 +2752,7 @@ spec:
             type: object
         required:
         - spec
-        title: PgBranchDatabase
+        title: MongodbBranchDatabase
         type: object
     served: true
     storage: true
