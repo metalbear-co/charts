@@ -263,24 +263,6 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if .Values.operator.multiCluster.enabled }}
-# For multi-cluster sessions (Envoy)
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - mirrordmulticlustersessions
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - mirrordmulticlustersessions/status
 {{- if .Values.operator.mongodbBranching }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
@@ -301,6 +283,25 @@ rules:
   - get
   - update
   - patch
+{{- end }}
+{{- if .Values.operator.multiCluster.enabled }}
+# For multi-cluster sessions (Envoy)
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions/status
 # For updating cluster credential Secrets (token refresh)
 - apiGroups:
   - ''
