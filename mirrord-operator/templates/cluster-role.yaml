@@ -302,6 +302,10 @@ rules:
   - operator.metalbear.co
   resources:
   - mirrordmulticlustersessions/status
+  verbs:
+  - get
+  - update
+  - patch
 # For updating cluster credential Secrets (token refresh)
 - apiGroups:
   - ''
