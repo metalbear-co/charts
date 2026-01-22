@@ -1,0 +1,23 @@
+{{- with .Values.policy -}}
+{{- if or .blockSteal .blockStealWithoutFilter .blockMirror -}}
+apiVersion: policies.mirrord.metalbear.co/v1alpha
+{{- if .isClusterWide }}
+kind: MirrordClusterPolicy
+{{- else }}
+kind: MirrordPolicy
+{{- end }}
+metadata:
+  name: mirrord-policy
+spec:
+  block:
+    {{- if .blockSteal }}
+    - steal
+    {{- end }}
+    {{- if .blockStealWithoutFilter }}
+    - steal-without-filter
+    {{- end }}
+    {{- if .blockMirror }}
+    - mirror
+    {{- end }}
+{{- end -}}
+{{- end -}}
