@@ -59,6 +59,18 @@ spec:
       - env:
         - name: RUST_LOG
           value: {{ .Values.operator.logLevel }}
+        {{- if .Values.operator.otelLogLevel }}
+        - name: OTEL_RUST_LOG
+          value: {{ .Values.operator.otelLogLevel }}
+        {{- end }}
+        {{- if .Values.operator.otelTraceExportUrl }}
+        - name: OTLP_LOGS_URL
+          value: {{ .Values.operator.otelLogExportUrl }}
+        {{- end }}
+        {{- if .Values.operator.otelTraceExportUrl }}
+        - name: OTLP_TRACES_URL
+          value: {{ .Values.operator.otelTraceExportUrl }}
+        {{- end }}
         - name: OPERATOR_ADDR
           value: {{ printf "0.0.0.0:%d" (int .Values.operator.port ) }}
         - name: OPERATOR_POD_NAME

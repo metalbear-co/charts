@@ -86,10 +86,23 @@ operator:
   ## You can use this only if using Enterprise license.
   disableTelemetries: false
 
-  # Sets log level for the operator container.
+  # Sets log level for the logs printed to `stdout` by the operator container.
   #
   # See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
   logLevel: mirrord=info,operator=info
+
+  ## Sets log level for the OTel logs exported to `otelLogExportUrl` by the operator container.
+  ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
+  ##
+  ## See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
+  # otelLogLevel: mirrord=debug
+  
+  ## The URL for OTel logs to be exported to in the cluster. If unset, logs will not be exported.
+  ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
+  # otelLogExportUrl: https://loki:3100/loki/app/v1/push
+
+  ## The URL for  OTeltraces to be exported to in the cluster. If unset, traces will not be exported.
+  # otelTraceExportUrl: https://tempo:4318/v1/traces
 
   ## Controls how long (in seconds) a session is allowed to live for.
   # maxSessionTimeSeconds: 3600
