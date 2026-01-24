@@ -25,6 +25,7 @@ rules:
   - statefulsets/scale
   - services
   - replicasets
+  - pods/proxy
   verbs:
   - get
   - list
@@ -258,6 +259,27 @@ rules:
   - dbs.mirrord.metalbear.co
   resources:
   - pgbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if .Values.operator.mongodbBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases/status
   verbs:
   - get
   - update
