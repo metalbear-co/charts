@@ -1,1 +1,0 @@
-Exposed operator pod uid to the pod via env.
