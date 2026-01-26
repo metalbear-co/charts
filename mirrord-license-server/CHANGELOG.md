@@ -1,3 +1,8 @@
+## [mirrord-operator-license-server-1.4.16](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.16) - 2026-01-24
+
+### Added
+- Added an `emptyDir` volume which is mounted as the `/tmp` directory.
+
 ## [mirrord-operator-license-server-1.4.15](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.15) - 2026-01-13
 
 ### Changed
