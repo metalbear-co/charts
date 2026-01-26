@@ -93,6 +93,8 @@ rules:
   - list
   - watch
   - get
+  - patch
+  - update
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
