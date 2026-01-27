@@ -1,3 +1,8 @@
+## [mirrord-operator-1.44.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.44.1) - 2026-01-27
+
+### Fixed
+- Fixed a chart issue preventing helm upgrade.
+
 ## [mirrord-operator-1.44.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.44.0) - 2026-01-24
 
 ### Added
