@@ -136,6 +136,8 @@ spec:
         # needed for the license-server create sqlite database
         - mountPath: /opt/mirrord/data
           name: data
+        - mountPath: /tmp
+          name: tmp
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
       {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
@@ -152,3 +154,5 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc
+      - emptyDir: {}
+        name: tmp

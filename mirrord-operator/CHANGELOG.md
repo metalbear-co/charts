@@ -1,3 +1,13 @@
+## [mirrord-operator-1.44.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.44.0) - 2026-01-24
+
+### Added
+- Add get|list|watch for pods/proxy mirrord-operator ClusterRole.
+- Add support for db branches IAM.
+- Db Branching support for MongoDB.
+
+### Internal
+- Exposed operator pod uid to the pod via env.
+
 ## [mirrord-operator-1.43.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.43.1) - 2026-01-13
 
 ### Changed
