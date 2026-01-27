@@ -63,7 +63,7 @@ spec:
         - name: OTEL_RUST_LOG
           value: {{ .Values.operator.otelLogLevel }}
         {{- end }}
-        {{- if .Values.operator.otelTraceExportUrl }}
+        {{- if .Values.operator.otelLogExportUrl }}
         - name: OTLP_LOGS_URL
           value: {{ .Values.operator.otelLogExportUrl }}
         {{- end }}

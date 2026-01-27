@@ -95,7 +95,7 @@ operator:
   ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
   ##
   ## See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
-  # otelLogLevel: mirrord=debug
+  # otelLogLevel: mirrord=info
   
   ## The URL for OTel logs to be exported to in the cluster. If unset, logs will not be exported.
   ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
