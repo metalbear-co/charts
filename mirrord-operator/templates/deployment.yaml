@@ -70,6 +70,10 @@ spec:
             fieldRef:
               fieldPath: metadata.uid
         - name: OPERATOR_NAMESPACE
+          # In older versions, this env was declared with `value`.
+          # Unless we explicitly replace the env, strategic merge during chart upgrade
+          # will produce an invalid spec with both `value` and `valueFrom`.
+          $patch: replace
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
