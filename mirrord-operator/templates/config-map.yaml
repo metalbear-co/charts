@@ -43,3 +43,17 @@ data:
     {{- if and .Values.operator.mongodbBranching .Values.operator.mongodbBranchConfig }}
     {{- toYaml .Values.operator.mongodbBranchConfig | nindent 4 }}
     {{- end }}
+  {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.clusters }}
+  clusters-config.yaml: |-
+    clusters:
+    {{- range $clusterName, $clusterConfig := .Values.operator.multiCluster.clusters }}
+      - name: {{ $clusterName | quote }}
+        server: {{ $clusterConfig.server | quote }}
+        {{- if $clusterConfig.caData }}
+        caData: {{ $clusterConfig.caData | quote }}
+        {{- end }}
+        {{- if $clusterConfig.isDefault }}
+        isDefault: {{ $clusterConfig.isDefault }}
+        {{- end }}
+    {{- end }}
+  {{- end }}

@@ -307,17 +307,6 @@ rules:
   - get
   - update
   - patch
-# For updating cluster credential Secrets (token refresh)
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-  - patch
-  - update
 {{- end }}
 - apiGroups:
   - mirrord.metalbear.co

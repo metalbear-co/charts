@@ -123,7 +123,7 @@ operator:
     # Sessions are deleted when no client has been connected for this duration
     sessionTtlSecs: 60
     
-    # Cluster credentials (creates Secrets for each cluster)
+    # Remote cluster configuration
     #
     # Authentication options (use ONE of these):
     #   - bearerToken: ServiceAccount token (RECOMMENDED)
@@ -137,7 +137,8 @@ operator:
     # clusters:
     #   staging-us-east:
     #     server: https://staging-us-east.example.com:6443
-    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA 
+    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA cert
+    #     isDefault: true            # optional: default cluster for stateful operations
     #     bearerToken: eyJhbGci...   # initial token (will be auto-refreshed)
     #   staging-eu-west:
     #     server: https://staging-eu-west.example.com:6443
@@ -148,9 +149,9 @@ operator:
     # clusters:
     #   secure-cluster:
     #     server: https://secure.example.com:6443
-    #     caData: LS0tLS1CRUdJTi...       # CA cert 
-    #     clientCertData: LS0tLS1CRUdJ... # client cert
-    #     clientKeyData: LS0tLS1CRUdJ...  # client private key 
+    #     caData: LS0tLS1CRUdJTi...       # CA cert
+    #     clientCertData: LS0tLS1CRUdJ... # client cert (stored in Secret)
+    #     clientKeyData: LS0tLS1CRUdJ...  # client private key (stored in Secret)
     clusters: {}
 
   # imagePullSecrets:

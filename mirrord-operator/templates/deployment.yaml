@@ -28,14 +28,6 @@ spec:
           {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
-      {{- if .Values.operator.hostNetwork }}
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
-      {{- end }}
-      {{- if .Values.operator.hostAliases }}
-      hostAliases:
-        {{- toYaml .Values.operator.hostAliases | nindent 8 }}
-      {{- end }}
       {{- if .Values.operator.imagePullSecrets }}
       imagePullSecrets:
         {{- range .Values.operator.imagePullSecrets }}
@@ -45,8 +37,8 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        {{/* Allow low port using ip_unprivileged_port_start (not allowed with hostNetwork) */}}
-        {{- if and (lt (int .Values.operator.port) 1024) (not .Values.operator.hostNetwork) -}}
+        {{/* Allow low port using ip_unprivileged_port_start */}}
+        {{- if lt (int .Values.operator.port) 1024 -}}
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
           value: {{ .Values.operator.port | quote}}
@@ -184,6 +176,10 @@ spec:
           value: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | quote }}
         - name: MIRRORD_SESSION_TTL
           value: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 | quote }}
+        {{- if .Values.operator.multiCluster.clusters }}
+        - name: MIRRORD_CLUSTERS_CONFIG
+          value: /mirrord-config/clusters-config.yaml
+        {{- end }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
@@ -214,7 +210,7 @@ spec:
           - {{ toYaml . }}
           {{- end }}
         {{- end }}
-        startupProbe:
+        livenessProbe:
           httpGet:
             path: /health
             port: {{ .Values.operator.port }}
@@ -222,14 +218,6 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 10
           failureThreshold: 30
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: {{ .Values.operator.port }}
-            scheme: HTTPS
-          periodSeconds: 30
-          timeoutSeconds: 15
-          failureThreshold: 5
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}
@@ -243,9 +231,7 @@ spec:
             path: /health
             port: {{ .Values.operator.port }}
             scheme: HTTPS
-          periodSeconds: 10
-          timeoutSeconds: 10
-          failureThreshold: 3
+          periodSeconds: 5
         resources:
           requests:
             cpu: 100m
