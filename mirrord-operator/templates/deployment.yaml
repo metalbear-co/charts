@@ -158,24 +158,9 @@ spec:
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         {{- if .Values.operator.multiCluster.enabled }}
-        # Multi-cluster configuration (Primary cluster)
-        # If multi-cluster is enabled, this cluster IS the primary
-        - name: MIRRORD_MULTI_CLUSTER_ENABLED
-          value: "true"
-        {{- if .Values.operator.multiCluster.clusterName }}
-        - name: MIRRORD_CLUSTER_NAME
-          value: {{ .Values.operator.multiCluster.clusterName | quote }}
-        {{- end }}
-        {{- if .Values.operator.multiCluster.defaultCluster }}
-        - name: MIRRORD_DEFAULT_CLUSTER
-          value: {{ .Values.operator.multiCluster.defaultCluster | quote }}
-        {{- end }}
-        - name: PRIMARY_MANAGEMENT_ONLY
-          value: {{ .Values.operator.multiCluster.primaryIsManagementOnly | ternary "true" "false" | quote }}
-        - name: MIRRORD_REMOTE_SESSION_TIMEOUT
-          value: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | quote }}
-        - name: MIRRORD_SESSION_TTL
-          value: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 | quote }}
+        # Multi-cluster configuration - read from mounted ConfigMap
+        - name: MIRRORD_MULTICLUSTER_CONFIG
+          value: /mirrord-config/multicluster-config.yaml
         {{- if .Values.operator.multiCluster.clusters }}
         - name: MIRRORD_CLUSTERS_CONFIG
           value: /mirrord-config/clusters-config.yaml

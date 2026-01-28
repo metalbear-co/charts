@@ -43,7 +43,14 @@ data:
     {{- if and .Values.operator.mongodbBranching .Values.operator.mongodbBranchConfig }}
     {{- toYaml .Values.operator.mongodbBranchConfig | nindent 4 }}
     {{- end }}
-  {{- if and .Values.operator.multiCluster.enabled .Values.operator.multiCluster.clusters }}
+  {{- if .Values.operator.multiCluster.enabled }}
+  multicluster-config.yaml: |-
+    clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}
+    defaultCluster: {{ .Values.operator.multiCluster.defaultCluster | quote }}
+    primaryIsManagementOnly: {{ .Values.operator.multiCluster.primaryIsManagementOnly | default false }}
+    remoteSessionTimeoutSecs: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | default 120 }}
+    sessionTtlSecs: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 }}
+  {{- if .Values.operator.multiCluster.clusters }}
   clusters-config.yaml: |-
     clusters:
     {{- range $clusterName, $clusterConfig := .Values.operator.multiCluster.clusters }}
@@ -56,4 +63,5 @@ data:
         isDefault: {{ $clusterConfig.isDefault }}
         {{- end }}
     {{- end }}
+  {{- end }}
   {{- end }}
