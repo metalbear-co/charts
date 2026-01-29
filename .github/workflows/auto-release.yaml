@@ -1,0 +1,215 @@
+name: Auto Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_version:
+        description: 'Force specific version (optional)'
+        required: false
+
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Changelog Entries
+        id: check_changes
+        run: |
+          # Check if operator has changelog entries (excluding template)
+          operator_has_changes="false"
+          if find mirrord-operator/changelog.d -name '+*.md' -type f | grep -q .; then
+            operator_has_changes="true"
+            echo "Operator has changelog entries"
+          else
+            echo "Operator has NO changelog entries - will skip"
+          fi
+          
+          # Check if license-server has changelog entries (excluding template)
+          license_server_has_changes="false"
+          if find mirrord-license-server/changelog.d -name '+*.md' -type f | grep -q .; then
+            license_server_has_changes="true"
+            echo "License server has changelog entries"
+          else
+            echo "License server has NO changelog entries - will skip"
+          fi
+          
+          echo "operator_has_changes=$operator_has_changes" >> $GITHUB_OUTPUT
+          echo "license_server_has_changes=$license_server_has_changes" >> $GITHUB_OUTPUT
+
+      - name: Calculate Versions
+        id: version
+        run: |
+          echo "Using Dockerized tools..."
+          
+          # Calculate operator version
+          if [[ -n "${{ github.event.inputs.force_version }}" ]]; then
+             operator_version="${{ github.event.inputs.force_version }}"
+          else
+             echo "=== Calculating mirrord-operator version ==="
+             operator_version=$(docker run --rm -v $PWD:/workspace -w /workspace ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+               python3 /usr/local/bin/calculate_version.py --file mirrord-operator/Chart.yaml --changelog-dir mirrord-operator/changelog.d)
+          fi
+          echo "Calculated operator_version: $operator_version"
+          echo "operator_version=$operator_version" >> $GITHUB_OUTPUT
+          
+          # Calculate license-server version
+          if [[ -n "${{ github.event.inputs.force_version }}" ]]; then
+             license_server_version="${{ github.event.inputs.force_version }}"
+          else
+             echo "=== Calculating mirrord-license-server version ==="
+             license_server_version=$(docker run --rm -v $PWD:/workspace -w /workspace ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+               python3 /usr/local/bin/calculate_version.py --file mirrord-license-server/Chart.yaml --changelog-dir mirrord-license-server/changelog.d)
+          fi
+          echo "Calculated license_server_version: $license_server_version"
+          echo "license_server_version=$license_server_version" >> $GITHUB_OUTPUT
+
+      - name: Update Files
+        run: |
+           operator_v="${{ steps.version.outputs.operator_version }}"
+           license_server_v="${{ steps.version.outputs.license_server_version }}"
+           
+           echo "Updating mirrord-operator to version $operator_v"
+           sed -i "s/^version: .*/version: $operator_v/" mirrord-operator/Chart.yaml
+           
+           echo "Updating mirrord-license-server to version $license_server_v"
+           sed -i "s/^version: .*/version: $license_server_v/" mirrord-license-server/Chart.yaml
+
+      - name: Generate Changelog
+        run: |
+           operator_v="${{ steps.version.outputs.operator_version }}"
+           license_server_v="${{ steps.version.outputs.license_server_version }}"
+           
+           # Only generate changelog for operator if it has changes
+           if [[ "${{ steps.check_changes.outputs.operator_has_changes }}" == "true" ]]; then
+             echo "=== Generating changelog for mirrord-operator ==="
+             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+               build --yes --version "mirrord-operator-$operator_v" \
+               --config mirrord-operator/towncrier.toml \
+               --dir mirrord-operator
+             
+             # Extract release notes for operator
+             awk '/^## / { if (p) { exit }; p=1; print; next } p { print }' mirrord-operator/CHANGELOG.md > RELEASE_NOTES_OPERATOR.md
+           else
+             echo "Skipping operator changelog (no entries)"
+           fi
+           
+           # Only generate changelog for license-server if it has changes
+           if [[ "${{ steps.check_changes.outputs.license_server_has_changes }}" == "true" ]]; then
+             echo "=== Generating changelog for mirrord-license-server ==="
+             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+               build --yes --version "mirrord-license-server-$license_server_v" \
+               --config mirrord-license-server/towncrier.toml \
+               --dir mirrord-license-server
+             
+             # Extract release notes for license-server
+             awk '/^## / { if (p) { exit }; p=1; print; next } p { print }' mirrord-license-server/CHANGELOG.md > RELEASE_NOTES_LICENSE_SERVER.md
+           else
+             echo "Skipping license-server changelog (no entries)"
+           fi
+
+      - name: Commit and Push
+        id: commit
+        run: |
+           sudo chown -R $(id -u):$(id -g) .
+           operator_v="${{ steps.version.outputs.operator_version }}"
+           license_server_v="${{ steps.version.outputs.license_server_version }}"
+           
+           git config user.name "github-actions[bot]"
+           git config user.email "github-actions[bot]@users.noreply.github.com"
+           
+           # Build commit message based on what's being released
+           commit_parts=()
+           
+           # Only add operator files if it has changes
+           if [[ "${{ steps.check_changes.outputs.operator_has_changes }}" == "true" ]]; then
+             git add mirrord-operator/Chart.yaml mirrord-operator/CHANGELOG.md mirrord-operator/changelog.d mirrord-operator/towncrier.toml
+             commit_parts+=("mirrord-operator-$operator_v")
+           fi
+           
+           # Only add license-server files if it has changes
+           if [[ "${{ steps.check_changes.outputs.license_server_has_changes }}" == "true" ]]; then
+             git add mirrord-license-server/Chart.yaml mirrord-license-server/CHANGELOG.md mirrord-license-server/changelog.d mirrord-license-server/towncrier.toml
+             commit_parts+=("mirrord-license-server-$license_server_v")
+           fi
+           
+           # Only commit if there are changes
+           if [ ${#commit_parts[@]} -gt 0 ]; then
+             commit_msg="Release $(IFS=' and '; echo "${commit_parts[*]}")"
+             if ! git diff --staged --quiet; then
+                git commit -m "$commit_msg"
+                git pull --rebase origin main
+                git push origin main
+             fi
+           else
+             echo "No charts to release (no changelog entries)"
+             exit 0
+           fi
+           
+           # Create tags for both charts
+           operator_tag="mirrord-operator-$operator_v"
+           license_server_tag="mirrord-license-server-$license_server_v"
+           
+           # Track which tags were created
+           operator_tag_created="false"
+           license_server_tag_created="false"
+           
+           # Only create operator tag if it has changes AND doesn't exist
+           if [[ "${{ steps.check_changes.outputs.operator_has_changes }}" == "true" ]]; then
+             if ! git ls-remote --tags origin | grep -q "refs/tags/$operator_tag"; then
+               echo "Creating tag: $operator_tag"
+               git tag "$operator_tag"
+               git push origin "$operator_tag"
+               operator_tag_created="true"
+             else
+               echo "Tag $operator_tag already exists, skipping"
+             fi
+           else
+             echo "Skipping operator tag (no changelog entries)"
+           fi
+           
+           # Only create license-server tag if it has changes AND doesn't exist
+           if [[ "${{ steps.check_changes.outputs.license_server_has_changes }}" == "true" ]]; then
+             if ! git ls-remote --tags origin | grep -q "refs/tags/$license_server_tag"; then
+               echo "Creating tag: $license_server_tag"
+               git tag "$license_server_tag"
+               git push origin "$license_server_tag"
+               license_server_tag_created="true"
+             else
+               echo "Tag $license_server_tag already exists, skipping"
+             fi
+           else
+             echo "Skipping license-server tag (no changelog entries)"
+           fi
+           
+           # Set outputs for conditional release creation
+           echo "operator_tag_created=$operator_tag_created" >> $GITHUB_OUTPUT
+           echo "license_server_tag_created=$license_server_tag_created" >> $GITHUB_OUTPUT
+           
+      - name: Create Operator Release
+        if: ${{ steps.commit.outputs.operator_tag_created == 'true' }}
+        uses: metalbear-co/action-gh-release-1@v1
+        with:
+          tag_name: mirrord-operator-${{ steps.version.outputs.operator_version }}
+          body_path: RELEASE_NOTES_OPERATOR.md
+          
+      - name: Create License Server Release
+        if: ${{ steps.commit.outputs.license_server_tag_created == 'true' }}
+        uses: metalbear-co/action-gh-release-1@v1
+        with:
+          tag_name: mirrord-license-server-${{ steps.version.outputs.license_server_version }}
+          body_path: RELEASE_NOTES_LICENSE_SERVER.md
