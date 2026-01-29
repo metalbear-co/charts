@@ -1,0 +1,1 @@
+Values can now be set for exporting OTel logs and traces from the operator.
