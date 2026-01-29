@@ -129,7 +129,7 @@ operator:
     #   - bearerToken: ServiceAccount token (RECOMMENDED)
     #       → Auto-refreshed every 45 min via TokenRequest API
     #       → No manual rotation needed
-    #   - clientCertData + clientKeyData: mTLS client certificate auth
+    #   - tlsCrt + tlsKey: mTLS client certificate auth (uses standard tls.crt/tls.key keys)
     #       → NOT auto-refreshed (certs typically valid for months/years)
     #       → You must manually rotate before expiry
     #
@@ -149,9 +149,9 @@ operator:
     # clusters:
     #   secure-cluster:
     #     server: https://secure.example.com:6443
-    #     caData: LS0tLS1CRUdJTi...       # CA cert
-    #     clientCertData: LS0tLS1CRUdJ... # client cert (stored in Secret)
-    #     clientKeyData: LS0tLS1CRUdJ...  # client private key (stored in Secret)
+    #     caData: LS0tLS1CRUdJTi...  # CA cert
+    #     tlsCrt: LS0tLS1CRUdJ...    # client cert PEM (stored as tls.crt in Secret)
+    #     tlsKey: LS0tLS1CRUdJ...    # client private key PEM (stored as tls.key in Secret)
     clusters: {}
 
   # imagePullSecrets:
