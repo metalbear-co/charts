@@ -47,7 +47,7 @@ data:
   multicluster-config.yaml: |-
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}
     defaultCluster: {{ .Values.operator.multiCluster.defaultCluster | quote }}
-    primaryIsManagementOnly: {{ .Values.operator.multiCluster.primaryIsManagementOnly | default false }}
+    managementOnly: {{ .Values.operator.multiCluster.managementOnly | default false }}
     remoteSessionTimeoutSecs: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | default 120 }}
     sessionTtlSecs: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 }}
   {{- if .Values.operator.multiCluster.clusters }}
@@ -56,6 +56,9 @@ data:
     {{- range $clusterName, $clusterConfig := .Values.operator.multiCluster.clusters }}
       - name: {{ $clusterName | quote }}
         server: {{ $clusterConfig.server | quote }}
+        {{- if $clusterConfig.namespace }}
+        namespace: {{ $clusterConfig.namespace | quote }}
+        {{- end }}
         {{- if $clusterConfig.caData }}
         caData: {{ $clusterConfig.caData | quote }}
         {{- end }}

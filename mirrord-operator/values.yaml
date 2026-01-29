@@ -79,7 +79,7 @@ operator:
   #
   # ## How it works
   #
-  # Clusters are discovered from Secrets with label `mirrord.metalbear.co/remote-cluster=true`.
+  # Clusters are discovered from Secrets with label `operator.metalbear.co/remote-cluster-credentials=true`.
   # Each Secret contains credentials for a remote cluster:
   #   - name: Logical cluster name (e.g., "staging-us-east")
   #   - server: Kubernetes API server URL
@@ -114,7 +114,7 @@ operator:
     # Whether the primary cluster is management-only (no workloads)
     # When true: Primary only runs Envoy, all sessions go to remote clusters
     # When false: Primary is also a workload cluster
-    primaryIsManagementOnly: true
+    managementOnly: true
     
     # Timeout for waiting for remote sessions to become ready (seconds)
     remoteSessionTimeoutSecs: 300
