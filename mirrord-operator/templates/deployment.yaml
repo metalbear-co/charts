@@ -82,10 +82,13 @@ spec:
             fieldRef:
               fieldPath: metadata.uid
         - name: OPERATOR_NAMESPACE
+          {{- if semverCompare "<4.0.0" .Capabilities.HelmVersion.Version }}
           # In older versions, this env was declared with `value`.
-          # Unless we explicitly replace the env, strategic merge during chart upgrade
-          # will produce an invalid spec with both `value` and `valueFrom`.
+          # Unless we explicitly replace the env, client-side 3-way strategic merge (used by default in helm v3)
+          # during chart upgrade will produce an invalid spec with both `value` and `valueFrom`.
+          # On the other hand, server side apply (used by default in helm v4) does not like the `$patch` directive.
           $patch: replace
+          {{- end }}
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
