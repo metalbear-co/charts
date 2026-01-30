@@ -20,12 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Login to GitHub Container Registry'
-        uses: docker/login-action@v1
+      - name: Set Docker tags
+        uses: ./.github/actions/set-image-tags
+        id: set-tags
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          base-name: ci/calculate-version-script
 
       - name: Check Changelog Entries
         id: check_changes
@@ -61,7 +60,7 @@ jobs:
              operator_version="${{ github.event.inputs.force_version }}"
           else
              echo "=== Calculating mirrord-operator version ==="
-             operator_version=$(docker run --rm -v $PWD:/workspace -w /workspace ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+             operator_version=$(docker run --rm -v $PWD:/workspace -w /workspace $(echo "${{ steps.set-tags.outputs.tags }}" | cut -d',' -f1) \
                python3 /usr/local/bin/calculate_version.py --file mirrord-operator/Chart.yaml --changelog-dir mirrord-operator/changelog.d)
           fi
           echo "Calculated operator_version: $operator_version"
@@ -72,7 +71,7 @@ jobs:
              license_server_version="${{ github.event.inputs.force_version }}"
           else
              echo "=== Calculating mirrord-license-server version ==="
-             license_server_version=$(docker run --rm -v $PWD:/workspace -w /workspace ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+             license_server_version=$(docker run --rm -v $PWD:/workspace -w /workspace $(echo "${{ steps.set-tags.outputs.tags }}" | cut -d',' -f1) \
                python3 /usr/local/bin/calculate_version.py --file mirrord-license-server/Chart.yaml --changelog-dir mirrord-license-server/changelog.d)
           fi
           echo "Calculated license_server_version: $license_server_version"
@@ -97,7 +96,7 @@ jobs:
            # Only generate changelog for operator if it has changes
            if [[ "${{ steps.check_changes.outputs.operator_has_changes }}" == "true" ]]; then
              echo "=== Generating changelog for mirrord-operator ==="
-             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier $(echo "${{ steps.set-tags.outputs.tags }}" | cut -d',' -f1) \
                build --yes --version "mirrord-operator-$operator_v" \
                --config mirrord-operator/towncrier.toml \
                --dir mirrord-operator
@@ -111,7 +110,7 @@ jobs:
            # Only generate changelog for license-server if it has changes
            if [[ "${{ steps.check_changes.outputs.license_server_has_changes }}" == "true" ]]; then
              echo "=== Generating changelog for mirrord-license-server ==="
-             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier ghcr.io/metalbear-co/ci/calculate-version-script:latest \
+             docker run --rm -v $PWD:/workspace -w /workspace --entrypoint towncrier $(echo "${{ steps.set-tags.outputs.tags }}" | cut -d',' -f1) \
                build --yes --version "mirrord-license-server-$license_server_v" \
                --config mirrord-license-server/towncrier.toml \
                --dir mirrord-license-server
