@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set Docker tags
-        uses: ./.github/actions/set-image-tags
+        uses: metalbear-co/ci/.github/actions/set-image-tags@main
         id: set-tags
         with:
           base-name: ci/calculate-version-script
