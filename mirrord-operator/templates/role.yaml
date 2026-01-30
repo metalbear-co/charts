@@ -27,6 +27,11 @@ rules:
   - get
   - list
   - watch
+  {{- if .Values.operator.multiCluster.enabled }}
+  # For updating cluster credential Secrets (token refresh)
+  - patch
+  - update
+  {{- end }}
 # For leader election when running multiple replicas
 - apiGroups:
   - coordination.k8s.io

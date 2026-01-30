@@ -176,6 +176,15 @@ spec:
           value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
+        {{- if .Values.operator.multiCluster.enabled }}
+        # Multi-cluster configuration - read from mounted ConfigMap
+        - name: MIRRORD_MULTICLUSTER_CONFIG
+          value: /mirrord-config/multicluster-config.yaml
+        {{- if .Values.operator.multiCluster.clusters }}
+        - name: MIRRORD_CLUSTERS_CONFIG
+          value: /mirrord-config/clusters-config.yaml
+        {{- end }}
+        {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
           value: {{ $val | quote }}
@@ -211,6 +220,8 @@ spec:
             port: {{ .Values.operator.port }}
             scheme: HTTPS
           periodSeconds: 5
+          timeoutSeconds: 10
+          failureThreshold: 30
         name: mirrord-operator
         ports:
         - containerPort: {{ .Values.operator.port }}

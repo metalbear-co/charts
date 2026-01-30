@@ -839,6 +839,11 @@ spec:
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
+              outputQueueNames:
+                description: Explicit output queue names for multi-cluster coordination. Maps original queue names to their output queue names.
+                type: object
+                additionalProperties:
+                  type: string
             required:
             - queueConsumer
             - queueFilters
@@ -3117,6 +3122,33 @@ spec:
                 - kind
                 - name
                 type: object
+              isDefaultCluster:
+                description: Whether this cluster is the default for stateful operations (multi-cluster)
+                type: boolean
+              featureConfig:
+                description: Full feature configuration as JSON for multi-cluster mode
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              pgBranchNames:
+                description: PostgreSQL branch database names (created by primary in multi-cluster)
+                type: array
+                items:
+                  type: string
+              mysqlBranchNames:
+                description: MySQL branch database names (created by primary in multi-cluster)
+                type: array
+                items:
+                  type: string
+              mongodbBranchNames:
+                description: MongoDB branch database names (created by primary in multi-cluster)
+                type: array
+                items:
+                  type: string
+              sqsOutputQueues:
+                description: Explicit SQS output queue names for multi-cluster coordination. Maps original queue names to their output queue names.
+                type: object
+                additionalProperties:
+                  type: string
             required:
             - namespace
             - owner
