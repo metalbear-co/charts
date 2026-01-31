@@ -3225,3 +3225,152 @@ spec:
     served: true
     storage: true
     subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: previewsessions.preview.mirrord.metalbear.co
+spec:
+  group: preview.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: PreviewSession
+    plural: previewsessions
+    shortNames: []
+    singular: previewsession
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for PreviewSession via `CustomResource`
+        properties:
+          spec:
+            description: This resource represents a preview environment created by the `mirrord preview start` command.
+            properties:
+              image:
+                description: User's container image to run in the preview pod.
+                type: string
+              incoming:
+                description: |-
+                  Incoming traffic configuration for the preview environment.
+
+                  Specifies which ports to steal/mirror traffic from and optional HTTP filters. This configuration is extracted from the user's mirrord config.
+                properties:
+                  httpHeaderFilter:
+                    description: |-
+                      HTTP header filter for traffic stealing.
+
+                      When specified, only HTTP requests matching this header filter will be redirected to the preview pod. Format: "Header-Name: value" or "Header-Name: regex-pattern".
+
+                      This allows for selective traffic routing based on request headers.
+                    nullable: true
+                    type: string
+                  mode:
+                    description: |-
+                      Allows selecting between mirrorring or stealing traffic.
+
+                      Can be set to either `"mirror"` (default), `"steal"` or `"off"`.
+
+                      - `"mirror"`: Sniffs on TCP port, and send a copy of the data to listeners. - `"off"`: Disables the incoming network feature. - `"steal"`: Supports 2 modes of operation:
+
+                      1. Port traffic stealing: Steals all TCP data from a port, which is selected whenever the user listens in a TCP socket (enabling the feature is enough to make this work, no additional configuration is needed);
+
+                      2. HTTP traffic stealing: Steals only HTTP traffic, mirrord tries to detect if the incoming data on a port is HTTP (in a best-effort kind of way, not guaranteed to be HTTP), and steals the traffic on the port if it is HTTP;
+                    enum:
+                    - mirror
+                    - steal
+                    - off
+                    type: string
+                  ports:
+                    description: |-
+                      Ports to steal/mirror traffic from.
+
+                      When specified, only traffic on these ports will be redirected to the preview pod. If not specified, all ports will be considered.
+                    items:
+                      format: uint16
+                      minimum: 0.0
+                      type: integer
+                    nullable: true
+                    type: array
+                required:
+                - mode
+                type: object
+              key:
+                description: Environment key used to group related preview pods and for traffic filtering.
+                type: string
+              target:
+                description: Target to copy pod configuration from (deployment, pod, statefulset, etc.). The preview pod will be a copy of the target's pod spec with the user's image.
+                type: string
+              targetNamespace:
+                description: Target namespace (defaults to the default namespace if not specified).
+                nullable: true
+                type: string
+            required:
+            - image
+            - incoming
+            - key
+            - target
+            type: object
+          status:
+            description: Status of a preview session resource.
+            nullable: true
+            oneOf:
+            - required:
+              - Initializing
+            - required:
+              - Waiting
+            - required:
+              - Ready
+            - required:
+              - Failed
+            properties:
+              Failed:
+                description: Preview creation failed.
+                properties:
+                  failure_message:
+                    description: Message describing the reason for failure.
+                    type: string
+                  pod_name:
+                    description: Name of the preview pod. This will be used by the controller's finalizer to delete the preview pod.
+                    nullable: true
+                    type: string
+                required:
+                - failure_message
+                type: object
+              Initializing:
+                description: Preview pod hasn't been created yet - operator is still setting things up.
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
+              Ready:
+                description: Preview pod is running and ready.
+                properties:
+                  pod_name:
+                    description: Name of the preview pod.
+                    type: string
+                required:
+                - pod_name
+                type: object
+              Waiting:
+                description: Preview pod has been successfully created, waiting for it to be ready.
+                properties:
+                  pod_name:
+                    description: Name of the preview pod.
+                    type: string
+                required:
+                - pod_name
+                type: object
+            type: object
+        required:
+        - spec
+        title: PreviewSessionCrd
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
