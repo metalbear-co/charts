@@ -95,8 +95,7 @@ spec:
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.server.imagePullPolicy }}
-        command: ["/operator-entrypoint"]
-        args: ["license-server"]
+        command: ["/operator-entrypoint", "license-server"]
         livenessProbe:
           httpGet:
             path: /health

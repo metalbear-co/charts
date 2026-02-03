@@ -199,14 +199,14 @@ spec:
         {{- end }}
         image: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
-        {{- if .Values.operator.containerArgs }}
-        command: ["/operator-entrypoint"]
-        args:
-          - service
+        command:
+          - "/operator-entrypoint"
+          - "service"
+          {{- if .Values.operator.containerArgs }}
           {{- range .Values.operator.containerArgs }}
           - {{ toYaml . }}
           {{- end }}
-        {{- end }}
+          {{- end }}
         livenessProbe:
           httpGet:
             path: /health
