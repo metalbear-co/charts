@@ -3125,10 +3125,6 @@ spec:
               isDefaultCluster:
                 description: Whether this cluster is the default for stateful operations (multi-cluster)
                 type: boolean
-              featureConfig:
-                description: Full feature configuration as JSON for multi-cluster mode
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
               pgBranchNames:
                 description: PostgreSQL branch database names (created by primary in multi-cluster)
                 type: array

@@ -39,6 +39,30 @@ rules:
   - get
   - list
   - watch
+# Database branch sync controller - watches branch CRDs on primary,
+# syncs to default cluster, syncs status back
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases
+  - mysqlbranchdatabases
+  - mongodbbranchdatabases
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases/status
+  - mysqlbranchdatabases/status
+  - mongodbbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
 ---
 # ClusterRole for cross-cluster Envoy access
 # This role is bound to the primary operator's service account in REMOTE clusters

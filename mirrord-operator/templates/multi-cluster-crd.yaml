@@ -93,24 +93,25 @@ spec:
               defaultCluster:
                 description: Default cluster for stateful operations (db_branches, etc.)
                 type: string
-              featureConfig:
-                description: Full feature configuration as JSON for multi-cluster mode
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
               pgBranchNames:
-                description: PostgreSQL branch database names (created by primary before session init)
+                description: PostgreSQL branch database names (passed to default cluster's child session)
                 type: array
                 items:
                   type: string
               mysqlBranchNames:
-                description: MySQL branch database names (created by primary before session init)
+                description: MySQL branch database names (passed to default cluster's child session)
                 type: array
                 items:
                   type: string
               mongodbBranchNames:
-                description: MongoDB branch database names (created by primary before session init)
+                description: MongoDB branch database names (passed to default cluster's child session)
                 type: array
                 items:
+                  type: string
+              sqsOutputQueues:
+                description: SQS output queue name mappings for multi-cluster coordination
+                type: object
+                additionalProperties:
                   type: string
           status:
             type: object
