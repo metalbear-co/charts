@@ -61,8 +61,7 @@ spec:
       {{- end }}
 
       containers:
-      - args: ["license-server"]
-        env:
+      - env:
         - name: RUST_LOG
           value: {{ .Values.server.logLevel }}
         - name: ADDRESS
@@ -96,6 +95,8 @@ spec:
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.server.imagePullPolicy }}
+        command: ["/operator-entrypoint"]
+        args: ["license-server"]
         livenessProbe:
           httpGet:
             path: /health
