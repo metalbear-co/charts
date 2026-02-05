@@ -206,6 +206,8 @@ operator:
   ## dbPod:
   ##   image:
   ##     registry: "custom-postgres-registry"
+  ##   initImage:
+  ##     registry: "custom-postgres-registry"
   ##   imagePullSecrets:
   ##     - name: "postgres-registry-secret"
   ##   imagePullPolicy: "IfNotPresent"
