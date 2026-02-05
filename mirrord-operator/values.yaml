@@ -205,11 +205,23 @@ operator:
   ##
   ## dbPod:
   ##   image:
+  ##     # Registry for the PostgreSQL branch container.
+  ##     # Defaults to `docker.io/library/postgres`.
+  ##     # Tag can be specified by the user when requesting a new branch, defaulting to `17`.
   ##     registry: "custom-postgres-registry"
   ##   initImage:
+  ##     # Registry for the PostgreSQL branch initContainer image.
+  ##     # Defaults to `docker.io/library/postgres`.
+  ##     # Tag can be specified by the user when requesting a new branch, defaulting to `17`.
   ##     registry: "custom-postgres-registry"
+  ##   # Image pull secrets for the PostgreSQL branch pod.
+  ##   # The pod will use following images:
+  ##   # * .pgBranchConfig.dbPod.image
+  ##   # * .pgBranchConfig.dbPod.initImage
+  ##   # * .operator.image
   ##   imagePullSecrets:
   ##     - name: "postgres-registry-secret"
+  ##   # Image pull policy for .pgBranchConfig.dbPod.image and .pgBranchConfig.dbPod.initImage.
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
