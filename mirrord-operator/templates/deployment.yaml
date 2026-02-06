@@ -60,7 +60,7 @@ spec:
         - name: RUST_LOG
           value: {{ .Values.operator.logLevel }}
         {{- if .Values.operator.otelLogLevel }}
-        - name: OTEL_RUST_LOG
+        - name: OTLP_RUST_LOG
           value: {{ .Values.operator.otelLogLevel }}
         {{- end }}
         {{- if .Values.operator.otelLogExportUrl }}
@@ -176,6 +176,8 @@ spec:
           value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
+        - name: OPERATOR_IMAGE_PULL_POLICY
+          value: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
         {{- if .Values.operator.multiCluster.enabled }}
         # Multi-cluster configuration - read from mounted ConfigMap
         - name: MIRRORD_MULTICLUSTER_CONFIG

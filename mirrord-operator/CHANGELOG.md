@@ -1,7 +1,9 @@
-## [mirrord-operator-1.45.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.45.0) - 2026-01-29
+## [mirrord-operator-1.46.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.46.0) - 2026-02-02
 
 ### Added
 - Values can now be set for exporting OTel logs and traces from the operator.
+
+## [mirrord-operator-1.45.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.45.0) - 2026-01-29
 
 ### Fixed
 - Fixed issues with helm v4.
