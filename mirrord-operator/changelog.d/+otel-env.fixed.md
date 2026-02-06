@@ -1,1 +1,0 @@
-Removed typo from the env var set by `operator.otelLogLevel` to `OTLP_RUST_LOG`.
