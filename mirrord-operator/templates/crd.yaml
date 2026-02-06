@@ -3122,29 +3122,9 @@ spec:
                 - kind
                 - name
                 type: object
-              isDefaultCluster:
-                description: Whether this cluster is the default for stateful operations (multi-cluster)
-                type: boolean
-              pgBranchNames:
-                description: PostgreSQL branch database names (created by primary in multi-cluster)
-                type: array
-                items:
-                  type: string
-              mysqlBranchNames:
-                description: MySQL branch database names (created by primary in multi-cluster)
-                type: array
-                items:
-                  type: string
-              mongodbBranchNames:
-                description: MongoDB branch database names (created by primary in multi-cluster)
-                type: array
-                items:
-                  type: string
-              sqsOutputQueues:
-                description: Explicit SQS output queue names for multi-cluster coordination. Maps original queue names to their output queue names.
-                type: object
-                additionalProperties:
-                  type: string
+              multiClusterParentName:
+                description: Name of the parent MirrordMultiClusterSession. When set, this is a child session created by the Primary operator as part of a multi-cluster session.
+                type: string
             required:
             - namespace
             - owner

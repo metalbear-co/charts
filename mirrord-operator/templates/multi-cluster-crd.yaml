@@ -33,8 +33,9 @@ spec:
             required:
               - owner
               - namespace
+              - target
               - targetAlias
-              - clusterTargets
+              - clusters
               - primaryCluster
             properties:
               owner:
@@ -55,64 +56,39 @@ spec:
                   k8sUsername:
                     type: string
               namespace:
-                description: Kubernetes namespace for the session
+                description: Kubernetes namespace for the session (same across all clusters)
                 type: string
-              targetAlias:
-                description: Logical target alias (e.g., "x-crm")
-                type: string
-              clusterTargets:
-                description: Map of cluster name to target details
+              target:
+                description: Target workload (same for all clusters)
                 type: object
-                additionalProperties:
-                  type: object
-                  required:
-                    - target
-                    - namespace
-                  properties:
-                    target:
-                      type: object
-                      required:
-                        - apiVersion
-                        - kind
-                        - name
-                        - container
-                      properties:
-                        apiVersion:
-                          type: string
-                        kind:
-                          type: string
-                        name:
-                          type: string
-                        container:
-                          type: string
-                    namespace:
-                      type: string
+                required:
+                  - apiVersion
+                  - kind
+                  - name
+                  - container
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  container:
+                    type: string
+              targetAlias:
+                description: Target identifier from user's mirrord config (e.g., "deployment.my-app")
+                type: string
+              clusters:
+                description: List of cluster names to create sessions in
+                type: array
+                items:
+                  type: string
               primaryCluster:
                 description: Primary cluster name
                 type: string
               defaultCluster:
                 description: Default cluster for stateful operations (db_branches, etc.)
                 type: string
-              pgBranchNames:
-                description: PostgreSQL branch database names (passed to default cluster's child session)
-                type: array
-                items:
-                  type: string
-              mysqlBranchNames:
-                description: MySQL branch database names (passed to default cluster's child session)
-                type: array
-                items:
-                  type: string
-              mongodbBranchNames:
-                description: MongoDB branch database names (passed to default cluster's child session)
-                type: array
-                items:
-                  type: string
-              sqsOutputQueues:
-                description: SQS output queue name mappings for multi-cluster coordination
-                type: object
-                additionalProperties:
-                  type: string
           status:
             type: object
             properties:
