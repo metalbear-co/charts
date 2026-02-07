@@ -110,6 +110,8 @@ spec:
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MONGODB_BRANCHING
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_PREVIEW_ENV
+          value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"

@@ -68,6 +68,8 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the preview environments feature.
+  previewEnv: false
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # This strategy can be used if standard restart procedure is not working for the target workload.
   isolatePodsRestart: true
