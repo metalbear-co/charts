@@ -71,6 +71,8 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the preview environments feature.
+  previewEnv: false
 
   # dbBranching:
   #   # Volume limit for the init container that does the copy

@@ -48,6 +48,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   verbs:
   - get
   - list
+{{- if .Values.operator.previewEnv }}
 - apiGroups:
   - preview.mirrord.metalbear.co
   resources:
@@ -62,6 +63,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - create
   - update
   - delete
+{{- end }}
 {{- if (default false .Values.operator.mysqlBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
