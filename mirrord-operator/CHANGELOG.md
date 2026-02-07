@@ -1,3 +1,16 @@
+## [mirrord-operator-1.47.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.47.0) - 2026-02-06
+
+### Added
+- Added an option to configure image registry for PG branching init container
+  (`.Values.pgBranchConfig.dbPod.initImage.registry`).
+
+### Fixed
+- Removed typo from the env var set by `operator.otelLogLevel` to
+  `OTLP_RUST_LOG`.
+
+### Internal
+- Exposed operator's `imagePullPolicy` to the operator container.
+
 ## [mirrord-operator-1.46.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.46.0) - 2026-02-02
 
 ### Added

@@ -1,1 +1,0 @@
-Exposed operator's `imagePullPolicy` to the operator container.
