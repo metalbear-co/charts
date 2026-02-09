@@ -74,6 +74,86 @@ operator:
   # Enable prometheus metrics endpoint
   metrics: false
 
+  # Multi-cluster configuration (Envoy)
+  # Enable this on the PRIMARY cluster only
+  #
+  # ## How it works
+  #
+  # Clusters are discovered from Secrets with label `operator.metalbear.co/remote-cluster-credentials=true`.
+  # Each Secret contains credentials for a remote cluster:
+  #   - name: Logical cluster name (e.g., "staging-us-east")
+  #   - server: Kubernetes API server URL
+  #   - caData: CA certificate (base64 encoded)
+  #   - bearerToken: ServiceAccount token
+  #   - isDefault: "true" for the default cluster (stateful operations)
+  #
+  # Tokens are auto-refreshed using the TokenRequest API every 45 minutes.
+  #
+  # ## Setup
+  #
+  # 1. Create a ServiceAccount on each remote cluster (see remoteClusterSetup below)
+  # 2. Get the token and CA from each remote cluster
+  # 3. Create a Secret on the primary cluster for each remote cluster
+  # 4. Enable multiCluster.enabled = true on the primary cluster
+  #
+  multiCluster:
+    # Set to true to enable multi-cluster session orchestration
+    enabled: false
+    
+    # CLUSTER NAME: Name of this cluster (optional, defaults to "primary")
+    # Used for logging and session tracking
+    # clusterName: "primary"
+    
+    # DEFAULT CLUSTER: Where stateful operations happen (REQUIRED when multi-cluster enabled)
+    # - DB branches are created here
+    # - File operations read/write from here
+    # - Outgoing traffic originates from here
+    # Must match the `name` of one of your cluster Secrets
+    defaultCluster: ""
+    
+    # Whether the primary cluster is management-only (no workloads)
+    # When true: Primary only runs Envoy, all sessions go to remote clusters
+    # When false: Primary is also a workload cluster
+    managementOnly: true
+    
+    # Timeout for waiting for remote sessions to become ready (seconds)
+    remoteSessionTimeoutSecs: 300
+    
+    # TTL for multi-cluster sessions (seconds)
+    # Sessions are deleted when no client has been connected for this duration
+    sessionTtlSecs: 60
+    
+    # Remote cluster configuration
+    #
+    # Authentication options (use ONE of these):
+    #   - bearerToken: ServiceAccount token (RECOMMENDED)
+    #       → Auto-refreshed every 45 min via TokenRequest API
+    #       → No manual rotation needed
+    #   - tlsCrt + tlsKey: mTLS client certificate auth (uses standard tls.crt/tls.key keys)
+    #       → NOT auto-refreshed (certs typically valid for months/years)
+    #       → You must manually rotate before expiry
+    #
+    # Example with bearer token (recommended):
+    # clusters:
+    #   staging-us-east:
+    #     server: https://staging-us-east.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA cert
+    #     isDefault: true            # optional: default cluster for stateful operations
+    #     bearerToken: eyJhbGci...   # initial token (will be auto-refreshed)
+    #   staging-eu-west:
+    #     server: https://staging-eu-west.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...
+    #     bearerToken: eyJhbGci...
+    #
+    # Example with mTLS (for clusters requiring client certificate auth):
+    # clusters:
+    #   secure-cluster:
+    #     server: https://secure.example.com:6443
+    #     caData: LS0tLS1CRUdJTi...  # CA cert
+    #     tlsCrt: LS0tLS1CRUdJ...    # client cert PEM (stored as tls.crt in Secret)
+    #     tlsKey: LS0tLS1CRUdJ...    # client private key PEM (stored as tls.key in Secret)
+    clusters: {}
+
   # imagePullSecrets:
   #   - name: value
 

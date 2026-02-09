@@ -839,6 +839,11 @@ spec:
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
+              outputQueueNames:
+                description: Explicit output queue names for multi-cluster coordination. Maps original queue names to their output queue names.
+                type: object
+                additionalProperties:
+                  type: string
             required:
             - queueConsumer
             - queueFilters
@@ -3117,6 +3122,9 @@ spec:
                 - kind
                 - name
                 type: object
+              multiClusterParentName:
+                description: Name of the parent MirrordMultiClusterSession. When set, this is a child session created by the Primary operator as part of a multi-cluster session.
+                type: string
             required:
             - namespace
             - owner
