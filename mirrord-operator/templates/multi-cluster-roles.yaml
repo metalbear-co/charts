@@ -38,7 +38,7 @@ rules:
   verbs:
   - get
   - list
-  {{- if .Values.operator.multiClusterMember }}
+  {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
   - proxy
   {{- else }}
   - watch
@@ -57,7 +57,7 @@ rules:
   - watch
   - update
   - patch
-  {{- if .Values.operator.multiClusterMember }}
+  {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
   - create
   - delete
   {{- end }}
@@ -71,7 +71,7 @@ rules:
   - get
   - update
   - patch
-{{- if .Values.operator.multiClusterMember }}
+{{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
 # Queue registry sync from primary cluster
 - apiGroups:
   - queues.mirrord.metalbear.co
@@ -182,7 +182,7 @@ roleRef:
   name: mirrord-operator-envoy
 subjects:
   - kind: ServiceAccount
-    {{- if .Values.operator.multiClusterMember }}
+    {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
     name: mirrord-operator-envoy
     {{- else }}
     name: {{ .Values.sa.name }}
