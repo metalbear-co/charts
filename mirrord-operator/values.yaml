@@ -97,7 +97,8 @@ operator:
   # 4. Enable multiCluster.enabled = true on the primary cluster
   #
   multiCluster:
-    # Set to true to enable multi-cluster session orchestration
+    # Set to true to enable multi-cluster session orchestration and make this operator
+    # the primary one.
     enabled: false
     
     # CLUSTER NAME: Name of this cluster (optional, defaults to "primary")
@@ -153,6 +154,10 @@ operator:
     #     tlsCrt: LS0tLS1CRUdJ...    # client cert PEM (stored as tls.crt in Secret)
     #     tlsKey: LS0tLS1CRUdJ...    # client private key PEM (stored as tls.key in Secret)
     clusters: {}
+
+  # Set to `true` if installing the mirrord-operator on a cluster that is part of a connected
+  # multi-cluster setup, and this one is not the primary.
+  multiClusterMember: false
 
   # imagePullSecrets:
   #   - name: value
