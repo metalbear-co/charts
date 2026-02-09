@@ -14,7 +14,7 @@ spec:
     singular: mirrordmulticlustersession
     shortNames:
       - mmcs
-  scope: Namespaced
+  scope: Cluster
   versions:
   - name: v1alpha
     served: true
