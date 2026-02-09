@@ -1,4 +1,4 @@
-{{- if .Values.operator.multiCluster.enabled }}
+{{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
 ---
 # ClusterRole for Envoy (Primary Cluster)
 # This role allows the primary operator to manage multi-cluster sessions
@@ -38,7 +38,11 @@ rules:
   verbs:
   - get
   - list
+  {{- if .Values.operator.multiClusterMember }}
+  - proxy
+  {{- else }}
   - watch
+  {{- end }}
 # Database branch sync controller - watches branch CRDs on primary,
 # syncs to default cluster, syncs status back
 - apiGroups:
@@ -53,6 +57,10 @@ rules:
   - watch
   - update
   - patch
+  {{- if .Values.operator.multiClusterMember }}
+  - create
+  - delete
+  {{- end }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:
@@ -63,6 +71,73 @@ rules:
   - get
   - update
   - patch
+{{- if .Values.operator.multiClusterMember }}
+# Queue registry sync from primary cluster
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordworkloadqueueregistries
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+# MirrordOperator CRD for health checks
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordoperators
+  verbs:
+  - get
+# Token refresh
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts/token
+  verbs:
+  - create
+# Read pods for session targeting
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+# Read deployments/statefulsets for targeting
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - statefulsets
+  - replicasets
+  - daemonsets
+  verbs:
+  - get
+  - list
+  - watch
+# Operator API resources for multi-cluster agent communication
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - targets
+  - copytargets
+  - targets/port-locks
+  verbs:
+  - get
+  - list
+  - proxy
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - copytargets
+  verbs:
+  - create
+{{- end }}
 ---
 # ClusterRole for cross-cluster Envoy access
 # This role is bound to the primary operator's service account in REMOTE clusters
@@ -107,7 +182,11 @@ roleRef:
   name: mirrord-operator-envoy
 subjects:
   - kind: ServiceAccount
+    {{- if .Values.operator.multiClusterMember }}
+    name: mirrord-operator-envoy
+    {{- else }}
     name: {{ .Values.sa.name }}
+    {{- end }}
     namespace: {{ .Values.namespace }}
 {{- end }}
 
