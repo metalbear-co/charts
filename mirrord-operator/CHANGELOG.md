@@ -1,3 +1,8 @@
+## [mirrord-operator-1.48.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.48.0) - 2026-02-09
+
+### Added
+- Support for multi- cluster sessions.
+
 ## [mirrord-operator-1.47.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.47.0) - 2026-02-06
 
 ### Added
