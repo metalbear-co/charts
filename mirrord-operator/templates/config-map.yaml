@@ -65,6 +65,10 @@ data:
         {{- if $clusterConfig.isDefault }}
         isDefault: {{ $clusterConfig.isDefault }}
         {{- end }}
+        authType: {{ $clusterConfig.authType | quote }}
+        {{- if $clusterConfig.region }}
+        region: {{ $clusterConfig.region | quote }}
+        {{- end }}
     {{- end }}
   {{- end }}
   {{- end }}
