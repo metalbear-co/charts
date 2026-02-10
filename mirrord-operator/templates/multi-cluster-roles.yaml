@@ -190,6 +190,27 @@ subjects:
     name: {{ .Values.sa.name }}
     {{- end }}
     namespace: {{ .Values.namespace }}
+---
+# ClusterRoleBinding for mirrord-operator-envoy-remote — allows the primary operator's
+# ServiceAccount to create/manage child MirrordClusterSessions on remote clusters
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-operator-envoy-remote
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-operator-envoy-remote
+subjects:
+  - kind: ServiceAccount
+    {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
+    name: mirrord-operator-envoy
+    {{- else }}
+    name: {{ .Values.sa.name }}
+    {{- end }}
+    namespace: {{ .Values.namespace }}
 {{- end }}
 {{- if .Values.operator.multiClusterMemberIamGroup }}
 ---
@@ -206,6 +227,23 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: mirrord-operator-envoy
+subjects:
+  - kind: Group
+    name: {{ .Values.operator.multiClusterMemberIamGroup }}
+    apiGroup: rbac.authorization.k8s.io
+---
+# ClusterRoleBinding for IAM auth — binds the Kubernetes group to the remote role
+# so the primary operator can create child sessions via IAM identity
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-operator-envoy-remote-iam
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-operator-envoy-remote
 subjects:
   - kind: Group
     name: {{ .Values.operator.multiClusterMemberIamGroup }}
