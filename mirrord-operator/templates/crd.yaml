@@ -3253,7 +3253,7 @@ spec:
     name: v1alpha
     schema:
       openAPIV3Schema:
-        description: Auto-generated derived type for PreviewSession via `CustomResource`
+        description: Auto-generated derived type for PreviewSessionSpec via `CustomResource`
         properties:
           spec:
             description: This resource represents a preview environment created by the `mirrord preview start` command.
@@ -3265,251 +3265,100 @@ spec:
                 description: |-
                   Incoming traffic configuration for the preview environment.
 
-                  Specifies which ports to steal/mirror traffic from and optional HTTP filters. This configuration is extracted from the user's mirrord config.
+                  Specifies which ports to steal/mirror traffic from and optional HTTP filters. This configuration is extracted from the user's mirrord config. When `None`, incoming traffic is not intercepted.
+                nullable: true
                 properties:
                   httpFilter:
-                    description: HTTP filter configuration (header, path, method, body, composite filters). Unfiltered stealing is rejected by the operator to avoid disrupting all traffic to the target.
-                    properties:
-                      all_of:
-                        description: |-
-                          An array of HTTP filters.
-
-                          Each inner filter specifies either header or path regex. Requests must match all of the filters to be stolen.
-
-                          Cannot be an empty list.
-
-                          Example: ```json { "all_of": [ { "header": "x-user: my-user$" }, { "path": "^/api/v1/my-endpoint" } { "method": "post" } ] } ```
-                        items:
-                          anyOf:
-                          - required:
-                            - header
-                          - required:
-                            - path
-                          - required:
-                            - method
-                          - oneOf:
-                            - required:
-                              - body
-                              - matches
-                              - query
-                          properties:
-                            body:
-                              enum:
-                              - json
-                              type: string
-                            header:
-                              description: |-
-                                Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                                The HTTP traffic feature converts the HTTP headers to `HeaderKey: HeaderValue`, case-insensitive.
-                              type: string
-                            matches:
-                              type: string
-                            method:
-                              type: string
-                            path:
-                              description: |-
-                                Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                                Case-insensitive. Tries to find match in the path (without query) and path+query. If any of the two matches, the request is stolen.
-                              type: string
-                            query:
-                              type: string
-                          type: object
-                        nullable: true
-                        title: feature.network.incoming.http_filter.all_of {#feature-network-incoming-http_filter-all_of}
-                        type: array
-                      any_of:
-                        description: |-
-                          An array of HTTP filters.
-
-                          Each inner filter specifies either header or path regex. Requests must match at least one of the filters to be stolen.
-
-                          Cannot be an empty list.
-
-                          Example: ```json { "any_of": [ { "header": "^x-user: my-user$" }, { "path": "^/api/v1/my-endpoint" } { "method": "post" } ] } ```
-                        items:
-                          anyOf:
-                          - required:
-                            - header
-                          - required:
-                            - path
-                          - required:
-                            - method
-                          - oneOf:
-                            - required:
-                              - body
-                              - matches
-                              - query
-                          properties:
-                            body:
-                              enum:
-                              - json
-                              type: string
-                            header:
-                              description: |-
-                                Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                                The HTTP traffic feature converts the HTTP headers to `HeaderKey: HeaderValue`, case-insensitive.
-                              type: string
-                            matches:
-                              type: string
-                            method:
-                              type: string
-                            path:
-                              description: |-
-                                Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                                Case-insensitive. Tries to find match in the path (without query) and path+query. If any of the two matches, the request is stolen.
-                              type: string
-                            query:
-                              type: string
-                          type: object
-                        nullable: true
-                        type: array
-                      body_filter:
-                        description: Matches the request based on the contents of its body.
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - body
-                          - matches
-                          - query
-                        properties:
-                          body:
-                            enum:
-                            - json
-                            type: string
-                          matches:
-                            type: string
-                          query:
-                            type: string
-                        type: object
-                      header_filter:
-                        description: |-
-                          Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                          The HTTP traffic feature converts the HTTP headers to `HeaderKey: HeaderValue`, case-insensitive.
-                        nullable: true
-                        type: string
-                      method_filter:
-                        description: |-
-                          Supports standard [HTTP methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods), and non-standard HTTP methods.
-
-                          Case-insensitive. If the request method matches the filter, the request is stolen.
-                        nullable: true
-                        type: string
-                      path_filter:
-                        description: |-
-                          Supports regexes validated by the [`fancy-regex`](https://docs.rs/fancy-regex/latest/fancy_regex/) crate.
-
-                          Case-insensitive. Tries to find match in the path (without query) and path+query. If any of the two matches, the request is stolen.
-                        nullable: true
-                        type: string
-                      ports:
-                        anyOf:
-                        - format: uint16
-                          minimum: 0.0
-                        - items:
-                            format: uint16
-                            minimum: 0.0
-                        description: Activate the HTTP traffic filter only for these ports. When absent, filtering will be done for all ports.
-                        nullable: true
-                        type: object
-                    type: object
-                  mode:
-                    description: Whether to mirror or steal traffic from the target.
-                    enum:
-                    - mirror
-                    - steal
-                    - off
+                    description: JSON-serialized `HttpFilterConfig`. Stored as an opaque string to avoid coupling the CRD schema to `HttpFilterConfig`, which is too large to manually duplicate here and could break backwards compatibility if stored directly.
+                    nullable: true
                     type: string
                   ports:
-                    description: Explicit set of ports to steal/mirror. When `None`, the operator discovers ports from the preview pod's container port declarations.
+                    description: Explicit list of ports to steal/mirror. When `None`, the operator discovers ports from the preview pod's container port declarations.
                     items:
                       format: uint16
                       minimum: 0.0
                       type: integer
                     nullable: true
                     type: array
+                  steal:
+                    description: Whether to steal (`true`) or mirror (`false`) traffic from the target.
+                    type: boolean
                 required:
-                - httpFilter
-                - mode
+                - steal
                 type: object
               key:
                 description: Environment key used to group related preview pods and for traffic filtering.
                 type: string
               target:
                 description: Target to copy pod configuration from (deployment, pod, statefulset, etc.). The preview pod will be a copy of the target's pod spec with the user's image.
-                type: string
-              ttlMins:
-                description: How long (in minutes) this session is allowed to live. The operator will terminate the session when this time elapses.
+                properties:
+                  apiVersion:
+                    description: Kubernetes resource apiVersion.
+                    type: string
+                  container:
+                    description: Name of the container defined in the Pod spec.
+                    type: string
+                  kind:
+                    description: Kubernetes resource kind.
+                    type: string
+                  name:
+                    description: Kubernetes resource name.
+                    type: string
+                required:
+                - apiVersion
+                - container
+                - kind
+                - name
+                type: object
+              ttlSecs:
+                description: How long (in seconds) this session is allowed to live. The operator will terminate the session when this time elapses.
                 format: uint64
                 minimum: 0.0
                 type: integer
             required:
             - image
-            - incoming
             - key
             - target
-            - ttlMins
+            - ttlSecs
             type: object
           status:
             description: Status of a preview session resource.
             nullable: true
-            oneOf:
-            - required:
-              - Initializing
-            - required:
-              - Waiting
-            - required:
-              - Ready
-            - required:
-              - Failed
             properties:
-              Failed:
-                description: Preview environment session has reached an error.
-                properties:
-                  failure_message:
-                    description: Message describing the reason for failure.
-                    type: string
-                  pod_name:
-                    description: Name of the created preview pod.
-                    nullable: true
-                    type: string
-                required:
-                - failure_message
-                type: object
-              Initializing:
-                description: Preview pod hasn't been created yet - operator is still setting things up.
-                properties:
-                  start_time_utc:
-                    type: string
-                required:
-                - start_time_utc
-                type: object
-              Ready:
-                description: Preview pod is running and ready.
-                properties:
-                  pod_name:
-                    description: Name of the created preview pod.
-                    type: string
-                required:
-                - pod_name
-                type: object
-              Waiting:
-                description: Preview pod has been successfully created, waiting for it to be ready.
-                properties:
-                  pod_name:
-                    description: Name of the created preview pod.
-                    type: string
-                required:
-                - pod_name
-                type: object
+              failureMessage:
+                description: |-
+                  Human-readable description of why the session failed.
+
+                  Only set when `phase` is `Failed`.
+                nullable: true
+                type: string
+              phase:
+                description: Current lifecycle phase of the session.
+                enum:
+                - Initializing
+                - Waiting
+                - Ready
+                - Failed
+                - Unknown
+                type: string
+              podName:
+                description: |-
+                  Name of the preview pod created for this session.
+
+                  Set once the pod is created (from the `Waiting` phase onward). `None` during `Initializing` or if pod creation failed before a name was assigned.
+                nullable: true
+                type: string
+              startedAt:
+                description: Timestamp of when the operator started processing this session.
+                format: date-time
+                type: string
+            required:
+            - phase
+            - startedAt
             type: object
         required:
         - spec
-        title: PreviewSessionCrd
+        title: PreviewSession
         type: object
     served: true
     storage: true
