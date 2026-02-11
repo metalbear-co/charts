@@ -1,0 +1,9 @@
+operator:
+  multiClusterMember: true
+  multiClusterMemberIamGroup: "mirrord-operator-envoy"
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

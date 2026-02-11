@@ -190,9 +190,10 @@ subjects:
     name: {{ .Values.sa.name }}
     {{- end }}
     namespace: {{ .Values.namespace }}
+{{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
 ---
 # ClusterRoleBinding for mirrord-operator-envoy-remote — allows the primary operator's
-# ServiceAccount to create/manage child MirrordClusterSessions on remote clusters
+# ServiceAccount to create/manage child MirrordClusterSessions on this remote cluster.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -205,12 +206,9 @@ roleRef:
   name: mirrord-operator-envoy-remote
 subjects:
   - kind: ServiceAccount
-    {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
     name: mirrord-operator-envoy
-    {{- else }}
-    name: {{ .Values.sa.name }}
-    {{- end }}
     namespace: {{ .Values.namespace }}
+{{- end }}
 {{- end }}
 {{- if .Values.operator.multiClusterMemberIamGroup }}
 ---

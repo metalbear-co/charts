@@ -1,0 +1,17 @@
+operator:
+  multiCluster:
+    enabled: true
+    defaultCluster: "staging-us-east"
+    managementOnly: true
+    clusters:
+      staging-us-east:
+        authType: bearerToken
+        server: https://staging-us-east.example.com:6443
+        caData: LS0tLS1CRUdJTi0tLS0tCg==
+        isDefault: true
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

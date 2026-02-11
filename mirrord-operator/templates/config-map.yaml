@@ -65,7 +65,7 @@ data:
         {{- if $clusterConfig.isDefault }}
         isDefault: {{ $clusterConfig.isDefault }}
         {{- end }}
-        authType: {{ $clusterConfig.authType | quote }}
+        authType: {{ required "Please set an authType for multi cluster authentication." $clusterConfig.authType | quote }}
         {{- if $clusterConfig.region }}
         region: {{ $clusterConfig.region | quote }}
         {{- end }}

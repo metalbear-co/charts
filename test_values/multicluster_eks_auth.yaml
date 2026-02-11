@@ -1,0 +1,17 @@
+operator:
+  multiCluster:
+    enabled: true
+    defaultCluster: "my-eks-cluster"
+    managementOnly: true
+    clusters:
+      my-eks-cluster:
+        authType: eks
+        server: https://ABCDEF.gr7.us-east-1.eks.amazonaws.com
+        region: us-east-1
+        isDefault: true
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

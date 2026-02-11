@@ -126,7 +126,7 @@ operator:
 
     # Remote cluster configuration
     #
-    # Each cluster requires `authType` (required) to specify how it authenticates:
+    # Each cluster requires `authType` to specify how it authenticates:
     #
     #   authType: eks — AWS IAM authentication for EKS clusters
     #       → Tokens generated locally using the operator's IAM role (IRSA/Pod Identity)
