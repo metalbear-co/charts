@@ -1,3 +1,9 @@
+## [mirrord-operator-1.49.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.49.0) - 2026-02-12
+
+### Added
+- Added IAM auth for Multi Cluster.
+- Setup for child operator in a multi-cluster.
+
 ## [mirrord-operator-1.48.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.48.0) - 2026-02-09
 
 ### Added
