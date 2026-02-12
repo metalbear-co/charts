@@ -1,0 +1,30 @@
+operator:
+  multiCluster:
+    enabled: true
+    defaultCluster: "staging-bearer"
+    managementOnly: true
+    clusters:
+      staging-bearer:
+        authType: bearerToken
+        server: https://staging.example.com:6443
+        caData: LS0tLS1CRUdJTi0tLS0tCg==
+        isDefault: true
+      prod-eks:
+        authType: eks
+        server: https://ABCDEF.gr7.us-east-1.eks.amazonaws.com
+        region: us-east-1
+      on-prem:
+        authType: mtls
+        server: https://on-prem.example.com:6443
+        caData: LS0tLS1CRUdJTi0tLS0tCg==
+        tlsCrt: LS0tLS1CRUdJTi0tLS0tCg==
+        tlsKey: LS0tLS1CRUdJTi0tLS0tCg==
+
+sa:
+  roleArn: "arn:aws:iam::111122223333:role/mirrord-operator-role"
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

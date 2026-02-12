@@ -1,0 +1,19 @@
+operator:
+  multiCluster:
+    enabled: true
+    defaultCluster: "secure-cluster"
+    managementOnly: true
+    clusters:
+      secure-cluster:
+        authType: mtls
+        server: https://secure.example.com:6443
+        caData: LS0tLS1CRUdJTi0tLS0tCg==
+        tlsCrt: LS0tLS1CRUdJTi0tLS0tCg==
+        tlsKey: LS0tLS1CRUdJTi0tLS0tCg==
+        isDefault: true
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

@@ -100,64 +100,102 @@ operator:
     # Set to true to enable multi-cluster session orchestration and make this operator
     # the primary one.
     enabled: false
-    
+
     # CLUSTER NAME: Name of this cluster (optional, defaults to "primary")
     # Used for logging and session tracking
     # clusterName: "primary"
-    
+
     # DEFAULT CLUSTER: Where stateful operations happen (REQUIRED when multi-cluster enabled)
     # - DB branches are created here
     # - File operations read/write from here
     # - Outgoing traffic originates from here
     # Must match the `name` of one of your cluster Secrets
     defaultCluster: ""
-    
+
     # Whether the primary cluster is management-only (no workloads)
     # When true: Primary only runs Envoy, all sessions go to remote clusters
     # When false: Primary is also a workload cluster
     managementOnly: true
-    
+
     # Timeout for waiting for remote sessions to become ready (seconds)
     remoteSessionTimeoutSecs: 300
-    
+
     # TTL for multi-cluster sessions (seconds)
     # Sessions are deleted when no client has been connected for this duration
     sessionTtlSecs: 60
-    
+
     # Remote cluster configuration
     #
-    # Authentication options (use ONE of these):
-    #   - bearerToken: ServiceAccount token (RECOMMENDED)
-    #       → Auto-refreshed every 45 min via TokenRequest API
+    # Each cluster requires `authType` to specify how it authenticates:
+    #
+    #   authType: eks — AWS IAM authentication for EKS clusters
+    #       → Tokens generated locally using the operator's IAM role (IRSA/Pod Identity)
+    #       → Auto-refreshed every 10 min (15-min token lifetime)
+    #       → No secrets to manage — safe to commit to Git
+    #       → Requires `region` field and EKS Access Entry on each remote cluster
+    #       → The cluster key name must match the EKS cluster name
+    #
+    #   authType: bearerToken — ServiceAccount token
+    #       → Auto-refreshed via TokenRequest API
     #       → No manual rotation needed
-    #   - tlsCrt + tlsKey: mTLS client certificate auth (uses standard tls.crt/tls.key keys)
+    #
+    #   authType: mtls — mTLS client certificate auth
     #       → NOT auto-refreshed (certs typically valid for months/years)
     #       → You must manually rotate before expiry
     #
-    # Example with bearer token (recommended):
+    # Example with EKS IAM auth (cluster key = EKS cluster name):
+    # clusters:
+    #   my-eks-cluster:                    # ← must match the EKS cluster name
+    #     authType: eks
+    #     server: https://ABCDEF.gr7.us-east-1.eks.amazonaws.com
+    #     region: us-east-1
+    #     # caData is optional for EKS — EKS uses Amazon-signed certs trusted by default.
+    #     # caData: LS0tLS1CRUdJTi...
+    #     isDefault: true
+    #
+    # EKS IAM setup on each remote cluster:
+    #   1. Install mirrord operator on the remote cluster with:
+    #          --set operator.multiClusterMember=true \
+    #          --set operator.multiClusterMemberIamGroup=mirrord-operator-envoy
+    #      This creates both the ClusterRole and ClusterRoleBinding for the IAM group.
+    #   2. Create EKS Access Entry:
+    #      Via AWS Console:
+    #        EKS → select remote cluster → Access tab → Create access entry
+    #        → IAM principal: select the IAM role from sa.roleArn → Type: Standard
+    #        → Groups: mirrord-operator-envoy → Next → skip access policies → Create
+    #      Via AWS CLI:
+    #        aws eks create-access-entry --cluster-name <EKS_CLUSTER> \
+    #          --principal-arn <sa.roleArn value> \
+    #          --type STANDARD --kubernetes-groups mirrord-operator-envoy
+    #
+    # Example with bearer token:
     # clusters:
     #   staging-us-east:
+    #     authType: bearerToken
     #     server: https://staging-us-east.example.com:6443
     #     caData: LS0tLS1CRUdJTi...  # base64 encoded CA cert
-    #     isDefault: true            # optional: default cluster for stateful operations
+    #     isDefault: true
     #     bearerToken: eyJhbGci...   # initial token (will be auto-refreshed)
-    #   staging-eu-west:
-    #     server: https://staging-eu-west.example.com:6443
-    #     caData: LS0tLS1CRUdJTi...
-    #     bearerToken: eyJhbGci...
     #
-    # Example with mTLS (for clusters requiring client certificate auth):
+    # Example with mTLS:
     # clusters:
     #   secure-cluster:
+    #     authType: mtls
     #     server: https://secure.example.com:6443
     #     caData: LS0tLS1CRUdJTi...  # CA cert
-    #     tlsCrt: LS0tLS1CRUdJ...    # client cert PEM (stored as tls.crt in Secret)
-    #     tlsKey: LS0tLS1CRUdJ...    # client private key PEM (stored as tls.key in Secret)
+    #     tlsCrt: LS0tLS1CRUdJ...    # client cert PEM
+    #     tlsKey: LS0tLS1CRUdJ...    # client private key PEM
     clusters: {}
 
   # Set to `true` if installing the mirrord-operator on a cluster that is part of a connected
   # multi-cluster setup, and this one is not the primary.
   multiClusterMember: false
+
+  # When using IAM auth for multi-cluster, set this to the Kubernetes group name
+  # used in the EKS Access Entry. This creates a ClusterRoleBinding that grants
+  # the IAM group the same permissions as the ServiceAccount-based setup.
+  # Only used when multiClusterMember is true.
+  # multiClusterMemberIamGroup: "mirrord-operator-envoy"
 
   # imagePullSecrets:
   #   - name: value
@@ -181,7 +219,7 @@ operator:
   ##
   ## See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
   # otelLogLevel: mirrord=info
-  
+
   ## The URL for OTel logs to be exported to in the cluster. If unset, logs will not be exported.
   ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
   # otelLogExportUrl: https://loki:3100/loki/app/v1/push
