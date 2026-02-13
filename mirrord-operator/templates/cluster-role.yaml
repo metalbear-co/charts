@@ -199,6 +199,17 @@ rules:
   - get
   - patch
 {{- end }}
+{{- if .Values.operator.suspendFluxControllers }}
+- apiGroups:
+  - fluxcd.io
+  resources:
+  - kustomizations
+  - helmreleases
+  verbs:
+  - list
+  - get
+  - patch
+{{- end }}
 - apiGroups:
   - mirrord.metalbear.co
   resources:
