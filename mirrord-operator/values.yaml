@@ -62,6 +62,9 @@ operator:
   kafkaSplitting: false
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
+
+  # Has to be set to `true` in order to use the suspend flux controllers feature.
+  suspendFluxControllers: false
   # Has to be set to `true` in order to use the MySQL database branching feature.
   mysqlBranching: false
   # Has to be set to `true` in order to use the PostgreSQL database branching feature.

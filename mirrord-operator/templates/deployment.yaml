@@ -114,6 +114,10 @@ spec:
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"
         {{- end }}
+        {{- if .Values.operator.suspendFluxControllers }}
+        - name: OPERATOR_SUSPEND_FLUX_CONTROLLERS
+          value: "true"
+        {{- end }}
         - name: OPERATOR_METRICS_ENABLED
           value: {{ .Values.operator.metrics | ternary "true" "false" | quote }}
         - name: OPERATOR_JSON_LOG
