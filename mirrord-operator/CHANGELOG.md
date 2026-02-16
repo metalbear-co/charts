@@ -1,3 +1,8 @@
+## [mirrord-operator-1.43.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.43.0) - 2026-02-16
+
+### Added
+- Added configuration options for flux suspend feature
+
 ## [mirrord-operator-1.49.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.49.0) - 2026-02-12
 
 ### Added
