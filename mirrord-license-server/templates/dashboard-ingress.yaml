@@ -1,0 +1,45 @@
+{{- if and .Values.dashboard.enabled .Values.dashboard.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: mirrord-dashboard
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+  name: mirrord-dashboard
+  namespace: {{ .Values.namespace }}
+  {{- with .Values.dashboard.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.dashboard.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.dashboard.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  {{- if .Values.dashboard.ingress.host }}
+  - host: {{ .Values.dashboard.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.dashboard.service.name }}
+            port:
+              number: {{ .Values.dashboard.service.port }}
+  {{- else }}
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.dashboard.service.name }}
+            port:
+              number: {{ .Values.dashboard.service.port }}
+  {{- end }}
+  {{- if .Values.dashboard.ingress.tls }}
+  tls:
+    {{- toYaml .Values.dashboard.ingress.tls | nindent 4 }}
+  {{- end }}
+{{- end }}

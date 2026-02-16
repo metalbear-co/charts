@@ -1,0 +1,120 @@
+{{- if .Values.dashboard.enabled }}
+{{- if and (not .Values.license.key) (not .Values.license.keyRef) }}
+  {{- fail "Dashboard requires .license.key or .license.keyRef to be set. GSM-only license configuration is not supported for the dashboard." }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mirrord-dashboard
+    component: dashboard
+    app.kubernetes.io/component: dashboard
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+  name: mirrord-dashboard
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ default 1 .Values.dashboard.replicas }}
+  selector:
+    matchLabels:
+      app: mirrord-dashboard
+  template:
+    metadata:
+      labels:
+        {{- include "mirrord-license-server.labels" . | nindent 8 }}
+        app: mirrord-dashboard
+        component: dashboard
+        app.kubernetes.io/component: dashboard
+        {{- if .Values.dashboard.podLabels }}
+          {{- toYaml .Values.dashboard.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.dashboard.podAnnotations }}
+          {{- toYaml .Values.dashboard.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.dashboard.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.dashboard.imagePullSecrets }}
+        - {{ toYaml . }}
+        {{- end }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      {{- if .Values.dashboard.tolerations }}
+      tolerations:
+        {{- toYaml .Values.dashboard.tolerations | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dashboard.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dashboard.affinity }}
+      affinity:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+
+      containers:
+      - name: dashboard
+        image: {{ .Values.dashboard.image }}:{{ default .Chart.AppVersion .Values.dashboard.tag }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.dashboard.imagePullPolicy }}
+        env:
+        - name: LICENSE_SERVER_HOST
+          value: {{ .Values.service.name }}.{{ .Values.namespace }}.svc.cluster.local
+        - name: LICENSE_SERVER_PORT
+          value: {{ or .Values.service.port 80 | quote }}
+        {{- if .Values.license.key }}
+        - name: LICENSE_KEY
+          value: {{ .Values.license.key }}
+        {{- else if .Values.license.keyRef }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.license.keyRef }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.dashboard.port }}
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.dashboard.port }}
+          periodSeconds: 10
+          initialDelaySeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.dashboard.port }}
+          periodSeconds: 5
+          initialDelaySeconds: 3
+        resources:
+          requests:
+            cpu: {{ .Values.dashboard.resources.requests.cpu }}
+            memory: {{ .Values.dashboard.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.dashboard.limits.cpu }}
+            memory: {{ .Values.dashboard.limits.memory }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /var/cache/nginx
+          name: nginx-cache
+        - mountPath: /var/run
+          name: nginx-run
+        - mountPath: /etc/nginx/conf.d
+          name: nginx-conf
+      volumes:
+      - emptyDir: {}
+        name: tmp
+      - emptyDir: {}
+        name: nginx-cache
+      - emptyDir: {}
+        name: nginx-run
+      - emptyDir: {}
+        name: nginx-conf
+{{- end }}

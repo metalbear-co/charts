@@ -110,3 +110,54 @@ tls:
   data:
     tls.key: ""
     tls.crt: ""
+
+dashboard:
+  enabled: false
+  image: ghcr.io/metalbear-co/dashboard
+  # tag defaults to Chart.AppVersion
+  port: 8080
+
+  podAnnotations: {}
+  podLabels: {}
+
+  # imagePullSecrets:
+  #   - name: value
+
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+  ## Allow to specify tolerations for dashboard deployment
+  # tolerations:
+  #   - key: "key1"
+  #     operator: "Equal"
+  #     value: "value1"
+  #     effect: "NoSchedule"
+
+  # affinity:
+  #   podAntiAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       - topologyKey: kubernetes.io/hostname
+  #         labelSelector:
+  #           matchLabels:
+  #             app: mirrord-dashboard
+
+  # nodeSelector:
+  #   kubernetes.io/os: linux
+
+  service:
+    name: mirrord-dashboard
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: false
+    # host: mirrord-dashboard.company.com
+    # ingressClassName: nginx
+    # annotations: {}
+    # tls: []
