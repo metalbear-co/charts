@@ -168,6 +168,10 @@ spec:
           value: "true"
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
+        {{- if .Values.operator.injectSessionKeyHeader }}
+        - name: OPERATOR_INJECT_SESSION_KEY_HEADER 
+          value: "true"
+        {{- end }}
         {{- if .Values.operator.sqsSplittingLingerTimeout }}
         - name: OPERATOR_SQS_SPLITTING_LINGER_TIMEOUT
           value: {{ .Values.operator.sqsSplittingLingerTimeout | quote }}
