@@ -110,11 +110,11 @@ spec:
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MONGODB_BRANCHING
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
-        {{- if .Values.operator.dbBranching.initPodVolumeLimit }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
         {{- end }}
-        {{- if .Values.operator.dbBranching.databasePodVolumeLimit }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.databasePodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_DB_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.databasePodVolumeLimit | quote }}
         {{- end }}
