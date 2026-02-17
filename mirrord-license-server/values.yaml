@@ -111,10 +111,16 @@ tls:
     tls.key: ""
     tls.crt: ""
 
+## mirrord admin dashboard configuration.
+## The dashboard provides a web UI for viewing mirrord usage metrics, session history,
+## and ROI calculations. It connects to the license server API to fetch data.
+## Disabled by default - enable to deploy the dashboard alongside the license server.
 dashboard:
   enabled: false
   image: ghcr.io/metalbear-co/dashboard
-  # tag defaults to Chart.AppVersion
+  # Override the image tag. Defaults to Chart.AppVersion.
+  # tag: "1.0.0"
+  # Port the dashboard container listens on.
   port: 8080
 
   podAnnotations: {}
@@ -123,6 +129,9 @@ dashboard:
   # imagePullSecrets:
   #   - name: value
 
+  ## Resource requests and limits for the dashboard container.
+  ## The dashboard is a lightweight nginx server serving a React frontend,
+  ## so resource requirements are minimal.
   resources:
     requests:
       cpu: 50m
@@ -138,6 +147,7 @@ dashboard:
   #     value: "value1"
   #     effect: "NoSchedule"
 
+  ## Schedule the dashboard pod on specific nodes.
   # affinity:
   #   podAntiAffinity:
   #     requiredDuringSchedulingIgnoredDuringExecution:
@@ -149,11 +159,16 @@ dashboard:
   # nodeSelector:
   #   kubernetes.io/os: linux
 
+  ## Internal ClusterIP service for the dashboard.
   service:
     name: mirrord-dashboard
     type: ClusterIP
     port: 80
 
+  ## Ingress configuration for exposing the dashboard externally.
+  ## Set enabled to true to create an Ingress resource. If host is not set,
+  ## the ingress will match all hosts (useful for testing with port-forward
+  ## or when using a load balancer).
   ingress:
     enabled: false
     # host: mirrord-dashboard.company.com
