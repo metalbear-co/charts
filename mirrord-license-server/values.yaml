@@ -123,14 +123,13 @@ dashboard:
   # imagePullSecrets:
   #   - name: value
 
-  limits:
-    cpu: 100m
-    memory: 128Mi
-
   resources:
     requests:
       cpu: 50m
       memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
 
   ## Allow to specify tolerations for dashboard deployment
   # tolerations:
