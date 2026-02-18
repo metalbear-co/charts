@@ -338,6 +338,22 @@ rules:
   - update
   - patch
   - create
+{{- if .Values.operator.previewEnv }}
+- apiGroups:
+  - preview.mirrord.metalbear.co
+  resources:
+  - previewsessions
+  - previewsessions/status
+  verbs:
+  - create
+  - delete
+  - edit
+  - get
+  - list
+  - patch
+  - update
+  - watch
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
