@@ -110,6 +110,16 @@ spec:
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MONGODB_BRANCHING
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_PREVIEW_ENV
+          value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
+        - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
+          value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
+        {{- end }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.databasePodVolumeLimit }}
+        - name: OPERATOR_BRANCH_DEFAULT_DB_VOLUME_SIZE_LIMIT
+          value: {{ .Values.operator.dbBranching.databasePodVolumeLimit | quote }}
+        {{- end }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"
@@ -172,6 +182,10 @@ spec:
           value: "true"
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
+        {{- if .Values.operator.injectSessionKeyHeader }}
+        - name: OPERATOR_INJECT_SESSION_KEY_HEADER 
+          value: "true"
+        {{- end }}
         {{- if .Values.operator.sqsSplittingLingerTimeout }}
         - name: OPERATOR_SQS_SPLITTING_LINGER_TIMEOUT
           value: {{ .Values.operator.sqsSplittingLingerTimeout | quote }}

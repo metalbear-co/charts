@@ -71,11 +71,23 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the preview environments feature.
+  previewEnv: false
+
+  # dbBranching:
+  #   # Volume limit for the init container that does the copy
+  #   initPodVolumeLimit: "100Mi"
+  #   # Volume limit for the actual ephemeral database.
+  #   databasePodVolumeLimit: "1G"
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # This strategy can be used if standard restart procedure is not working for the target workload.
   isolatePodsRestart: true
   # Enable prometheus metrics endpoint
   metrics: false
+
+  # When enabled, operator will inject a `mirrord-key` header with the
+  # value of the current session key into redirected HTTP requests.
+  injectSessionKeyHeader: false
 
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
