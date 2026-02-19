@@ -37,7 +37,6 @@ spec:
               - targetAlias
               - clusters
               - primaryCluster
-              - key
             properties:
               owner:
                 description: Owner of this session
@@ -76,9 +75,6 @@ spec:
                     type: string
                   container:
                     type: string
-              key:
-                description: Key for this session, set manually by the user or generated automatically.
-                type: string
               targetAlias:
                 description: Target identifier from user's mirrord config (e.g., "deployment.my-app")
                 type: string

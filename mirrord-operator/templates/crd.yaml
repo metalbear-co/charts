@@ -3073,9 +3073,6 @@ spec:
                 required:
                 - branchName
                 type: object
-              key:
-                description: Key for this session, set manually by the user or generated automatically.
-                type: string
               namespace:
                 description: Kubernetes namespace of the session.
                 type: string
