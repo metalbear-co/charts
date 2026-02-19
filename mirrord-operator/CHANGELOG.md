@@ -1,3 +1,11 @@
+## [mirrord-operator-1.51.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.51.0) - 2026-02-19
+
+### Added
+- Added `operator.injectSessionKeyHeader` config option to enable session key header injection.
+- Added `dbBranching.initPodVolumeLimit` and `databasePodVolumeLimit` config options.
+- mirrord now supports "Preview Environments" - a new type of mirrord session
+  that lives directly in the cluster and can be shared with other users.
+
 ## [mirrord-operator-1.50.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.50.0) - 2026-02-16
 
 ### Added
