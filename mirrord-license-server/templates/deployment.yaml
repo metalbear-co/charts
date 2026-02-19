@@ -71,6 +71,10 @@ spec:
           value: sqlite:///opt/mirrord/data/license-server.db?mode=rwc
         - name: JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
+        {{- if .Values.dashboard.enabled }}
+        - name: DASHBOARD_DIR
+          value: /dashboard
+        {{- end }}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: TLS_CERT_PATH
           value: /tls/tls.crt

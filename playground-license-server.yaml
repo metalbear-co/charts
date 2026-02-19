@@ -1,0 +1,17 @@
+namespace: mirrord
+createNamespace: false
+
+server:
+  image: ghcr.io/metalbear-co/operator
+  port: 8080
+
+license:
+  key: "33a0125b-d98b-48a3-98f8-263b72cf0fbf"
+  file:
+    secret: mirrord-operator-license
+
+service:
+  name: mirrord-operator-license-server
+
+dashboard:
+  enabled: true
