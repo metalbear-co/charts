@@ -110,3 +110,12 @@ tls:
   data:
     tls.key: ""
     tls.crt: ""
+
+## mirrord admin dashboard configuration.
+## When enabled, the license server serves the dashboard UI at /dashboard/.
+## The dashboard is bundled in the operator image and served directly by the
+## license server (no separate deployment needed). The license key is
+## auto-injected into API requests from the dashboard.
+## Requires operator image version 3.142.0+.
+dashboard:
+  enabled: false
