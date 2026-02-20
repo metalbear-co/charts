@@ -1914,6 +1914,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -1944,6 +1946,155 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
                         type: object
                     type: object
                 type: object
@@ -2129,6 +2280,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -2159,6 +2312,155 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
                         type: object
                     type: object
                 type: object
@@ -2582,6 +2884,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -2612,6 +2916,155 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
                         type: object
                     type: object
                 type: object
