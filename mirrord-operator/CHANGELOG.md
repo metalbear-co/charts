@@ -1,3 +1,12 @@
+## [mirrord-operator-1.52.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.52.0) - 2026-02-24
+
+### Added
+- The `mirrord preview status` command will now show the remaining TTL of each
+  preview environment session.
+
+### Changed
+- Bump appversion (operator) to 3.143.0
+
 ## [mirrord-operator-1.51.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.51.0) - 2026-02-19
 
 ### Added
