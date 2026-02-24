@@ -258,11 +258,11 @@ spec:
           periodSeconds: 5
         resources:
           requests:
-            cpu: 100m
-            memory: 100Mi
+            cpu: {{ .Values.operator.requests.cpu }}
+            memory: {{ .Values.operator.requests.memory }}
           limits:
-            cpu: {{.Values.operator.limits.cpu}}
-            memory: {{.Values.operator.limits.memory}}
+            cpu: {{ .Values.operator.limits.cpu }}
+            memory: {{ .Values.operator.limits.memory }}
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false

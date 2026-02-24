@@ -3778,6 +3778,14 @@ spec:
             description: Status of a preview session resource.
             nullable: true
             properties:
+              expiresAt:
+                description: |-
+                  Timestamp when the session's TTL expires.
+
+                  Set when the session enters the `Ready` phase. Computed as `now + ttl_secs` at the moment the operator starts the TTL countdown. `None` during earlier phases or when running against an older operator that does not set this field.
+                format: date-time
+                nullable: true
+                type: string
               failureMessage:
                 description: |-
                   Human-readable description of why the session failed.
