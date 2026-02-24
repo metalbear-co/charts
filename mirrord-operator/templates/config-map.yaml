@@ -25,7 +25,7 @@ data:
     {{- end }}
     {{- end }}
     {{- if and $agentPriorityClassName (not $extraPriorityClassName) }}
-    priority_class_name: {{ $agentPriorityClassName | quote }}
+    priority_class: {{ $agentPriorityClassName | quote }}
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:
