@@ -277,6 +277,10 @@ operator:
   queueSplittingWaitForReadyTarget: true
 
   ## This should be enough for around 200~ concurrent sessions.
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
   limits:
     cpu: 200m
     memory: 200Mi
