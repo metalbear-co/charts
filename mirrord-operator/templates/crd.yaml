@@ -836,6 +836,14 @@ spec:
                   type: object
                 description: For each queue_id, a mapping from attribute name, to attribute value regex. The queue_id for a queue is determined at the queue registry. It is not (necessarily) The name of the queue on AWS.
                 type: object
+              queueJqFilters:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Specify jq programs that will be used to filter messages from queues. For queues with a specified jq program, for every message the jq filter runs on a JSON representation of the SQS `Message` object.
+
+                  If the jq program outputs `true`, that message is considered as matching the filter.
+                type: object
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
