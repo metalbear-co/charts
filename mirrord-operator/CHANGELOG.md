@@ -1,3 +1,9 @@
+## [mirrord-operator-1.53.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.53.0) - 2026-02-24
+
+### Added
+- Added a default priorityClass for agent to avoid scheduling errors
+- Operator resource requests can be now set in the values.yaml
+
 ## [mirrord-operator-1.52.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.52.0) - 2026-02-24
 
 ### Added

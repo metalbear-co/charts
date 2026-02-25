@@ -87,7 +87,7 @@ operator:
 
   # When enabled, operator will inject a `mirrord-key` header with the
   # value of the current session key into redirected HTTP requests.
-  injectSessionKeyHeader: false
+  injectSessionKeyHeader: true
 
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
@@ -421,9 +421,31 @@ agent:
   # This option requires agent version at least 3.97.0.
   tls: false
 
+  # Configure whether the agent should inject headers by default.
+  # If `agent.extraConfig.inject_headers` is set, it takes precedence.
+  # Agent headers mark whether request went thru the agent or not,
+  # and if they were stolen or handled by original pod
+  injectHeaders: true
+
   # If you want the agents to accept operator connections on some predefined port,
   # you can set it here. If you don't set anything, each agent will be assigned with a random high port.
   # port: 9999
+
+  priorityClass:
+    # Whether to create a PriorityClass for agent pods.
+    create: true
+    # PriorityClass name to create/use for agent pods.
+    # When empty and create=true, defaults to "mirrord-agent-pod".
+    # When empty and create=false, no priority class is set on the agent.
+    name: mirrord-agent-pod
+    # Integer priority value assigned to the class.
+    value: 1000000000
+    # Whether this class should be the cluster default.
+    globalDefault: false
+    # Pod preemption policy for this class.
+    preemptionPolicy: PreemptLowerPriority
+    # Description shown on the class object.
+    description: "Priority class for mirrord agent pods."
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
