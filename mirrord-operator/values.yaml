@@ -87,7 +87,7 @@ operator:
 
   # When enabled, operator will inject a `mirrord-key` header with the
   # value of the current session key into redirected HTTP requests.
-  injectSessionKeyHeader: false
+  injectSessionKeyHeader: true
 
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
@@ -420,6 +420,12 @@ agent:
   # If you want the operator to secure agent connections with TLS, set this value to true.
   # This option requires agent version at least 3.97.0.
   tls: false
+
+  # Configure whether the agent should inject headers by default.
+  # If `agent.extraConfig.inject_headers` is set, it takes precedence.
+  # Agent headers mark whether request went thru the agent or not,
+  # and if they were stolen or handled by original pod
+  injectHeaders: true
 
   # If you want the agents to accept operator connections on some predefined port,
   # you can set it here. If you don't set anything, each agent will be assigned with a random high port.
