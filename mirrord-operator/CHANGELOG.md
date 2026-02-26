@@ -1,3 +1,16 @@
+## [mirrord-operator-1.54.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.0) - 2026-02-26
+
+### Added
+- Added `queueJqFilters` to the SQS session spec for jq-based message
+  filtering.
+
+### Changed
+- Agent inject headers + session inject header default true
+
+### Internal
+- Update db branching so we have all the common logic between different
+  databases reusable instead of having it everywhere duplicated.
+
 ## [mirrord-operator-1.53.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.53.0) - 2026-02-24
 
 ### Added
