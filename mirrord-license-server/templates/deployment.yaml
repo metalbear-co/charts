@@ -72,8 +72,8 @@ spec:
         - name: JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
         {{- if .Values.dashboard.enabled }}
-        - name: DASHBOARD_DIR
-          value: /dashboard
+        - name: DASHBOARD_ENABLED
+          value: "true"
         {{- end }}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: TLS_CERT_PATH
