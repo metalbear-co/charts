@@ -72,8 +72,6 @@ spec:
         - name: JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
         {{- if .Values.dashboard.enabled }}
-        {{- /* Path is fixed to /dashboard where the image bundles the frontend assets. */}}
-        {{- /* The env var doubles as an enable flag: omitting it disables the dashboard. */}}
         - name: DASHBOARD_DIR
           value: /dashboard
         {{- end }}
