@@ -520,3 +520,11 @@ tls:
 
 # if you run on OpenShift, set this value to true to get a SCC in the yaml.
 openshift: false
+
+# Basic usage of a MirrordPolicy. See the docs for more information
+# https://metalbear.co/mirrord/docs/managing-mirrord/policies/
+# policy:
+  # isClusterWide: false
+  # blockSteal: false
+  # blockStealWithoutFilter: false
+  # blockMirror: false
