@@ -1,3 +1,31 @@
+## [mirrord-operator-1.54.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.0) - 2026-02-26
+
+### Added
+- Added `queueJqFilters` to the SQS session spec for jq-based message
+  filtering.
+
+### Changed
+- Agent inject headers + session inject header default true
+
+### Internal
+- Update db branching so we have all the common logic between different
+  databases reusable instead of having it everywhere duplicated.
+
+## [mirrord-operator-1.53.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.53.0) - 2026-02-24
+
+### Added
+- Added a default priorityClass for agent to avoid scheduling errors
+- Operator resource requests can be now set in the values.yaml
+
+## [mirrord-operator-1.52.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.52.0) - 2026-02-24
+
+### Added
+- The `mirrord preview status` command will now show the remaining TTL of each
+  preview environment session.
+
+### Changed
+- Bump appversion (operator) to 3.143.0
+
 ## [mirrord-operator-1.51.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.51.0) - 2026-02-19
 
 ### Added
