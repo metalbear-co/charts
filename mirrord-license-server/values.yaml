@@ -118,3 +118,4 @@ tls:
 ## auto-injected into API requests from the dashboard.
 dashboard:
   enabled: false
+  port: 8050

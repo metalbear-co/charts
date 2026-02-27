@@ -74,6 +74,8 @@ spec:
         {{- if .Values.dashboard.enabled }}
         - name: DASHBOARD_ENABLED
           value: "true"
+        - name: DASHBOARD_PORT
+          value: {{ .Values.dashboard.port | quote }}
         {{- end }}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: TLS_CERT_PATH
@@ -110,6 +112,10 @@ spec:
         ports:
         - containerPort: {{ .Values.server.port }}
           name: https
+        {{- if .Values.dashboard.enabled }}
+        - containerPort: {{ .Values.dashboard.port }}
+          name: dashboard
+        {{- end }}
         readinessProbe:
           httpGet:
             path: /health
