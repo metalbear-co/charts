@@ -104,21 +104,17 @@ spec:
           value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_KAFKA_SPLITTING
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
-        - name: OPERATOR_MYSQL_BRANCHING
-          value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
-        - name: OPERATOR_PG_BRANCHING
-          value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
-        - name: OPERATOR_MONGODB_BRANCHING
-          value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_DB_BRANCHING
+          value: {{ (default false .Values.operator.dbBranching) | ternary "true" "false" | quote }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
-        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
+        {{- if and .Values.operator.dbBranchingConfig .Values.operator.dbBranchingConfig.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
-          value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
+          value: {{ .Values.operator.dbBranchingConfig.initPodVolumeLimit | quote }}
         {{- end }}
-        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.databasePodVolumeLimit }}
+        {{- if and .Values.operator.dbBranchingConfig .Values.operator.dbBranchingConfig.databasePodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_DB_VOLUME_SIZE_LIMIT
-          value: {{ .Values.operator.dbBranching.databasePodVolumeLimit | quote }}
+          value: {{ .Values.operator.dbBranchingConfig.databasePodVolumeLimit | quote }}
         {{- end }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
@@ -140,6 +136,7 @@ spec:
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        {{/* Per-engine config paths for init container image overrides */}}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt

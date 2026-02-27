@@ -1,5 +1,5 @@
 operator:
-  mongodbBranching: true
+  dbBranching: true
   mongodbBranchConfig:
     dbPod:
       image:

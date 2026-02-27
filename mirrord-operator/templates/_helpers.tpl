@@ -79,35 +79,11 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - list
   - watch
 {{- end }}
-{{- if (default false .Values.operator.mysqlBranching) }}
+{{- if (default false .Values.operator.dbBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:
-  - mysqlbranchdatabases
-  verbs:
-  - get
-  - list
-  - create
-  - watch
-  - delete
-{{- end }}
-{{- if (default false .Values.operator.pgBranching) }}
-- apiGroups:
-  - dbs.mirrord.metalbear.co
-  resources:
-  - pgbranchdatabases
-  verbs:
-  - get
-  - list
-  - create
-  - watch
-  - delete
-{{- end }}
-{{- if (default false .Values.operator.mongodbBranching) }}
-- apiGroups:
-  - dbs.mirrord.metalbear.co
-  resources:
-  - mongodbbranchdatabases
+  - branchdatabases
   verbs:
   - get
   - list

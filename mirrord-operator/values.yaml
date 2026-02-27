@@ -65,16 +65,12 @@ operator:
 
   # Has to be set to `true` in order to use the suspend flux controllers feature.
   suspendFluxControllers: false
-  # Has to be set to `true` in order to use the MySQL database branching feature.
-  mysqlBranching: false
-  # Has to be set to `true` in order to use the PostgreSQL database branching feature.
-  pgBranching: false
-  # Has to be set to `true` in order to use the MongoDB database branching feature.
-  mongodbBranching: false
+  # Has to be set to `true` in order to use the database branching feature.
+  dbBranching: false
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
 
-  # dbBranching:
+  # dbBranchingConfig:
   #   # Volume limit for the init container that does the copy
   #   initPodVolumeLimit: "100Mi"
   #   # Volume limit for the actual ephemeral database.
