@@ -136,6 +136,8 @@ spec:
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        - name: OPERATOR_MSSQL_BRANCH_CONFIG
+          value: /mirrord-config/mssql-branch-config.yaml
         {{/* Per-engine config paths for init container image overrides */}}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH

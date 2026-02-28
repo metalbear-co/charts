@@ -2215,6 +2215,7 @@ spec:
                 - postgres
                 - mysql
                 - mongodb
+                - mssql
                 type: string
               dialectOptions:
                 description: Engine-specific configuration options.
