@@ -110,3 +110,12 @@ tls:
   data:
     tls.key: ""
     tls.crt: ""
+
+## mirrord admin dashboard configuration.
+## When enabled, the license server serves the dashboard UI on a separate port.
+## The dashboard is bundled in the operator image and served directly by the
+## license server (no separate deployment needed). The license key is
+## auto-injected into API requests from the dashboard.
+dashboard:
+  enabled: false
+  port: 8050

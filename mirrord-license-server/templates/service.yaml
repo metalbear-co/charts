@@ -14,6 +14,11 @@ spec:
     # but no reason for this to match server.port.
     port: {{ or .Values.service.port 80 }}
     targetPort: https
+  {{- if .Values.dashboard.enabled }}
+  - name: dashboard
+    port: {{ .Values.dashboard.port }}
+    targetPort: dashboard
+  {{- end }}
   selector:
     app: mirrord-license-server
   type: {{ .Values.service.type }}
