@@ -234,7 +234,7 @@ rules:
   verbs:
   - patch
 {{- end }}
-{{- if .Values.operator.dbBranching }}
+{{- if or .Values.operator.mysqlBranching .Values.operator.pgBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:

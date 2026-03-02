@@ -79,7 +79,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - list
   - watch
 {{- end }}
-{{- if (default false .Values.operator.dbBranching) }}
+{{- if or .Values.operator.mysqlBranching .Values.operator.pgBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:

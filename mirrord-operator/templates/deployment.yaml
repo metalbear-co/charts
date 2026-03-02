@@ -104,8 +104,14 @@ spec:
           value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_KAFKA_SPLITTING
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
-        - name: OPERATOR_DB_BRANCHING
-          value: {{ (default false .Values.operator.dbBranching) | ternary "true" "false" | quote }}
+        - name: OPERATOR_MYSQL_BRANCHING
+          value: {{ (default false .Values.operator.mysqlBranching) | ternary "true" "false" | quote }}
+        - name: OPERATOR_PG_BRANCHING
+          value: {{ (default false .Values.operator.pgBranching) | ternary "true" "false" | quote }}
+        - name: OPERATOR_MONGODB_BRANCHING
+          value: {{ (default false .Values.operator.mongodbBranching) | ternary "true" "false" | quote }}
+        - name: OPERATOR_MSSQL_BRANCHING
+          value: {{ (default false .Values.operator.mssqlBranching) | ternary "true" "false" | quote }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
         {{- if and .Values.operator.dbBranchingConfig .Values.operator.dbBranchingConfig.initPodVolumeLimit }}
@@ -130,14 +136,22 @@ spec:
           value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG
           value: /mirrord-config/agent-config.yaml
+        {{- if .Values.operator.mysqlBranching }}
         - name: OPERATOR_MYSQL_BRANCH_CONFIG
           value: /mirrord-config/mysql-branch-config.yaml
+        {{- end }}
+        {{- if .Values.operator.pgBranching }}
         - name: OPERATOR_PG_BRANCH_CONFIG
           value: /mirrord-config/pg-branch-config.yaml
+        {{- end }}
+        {{- if .Values.operator.mongodbBranching }}
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        {{- end }}
+        {{- if .Values.operator.mssqlBranching }}
         - name: OPERATOR_MSSQL_BRANCH_CONFIG
           value: /mirrord-config/mssql-branch-config.yaml
+        {{- end }}
         {{/* Per-engine config paths for init container image overrides */}}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH

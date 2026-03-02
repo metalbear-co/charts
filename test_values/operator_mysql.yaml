@@ -1,5 +1,5 @@
 operator:
-  dbBranching: true
+  mysqlBranching: true
   mysqlBranchConfig:
     dbPod:
       image:

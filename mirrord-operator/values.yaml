@@ -65,8 +65,11 @@ operator:
 
   # Has to be set to `true` in order to use the suspend flux controllers feature.
   suspendFluxControllers: false
-  # Has to be set to `true` in order to use the database branching feature.
-  dbBranching: false
+  # Per-dialect database branching flags. Enable only the databases you need.
+  mysqlBranching: false
+  pgBranching: false
+  mongodbBranching: false
+  mssqlBranching: false
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
 
