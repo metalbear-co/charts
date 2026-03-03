@@ -2527,46 +2527,24 @@ spec:
                 type: string
               target:
                 description: Target k8s resource to extract connection source info from.
-                oneOf:
-                - required:
-                  - deployment
-                - required:
-                  - pod
-                - required:
-                  - rollout
-                - required:
-                  - job
-                - required:
-                  - cron_job
-                - required:
-                  - stateful_set
-                - required:
-                  - service
-                - required:
-                  - replica_set
                 properties:
+                  apiVersion:
+                    description: Kubernetes resource apiVersion.
+                    type: string
+                  kind:
+                    description: Kubernetes resource kind.
+                    type: string
+                  name:
+                    description: Kubernetes resource name.
+                    type: string
                   container:
-                    nullable: true
+                    description: Name of the container defined in the Pod spec.
                     type: string
-                  cron_job:
-                    type: string
-                  deployment:
-                    description: <!--${internal}--> Deployment to mirror.
-                    type: string
-                  job:
-                    type: string
-                  pod:
-                    description: <!--${internal}--> Pod to mirror.
-                    type: string
-                  replica_set:
-                    type: string
-                  rollout:
-                    description: <!--${internal}--> Rollout to mirror.
-                    type: string
-                  service:
-                    type: string
-                  stateful_set:
-                    type: string
+                required:
+                - apiVersion
+                - kind
+                - name
+                - container
                 type: object
               ttlSecs:
                 description: The duration in seconds this branch database will live idling.
