@@ -297,6 +297,28 @@ rules:
   - update
   - patch
 {{- end }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching }}
+# Unified BranchDatabase CRD used by the new unified controller
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)
 - apiGroups:

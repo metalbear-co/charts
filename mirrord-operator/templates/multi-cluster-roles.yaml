@@ -51,6 +51,7 @@ rules:
   - pgbranchdatabases
   - mysqlbranchdatabases
   - mongodbbranchdatabases
+  - branchdatabases
   verbs:
   - get
   - list
@@ -67,6 +68,7 @@ rules:
   - pgbranchdatabases/status
   - mysqlbranchdatabases/status
   - mongodbbranchdatabases/status
+  - branchdatabases/status
   verbs:
   - get
   - update
