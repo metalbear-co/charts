@@ -1,3 +1,8 @@
+## [mirrord-operator-1.54.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.4) - 2026-03-06
+
+### Fixed
+- Fixed permissions for the fluxcd suspend feature.
+
 ## [mirrord-operator-1.54.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.3) - 2026-03-05
 
 - Bumped `appVersion`.
