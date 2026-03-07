@@ -297,8 +297,8 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching }}
-# Unified BranchDatabase CRD used by the new unified controller
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+# Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:
@@ -307,6 +307,7 @@ rules:
   - list
   - get
   - watch
+  - create
   - delete
   - update
   - patch
