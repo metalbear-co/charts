@@ -1,3 +1,17 @@
+## [mirrord-operator-license-server-1.5.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.2) - 2026-03-05
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-license-server-1.5.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.1) - 2026-03-04
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-license-server-1.5.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.0) - 2026-03-03
+
+### Added
+- Add `dashboard.enabled` option to serve the admin dashboard from the license
+  server.
+
 ## [mirrord-operator-license-server-1.4.25](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.4.25) - 2026-02-26
 
 - Bumped `appVersion`.

@@ -201,12 +201,17 @@ rules:
 {{- end }}
 {{- if .Values.operator.suspendFluxControllers }}
 - apiGroups:
-  - fluxcd.io
+  - kustomize.toolkit.fluxcd.io
   resources:
   - kustomizations
+  verbs:
+  - get
+  - patch
+- apiGroups:
+  - helm.toolkit.fluxcd.io
+  resources:
   - helmreleases
   verbs:
-  - list
   - get
   - patch
 {{- end }}
