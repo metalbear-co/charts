@@ -4459,22 +4459,27 @@ spec:
                 type: string
               mongodbOptions:
                 properties:
-                  items:
-                    additionalProperties:
-                      properties:
-                        filter:
-                          nullable: true
-                          type: string
-                      type: object
-                    nullable: true
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
                     type: object
-                  mode:
-                    enum:
-                    - empty
-                    - all
-                    type: string
-                required:
-                - mode
                 type: object
               mysqlOptions:
                 properties:
