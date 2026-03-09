@@ -196,7 +196,7 @@ spec:
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         - name: OPERATOR_IMAGE_PULL_POLICY
           value: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
-        {{- if .Values.operator.kafkaSplittingSidecar.enabled }}
+        {{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaSplittingSidecar.enabled }}
         - name: OPERATOR_KAFKA_SPLITTING_SIDECAR_PORT
           value: {{ .Values.operator.kafkaSplittingSidecar.port }}
         {{- end }}
@@ -287,7 +287,7 @@ spec:
           name: tmp
 
       # Kafka splitting sidecar
-      {{- if .Values.operator.kafkaSplittingSidecar.enabled }}
+      {{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaSplittingSidecar.enabled }}
       - name: kafka-sidecar
         env:
           - name: HTTP_PORT
