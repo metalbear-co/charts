@@ -400,7 +400,7 @@ to the mirrord-operator-user role.
 
 ### Removed
 
-- Removed the depcrecated `MirrordProfile` CRD. The name `MirrordProfile` will
+- Removed the deprecated `MirrordProfile` CRD. The name `MirrordProfile` will
   be re-introduced for namespaced profile CRD.
 
 ## [mirrord-operator-1.27.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.27.3) - 2025-06-10
