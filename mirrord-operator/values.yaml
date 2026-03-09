@@ -86,7 +86,8 @@ operator:
   metrics: false
 
   # When enabled, operator will inject a `mirrord-key` header with the
-  # value of the current session key into redirected HTTP requests.
+  # value of the current session key into redirected HTTP requests,
+  # responses to said requests, and SQS messages.
   injectSessionKeyHeader: true
 
   # Multi-cluster configuration (Envoy)
