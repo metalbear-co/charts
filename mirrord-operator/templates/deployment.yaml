@@ -196,6 +196,10 @@ spec:
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         - name: OPERATOR_IMAGE_PULL_POLICY
           value: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
+        {{- if .Values.operator.kafkaSplittingSidecar.enabled }}
+        - name: OPERATOR_KAFKA_SPLITTING_SIDECAR_PORT
+          value: {{ .Values.operator.kafkaSplittingSidecar.port }}
+        {{- end }}
         {{- if .Values.operator.multiCluster.enabled }}
         # Multi-cluster configuration - read from mounted ConfigMap
         - name: MIRRORD_MULTICLUSTER_CONFIG
@@ -281,6 +285,43 @@ spec:
         # needed for the operator to download and use CA
         - mountPath: /tmp
           name: tmp
+
+      # Kafka splitting sidecar
+      {{- if .Values.operator.kafkaSplittingSidecar.enabled }}
+      - name: kafka-sidecar
+        env:
+          - name: HTTP_PORT
+            value: {{ .Values.operator.kafkaSplittingSidecar.port }}
+        image: {{ .Values.operator.kafkaSplittingSidecar.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.operator.kafkaSplittingSidecar.port }}
+            scheme: HTTP
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.operator.kafkaSplittingSidecar.port }}
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 10
+          failureThreshold: 30
+        resources:
+          requests:
+            cpu: {{ .Values.operator.kafkaSplittingSidecar.requests.cpu }}
+            memory: {{ .Values.operator.kafkaSplittingSidecar.requests.memory }}
+          limits:
+            cpu: {{ .Values.operator.kafkaSplittingSidecar.limits.cpu }}
+            memory: {{ .Values.operator.kafkaSplittingSidecar.limits.memory }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+      {{- end }}
+      # End of Kafka splitting sidecar
+
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
       - name: mirrord-config-volume
