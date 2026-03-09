@@ -348,6 +348,7 @@ jobs:
           # then skipping is considered success by branch protection rules
           env:
             CI_SUCCESS: ${{ (needs.towncrier_check.result == 'success') &&
+              (needs.typos_check.result == 'success') &&
               (needs.sanity.result == 'success' || needs.sanity.result == 'skipped') &&
               (needs.operator-install.result == 'success' || needs.operator-install.result == 'skipped') &&
               (needs.operator-install-and-use.result == 'success' || needs.operator-install-and-use.result == 'skipped') &&
