@@ -4194,6 +4194,8 @@ spec:
               - mysqlOptions
             - required:
               - mongodbOptions
+            - required:
+              - mssqlOptions
             properties:
               connectionSource:
                 oneOf:
@@ -4475,6 +4477,31 @@ spec:
                       mode:
                         enum:
                         - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              mssqlOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
                         - all
                         type: string
                     required:
