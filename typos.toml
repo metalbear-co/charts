@@ -1,0 +1,11 @@
+[default]
+extend-ignore-re = [
+    ## ignore markdown links
+    "\\[[^\\]]+\\]\\([^\\)]+\\)",
+]
+
+[default.extend-identifiers]
+ANDed = "ANDed"
+
+[default.extend-words]
+mirrord = "mirrord"
