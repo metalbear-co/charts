@@ -1044,6 +1044,10 @@ spec:
       jsonPath: .spec.loadFromSecret
       name: SECRET
       type: string
+    - description: Implementation of Kafka client to use.
+      jsonPath: .spec.clientImplementation
+      name: CLIENT
+      type: string
     - description: Additional authentication config.
       jsonPath: .spec.authenticationExtra
       name: AUTHENTICATION_EXTRA
@@ -1072,12 +1076,21 @@ spec:
                       Authentication kind.
 
                       Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER authentication with Amazon Managed Streaming for Apache Kafka.
-
-                      When this is set to `MSK_IAM`, additional properties are merged into the configuration: 1. `sasl.mechanism=OAUTHBEARER` 2. `security.protocol=SASL_SSL`
                     type: string
                 required:
                 - kind
                 type: object
+              clientImplementation:
+                description: |-
+                  Kafka client implementation to use.
+
+                  One of: `librdkafka`, `java`.
+
+                  Note that Java client support is configured in the operator.
+
+                  Defaults to `librdkafka`.
+                nullable: true
+                type: string
               loadFromSecret:
                 description: |-
                   Namespace and name of a `Secret` to use as another source of properties.
@@ -1095,9 +1108,9 @@ spec:
                 description: |-
                   Properties to set.
 
-                  When performing Kafka splitting, the operator will override `group.id` property.
+                  When performing Kafka splitting, the operator will override `group.id`/`application.id` property.
 
-                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md).
+                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) for librdkafka clients, and [here](https://docs.confluent.io/platform/current/installation/configuration/index.html#ak-configuration-reference-for-cp) for Java clients.
                 items:
                   description: Property to use when creating operator's Kafka client.
                   properties:
@@ -1264,11 +1277,42 @@ spec:
                 items:
                   description: Splittable Kafka topic consumed by some remote target.
                   properties:
+                    applicationIdSources:
+                      description: |-
+                        All occurences of this topic's application id in the workload's pod template.
+
+                        Relevant only for Kafka Streams consumers. Must be empty if `groupIdSources` is not empty.
+
+                        Note that Kafka Streams consumers are supported only when the [`MirrordKafkaClientConfig`] is configured to use the Java Kafka client implementation.
+                      items:
+                        description: Source of some topic property required for Kafka splitting.
+                        oneOf:
+                        - required:
+                          - directEnvVar
+                        properties:
+                          directEnvVar:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                description: Name of the container.
+                                type: string
+                              variable:
+                                description: Name of the variable.
+                                type: string
+                            required:
+                            - container
+                            - variable
+                            type: object
+                        type: object
+                      type: array
                     clientConfig:
                       description: Links to [`MirrordKafkaClientConfig`] in the operator's namespace. This config will be used to manage ephemeral Kafka topics and consume/produce messages.
                       type: string
                     groupIdSources:
-                      description: All occurrences of this topic's group id in the workload's pod template.
+                      description: |-
+                        All occurrences of this topic's group id in the workload's pod template.
+
+                        Relevant only for standard Kafka consumers. Must be empty if `applicationIdSources` is not empty.
                       items:
                         description: Source of some topic property required for Kafka splitting.
                         oneOf:
@@ -1318,7 +1362,6 @@ spec:
                       type: array
                   required:
                   - clientConfig
-                  - groupIdSources
                   - id
                   - nameSources
                   type: object
