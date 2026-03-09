@@ -198,7 +198,7 @@ spec:
           value: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
         {{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaSplittingSidecar.enabled }}
         - name: OPERATOR_KAFKA_SPLITTING_SIDECAR_PORT
-          value: {{ .Values.operator.kafkaSplittingSidecar.port }}
+          value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
         {{- end }}
         {{- if .Values.operator.multiCluster.enabled }}
         # Multi-cluster configuration - read from mounted ConfigMap
@@ -291,7 +291,7 @@ spec:
       - name: kafka-sidecar
         env:
           - name: HTTP_PORT
-            value: {{ .Values.operator.kafkaSplittingSidecar.port }}
+            value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
         image: {{ .Values.operator.kafkaSplittingSidecar.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
         readinessProbe:
