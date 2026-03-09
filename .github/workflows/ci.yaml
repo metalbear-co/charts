@@ -109,10 +109,10 @@ jobs:
           tool: typos-cli
 
       - name: print typos version
-        run: echo $(typos --version)
+        run: typos --version
 
-      - name: list files to check
-        run: echo $(typos --files)
+      - name: list files for spell check
+        run: typos --files
 
       - name: spell check 
         run: typos --format brief
@@ -339,6 +339,7 @@ jobs:
           operator-install-and-use,
           operator-install-with-license-server-and-use,
           towncrier_check,
+          typos_check,
           check-app-versions-equal,
         ]
       steps:
