@@ -1,2 +1,0 @@
-Added an option to run the operator with a Kafka splitting sidecar container, enabling Kafka splitting with Kafka Streams consumers.
-The sidecar can be enabled with `--set operator.kafkaSplittingSidecar.enabled=true`.
