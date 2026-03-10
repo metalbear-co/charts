@@ -1279,7 +1279,7 @@ spec:
                   properties:
                     applicationIdSources:
                       description: |-
-                        All occurences of this topic's application id in the workload's pod template.
+                        All occurrences of this topic's application id in the workload's pod template.
 
                         Relevant only for Kafka Streams consumers. Must be empty if `groupIdSources` is not empty.
 
