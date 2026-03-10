@@ -107,7 +107,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -133,7 +133,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -425,7 +425,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -451,7 +451,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -1474,7 +1474,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1508,7 +1508,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1695,7 +1695,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1729,7 +1729,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1845,7 +1845,7 @@ spec:
 
               Can be selected from the user's mirrord config.
 
-              Examle: ```json { "profile": "my-namespace/my-profile" } ```
+              Example: ```json { "profile": "my-namespace/my-profile" } ```
             properties:
               featureAdjustments:
                 description: |-
