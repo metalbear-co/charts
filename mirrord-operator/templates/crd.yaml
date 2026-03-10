@@ -107,7 +107,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -133,7 +133,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -425,7 +425,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -451,7 +451,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -836,6 +836,14 @@ spec:
                   type: object
                 description: For each queue_id, a mapping from attribute name, to attribute value regex. The queue_id for a queue is determined at the queue registry. It is not (necessarily) The name of the queue on AWS.
                 type: object
+              queueJqFilters:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Specify jq programs that will be used to filter messages from queues. For queues with a specified jq program, for every message the jq filter runs on a JSON representation of the SQS `Message` object.
+
+                  If the jq program outputs `true`, that message is considered as matching the filter.
+                type: object
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
@@ -1036,6 +1044,10 @@ spec:
       jsonPath: .spec.loadFromSecret
       name: SECRET
       type: string
+    - description: Implementation of Kafka client to use.
+      jsonPath: .spec.clientImplementation
+      name: CLIENT
+      type: string
     - description: Additional authentication config.
       jsonPath: .spec.authenticationExtra
       name: AUTHENTICATION_EXTRA
@@ -1064,12 +1076,21 @@ spec:
                       Authentication kind.
 
                       Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER authentication with Amazon Managed Streaming for Apache Kafka.
-
-                      When this is set to `MSK_IAM`, additional properties are merged into the configuration: 1. `sasl.mechanism=OAUTHBEARER` 2. `security.protocol=SASL_SSL`
                     type: string
                 required:
                 - kind
                 type: object
+              clientImplementation:
+                description: |-
+                  Kafka client implementation to use.
+
+                  One of: `librdkafka`, `java`.
+
+                  Note that Java client support is configured in the operator.
+
+                  Defaults to `librdkafka`.
+                nullable: true
+                type: string
               loadFromSecret:
                 description: |-
                   Namespace and name of a `Secret` to use as another source of properties.
@@ -1087,9 +1108,9 @@ spec:
                 description: |-
                   Properties to set.
 
-                  When performing Kafka splitting, the operator will override `group.id` property.
+                  When performing Kafka splitting, the operator will override `group.id`/`application.id` property.
 
-                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md).
+                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) for librdkafka clients, and [here](https://docs.confluent.io/platform/current/installation/configuration/index.html#ak-configuration-reference-for-cp) for Java clients.
                 items:
                   description: Property to use when creating operator's Kafka client.
                   properties:
@@ -1256,11 +1277,42 @@ spec:
                 items:
                   description: Splittable Kafka topic consumed by some remote target.
                   properties:
+                    applicationIdSources:
+                      description: |-
+                        All occurrences of this topic's application id in the workload's pod template.
+
+                        Relevant only for Kafka Streams consumers. Must be empty if `groupIdSources` is not empty.
+
+                        Note that Kafka Streams consumers are supported only when the [`MirrordKafkaClientConfig`] is configured to use the Java Kafka client implementation.
+                      items:
+                        description: Source of some topic property required for Kafka splitting.
+                        oneOf:
+                        - required:
+                          - directEnvVar
+                        properties:
+                          directEnvVar:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                description: Name of the container.
+                                type: string
+                              variable:
+                                description: Name of the variable.
+                                type: string
+                            required:
+                            - container
+                            - variable
+                            type: object
+                        type: object
+                      type: array
                     clientConfig:
                       description: Links to [`MirrordKafkaClientConfig`] in the operator's namespace. This config will be used to manage ephemeral Kafka topics and consume/produce messages.
                       type: string
                     groupIdSources:
-                      description: All occurrences of this topic's group id in the workload's pod template.
+                      description: |-
+                        All occurrences of this topic's group id in the workload's pod template.
+
+                        Relevant only for standard Kafka consumers. Must be empty if `applicationIdSources` is not empty.
                       items:
                         description: Source of some topic property required for Kafka splitting.
                         oneOf:
@@ -1310,7 +1362,6 @@ spec:
                       type: array
                   required:
                   - clientConfig
-                  - groupIdSources
                   - id
                   - nameSources
                   type: object
@@ -1423,7 +1474,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1457,7 +1508,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1644,7 +1695,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1678,7 +1729,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1794,7 +1845,7 @@ spec:
 
               Can be selected from the user's mirrord config.
 
-              Examle: ```json { "profile": "my-namespace/my-profile" } ```
+              Example: ```json { "profile": "my-namespace/my-profile" } ```
             properties:
               featureAdjustments:
                 description: |-
@@ -1914,6 +1965,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -1922,6 +1975,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -1944,6 +1999,231 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
                         type: object
                     type: object
                 type: object
@@ -2129,6 +2409,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -2137,6 +2419,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2159,6 +2443,231 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
                         type: object
                     type: object
                 type: object
@@ -2213,6 +2722,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2235,6 +2746,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   access_key_id:
@@ -2245,6 +2767,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2267,6 +2791,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   secret_access_key:
@@ -2277,6 +2812,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2299,6 +2836,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   session_token:
@@ -2309,6 +2857,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2331,6 +2881,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   credentials_json:
@@ -2341,6 +2902,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2363,6 +2926,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   credentials_path:
@@ -2373,6 +2947,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2395,6 +2971,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                   project:
@@ -2405,6 +2992,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2427,6 +3016,17 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
                         type: object
                     type: object
                 type: object
@@ -2582,6 +3182,8 @@ spec:
                 oneOf:
                 - required:
                   - url
+                - required:
+                  - params
                 properties:
                   url:
                     description: A complete connection URL.
@@ -2590,6 +3192,8 @@ spec:
                       - env
                     - required:
                       - envFrom
+                    - required:
+                      - secret
                     properties:
                       env:
                         description: Environment variable with value defined directly in the pod template.
@@ -2612,6 +3216,231 @@ spec:
                             type: string
                         required:
                         - variable
+                        type: object
+                      secret:
+                        description: Value read directly from a Kubernetes Secret.
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                    type: object
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      host:
+                        description: Host parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      port:
+                        description: Port parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      user:
+                        description: User parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      password:
+                        description: Password parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      database:
+                        description: Database name parameter.
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
                         type: object
                     type: object
                 type: object
@@ -3325,6 +4154,14 @@ spec:
             description: Status of a preview session resource.
             nullable: true
             properties:
+              expiresAt:
+                description: |-
+                  Timestamp when the session's TTL expires.
+
+                  Set when the session enters the `Ready` phase. Computed as `now + ttl_secs` at the moment the operator starts the TTL countdown. `None` during earlier phases or when running against an older operator that does not set this field.
+                format: date-time
+                nullable: true
+                type: string
               failureMessage:
                 description: |-
                   Human-readable description of why the session failed.

@@ -1,3 +1,56 @@
+## [mirrord-operator-1.55.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.55.0) - 2026-03-10
+
+### Added
+- Added an option to run the operator with a Kafka splitting sidecar container,
+  enabling Kafka splitting with Kafka Streams consumers.
+  The sidecar can be enabled with `--set
+  operator.kafkaSplittingSidecar.enabled=true`.
+
+## [mirrord-operator-1.54.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.4) - 2026-03-06
+
+### Fixed
+- Fixed permissions for the fluxcd suspend feature.
+
+## [mirrord-operator-1.54.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.3) - 2026-03-05
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-1.54.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.2) - 2026-03-04
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-1.54.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.1) - 2026-03-03
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-1.54.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.0) - 2026-02-26
+
+### Added
+- Added `queueJqFilters` to the SQS session spec for jq-based message
+  filtering.
+
+### Changed
+- Agent inject headers + session inject header default true
+
+### Internal
+- Update db branching so we have all the common logic between different
+  databases reusable instead of having it everywhere duplicated.
+
+## [mirrord-operator-1.53.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.53.0) - 2026-02-24
+
+### Added
+- Added a default priorityClass for agent to avoid scheduling errors
+- Operator resource requests can be now set in the values.yaml
+
+## [mirrord-operator-1.52.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.52.0) - 2026-02-24
+
+### Added
+- The `mirrord preview status` command will now show the remaining TTL of each
+  preview environment session.
+
+### Changed
+- Bump appversion (operator) to 3.143.0
+
 ## [mirrord-operator-1.51.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.51.0) - 2026-02-19
 
 ### Added
@@ -355,7 +408,7 @@ to the mirrord-operator-user role.
 
 ### Removed
 
-- Removed the depcrecated `MirrordProfile` CRD. The name `MirrordProfile` will
+- Removed the deprecated `MirrordProfile` CRD. The name `MirrordProfile` will
   be re-introduced for namespaced profile CRD.
 
 ## [mirrord-operator-1.27.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.27.3) - 2025-06-10

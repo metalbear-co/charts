@@ -87,7 +87,7 @@ operator:
 
   # When enabled, operator will inject a `mirrord-key` header with the
   # value of the current session key into redirected HTTP requests.
-  injectSessionKeyHeader: false
+  injectSessionKeyHeader: true
 
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
@@ -263,6 +263,23 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
+  kafkaSplittingSidecar:
+    # Enables a sidecar container responsible for Java Kafka clients.
+    # This enables Kafka splitting with Kafka Streams consumers.
+    enabled: false
+    image: ghcr.io/metalbear-co/operator-kafka-proxy
+    # Port for the sidecar to listen on.
+    # The operator communicates with the sidecar through a REST API served on localhost.
+    port: 33000
+    # CPU and memory requests for the sidecar.
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    # CPU and memory limits for the sidecar.
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
   # Linger timeout for SQS splits.
   # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   # Once all SQS sessions have finished, the SQS split still remains active (lingers)
@@ -277,6 +294,10 @@ operator:
   queueSplittingWaitForReadyTarget: true
 
   ## This should be enough for around 200~ concurrent sessions.
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
   limits:
     cpu: 200m
     memory: 200Mi
@@ -417,9 +438,31 @@ agent:
   # This option requires agent version at least 3.97.0.
   tls: false
 
+  # Configure whether the agent should inject headers by default.
+  # If `agent.extraConfig.inject_headers` is set, it takes precedence.
+  # Agent headers mark whether request went thru the agent or not,
+  # and if they were stolen or handled by original pod
+  injectHeaders: true
+
   # If you want the agents to accept operator connections on some predefined port,
   # you can set it here. If you don't set anything, each agent will be assigned with a random high port.
   # port: 9999
+
+  priorityClass:
+    # Whether to create a PriorityClass for agent pods.
+    create: true
+    # PriorityClass name to create/use for agent pods.
+    # When empty and create=true, defaults to "mirrord-agent-pod".
+    # When empty and create=false, no priority class is set on the agent.
+    name: mirrord-agent-pod
+    # Integer priority value assigned to the class.
+    value: 1000000000
+    # Whether this class should be the cluster default.
+    globalDefault: false
+    # Pod preemption policy for this class.
+    preemptionPolicy: PreemptLowerPriority
+    # Description shown on the class object.
+    description: "Priority class for mirrord agent pods."
 
   ## use this if you want to add settings that aren't covered by the values.yaml
   ## see possible settings here: https://mirrord.dev/docs/reference/configuration/#root-agent
@@ -451,7 +494,7 @@ license:
   pemRef: ""
 
   # For air-gapped systems there is an option to use a license-server for enterprise licenses.
-  # This must be an accesible endpoint from where the operator is installed
+  # This must be an accessible endpoint from where the operator is installed
   # (can be in cluster or not and via any ingress or node-port as long as communication is possible via http/https)
   #
   # licenseServer: http://mirrord-operator-license-server.mirrord.svc

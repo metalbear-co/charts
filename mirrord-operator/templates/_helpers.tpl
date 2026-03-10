@@ -10,6 +10,25 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end }}
 {{- end }}
 
+{{/* Returns the effective agent priority class name */}}
+{{- define "mirrord-operator.agentExtraConfigPriorityClassName" -}}
+{{- if and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) (hasKey .Values.agent.extraConfig "priority_class_name") -}}
+{{- index .Values.agent.extraConfig "priority_class_name" -}}
+{{- end -}}
+{{- end }}
+
+{{/* Returns the effective agent priority class name */}}
+{{- define "mirrord-operator.agentPriorityClassName" -}}
+{{- $extraPriorityClassName := include "mirrord-operator.agentExtraConfigPriorityClassName" . | trim -}}
+{{- if $extraPriorityClassName -}}
+{{- $extraPriorityClassName -}}
+{{- else if .Values.agent.priorityClass.create -}}
+{{- default "mirrord-agent-pod" .Values.agent.priorityClass.name -}}
+{{- else if .Values.agent.priorityClass.name -}}
+{{- .Values.agent.priorityClass.name -}}
+{{- end -}}
+{{- end }}
+
 {{/* rules needed to use mirrord and can be namespaced*/}}
 {{- define "mirrord-operator.rules" -}}
 - apiGroups:

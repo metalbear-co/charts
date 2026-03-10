@@ -1,0 +1,14 @@
+{{- $agentPriorityClassName := include "mirrord-operator.agentPriorityClassName" . | trim }}
+{{- $extraPriorityClassName := include "mirrord-operator.agentExtraConfigPriorityClassName" . | trim }}
+{{- if and .Values.agent.priorityClass.create (not $extraPriorityClassName) $agentPriorityClassName }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ $agentPriorityClassName | quote }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+value: {{ int .Values.agent.priorityClass.value }}
+globalDefault: {{ .Values.agent.priorityClass.globalDefault }}
+preemptionPolicy: {{ .Values.agent.priorityClass.preemptionPolicy }}
+description: {{ .Values.agent.priorityClass.description | quote }}
+{{- end }}

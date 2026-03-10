@@ -7,6 +7,9 @@ metadata:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 data:
   agent-config.yaml: |-
+    {{- $extraHasInjectHeaders := and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) (hasKey .Values.agent.extraConfig "inject_headers") }}
+    {{- $agentPriorityClassName := include "mirrord-operator.agentPriorityClassName" . | trim }}
+    {{- $extraPriorityClassName := include "mirrord-operator.agentExtraConfigPriorityClassName" . | trim }}
     {{- if .Values.agent }}
     {{- if .Values.agent.image }}
     {{- if kindIs "map" .Values.agent.image }}
@@ -21,6 +24,12 @@ data:
     image: "{{ .Values.agent.image }}"
     {{- end }}
     {{- end }}
+    {{- end }}
+    {{- if not $extraHasInjectHeaders }}
+    inject_headers: {{ .Values.agent.injectHeaders | default true }}
+    {{- end }}
+    {{- if and $agentPriorityClassName (not $extraPriorityClassName) }}
+    priority_class: {{ $agentPriorityClassName | quote }}
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:
