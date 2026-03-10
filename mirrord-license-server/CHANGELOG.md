@@ -1,3 +1,7 @@
+## [mirrord-operator-license-server-1.5.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.4) - 2026-03-10
+
+- Bumped `appVersion`.
+
 ## [mirrord-operator-license-server-1.5.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.3) - 2026-03-10
 
 - Bumped `appVersion`.
