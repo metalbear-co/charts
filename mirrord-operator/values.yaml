@@ -263,6 +263,23 @@ operator:
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
+  kafkaSplittingSidecar:
+    # Enables a sidecar container responsible for Java Kafka clients.
+    # This enables Kafka splitting with Kafka Streams consumers.
+    enabled: false
+    image: ghcr.io/metalbear-co/operator-kafka-proxy
+    # Port for the sidecar to listen on.
+    # The operator communicates with the sidecar through a REST API served on localhost.
+    port: 33000
+    # CPU and memory requests for the sidecar.
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    # CPU and memory limits for the sidecar.
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
   # Linger timeout for SQS splits.
   # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
   # Once all SQS sessions have finished, the SQS split still remains active (lingers)
@@ -477,7 +494,7 @@ license:
   pemRef: ""
 
   # For air-gapped systems there is an option to use a license-server for enterprise licenses.
-  # This must be an accesible endpoint from where the operator is installed
+  # This must be an accessible endpoint from where the operator is installed
   # (can be in cluster or not and via any ingress or node-port as long as communication is possible via http/https)
   #
   # licenseServer: http://mirrord-operator-license-server.mirrord.svc

@@ -107,7 +107,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -133,7 +133,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -425,7 +425,7 @@ spec:
                     default:
                       httpFilter:
                         headerFilter: null
-                    description: Incoming network operations policy that partialy mimics the mirrord `network.incoming` config.
+                    description: Incoming network operations policy that partially mimics the mirrord `network.incoming` config.
                     properties:
                       httpFilter:
                         default:
@@ -451,7 +451,7 @@ spec:
                     default:
                       allow: []
                       block: []
-                    description: Outgoing network operations policy that partialy mimics the mirrord `network.outgoing` config.
+                    description: Outgoing network operations policy that partially mimics the mirrord `network.outgoing` config.
                     properties:
                       allow:
                         default: []
@@ -1044,6 +1044,10 @@ spec:
       jsonPath: .spec.loadFromSecret
       name: SECRET
       type: string
+    - description: Implementation of Kafka client to use.
+      jsonPath: .spec.clientImplementation
+      name: CLIENT
+      type: string
     - description: Additional authentication config.
       jsonPath: .spec.authenticationExtra
       name: AUTHENTICATION_EXTRA
@@ -1072,12 +1076,21 @@ spec:
                       Authentication kind.
 
                       Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER authentication with Amazon Managed Streaming for Apache Kafka.
-
-                      When this is set to `MSK_IAM`, additional properties are merged into the configuration: 1. `sasl.mechanism=OAUTHBEARER` 2. `security.protocol=SASL_SSL`
                     type: string
                 required:
                 - kind
                 type: object
+              clientImplementation:
+                description: |-
+                  Kafka client implementation to use.
+
+                  One of: `librdkafka`, `java`.
+
+                  Note that Java client support is configured in the operator.
+
+                  Defaults to `librdkafka`.
+                nullable: true
+                type: string
               loadFromSecret:
                 description: |-
                   Namespace and name of a `Secret` to use as another source of properties.
@@ -1095,9 +1108,9 @@ spec:
                 description: |-
                   Properties to set.
 
-                  When performing Kafka splitting, the operator will override `group.id` property.
+                  When performing Kafka splitting, the operator will override `group.id`/`application.id` property.
 
-                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md).
+                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) for librdkafka clients, and [here](https://docs.confluent.io/platform/current/installation/configuration/index.html#ak-configuration-reference-for-cp) for Java clients.
                 items:
                   description: Property to use when creating operator's Kafka client.
                   properties:
@@ -1264,11 +1277,42 @@ spec:
                 items:
                   description: Splittable Kafka topic consumed by some remote target.
                   properties:
+                    applicationIdSources:
+                      description: |-
+                        All occurrences of this topic's application id in the workload's pod template.
+
+                        Relevant only for Kafka Streams consumers. Must be empty if `groupIdSources` is not empty.
+
+                        Note that Kafka Streams consumers are supported only when the [`MirrordKafkaClientConfig`] is configured to use the Java Kafka client implementation.
+                      items:
+                        description: Source of some topic property required for Kafka splitting.
+                        oneOf:
+                        - required:
+                          - directEnvVar
+                        properties:
+                          directEnvVar:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                description: Name of the container.
+                                type: string
+                              variable:
+                                description: Name of the variable.
+                                type: string
+                            required:
+                            - container
+                            - variable
+                            type: object
+                        type: object
+                      type: array
                     clientConfig:
                       description: Links to [`MirrordKafkaClientConfig`] in the operator's namespace. This config will be used to manage ephemeral Kafka topics and consume/produce messages.
                       type: string
                     groupIdSources:
-                      description: All occurrences of this topic's group id in the workload's pod template.
+                      description: |-
+                        All occurrences of this topic's group id in the workload's pod template.
+
+                        Relevant only for standard Kafka consumers. Must be empty if `applicationIdSources` is not empty.
                       items:
                         description: Source of some topic property required for Kafka splitting.
                         oneOf:
@@ -1318,7 +1362,6 @@ spec:
                       type: array
                   required:
                   - clientConfig
-                  - groupIdSources
                   - id
                   - nameSources
                   type: object
@@ -1431,7 +1474,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1465,7 +1508,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1652,7 +1695,7 @@ spec:
 
                             If empty, ALPN is disabled.
 
-                            Optional. Defaults to en ampty list.
+                            Optional. Defaults to en empty list.
                           items:
                             type: string
                           type: array
@@ -1686,7 +1729,7 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anononymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1802,7 +1845,7 @@ spec:
 
               Can be selected from the user's mirrord config.
 
-              Examle: ```json { "profile": "my-namespace/my-profile" } ```
+              Example: ```json { "profile": "my-namespace/my-profile" } ```
             properties:
               featureAdjustments:
                 description: |-
