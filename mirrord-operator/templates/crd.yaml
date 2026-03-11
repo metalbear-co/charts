@@ -1905,12 +1905,15 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories: []
     kind: BranchDatabase
     plural: branchdatabases
+    shortNames: []
     singular: branchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns: []
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for BranchDatabaseSpec via `CustomResource`
@@ -1925,6 +1928,230 @@ spec:
                 - required:
                   - params
                 properties:
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      database:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            description: Environment from resource reference in the the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret at resolution time.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      host:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            description: Environment from resource reference in the the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret at resolution time.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      password:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            description: Environment from resource reference in the the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret at resolution time.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      port:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            description: Environment from resource reference in the the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret at resolution time.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      user:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            description: Environment variable with value defined directly in the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            description: Environment from resource reference in the the pod template.
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            description: Value read directly from a Kubernetes Secret at resolution time.
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                    type: object
                   url:
                     description: A complete connection URL.
                     oneOf:
@@ -1958,7 +2185,7 @@ spec:
                         - variable
                         type: object
                       secret:
-                        description: Value read directly from a Kubernetes Secret.
+                        description: Value read directly from a Kubernetes Secret at resolution time.
                         properties:
                           key:
                             type: string
@@ -1969,567 +2196,120 @@ spec:
                         - name
                         type: object
                     type: object
-                  params:
-                    description: Individual connection parameters (host, port, user, password, database).
-                    properties:
-                      host:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      port:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      user:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      password:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      database:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                    type: object
-                type: object
-              copy:
-                default:
-                  mode: empty
-                description: Options for copying data from source database to the branch.
-                properties:
-                  mode:
-                    description: The copy mode for the branch.
-                    enum:
-                    - empty
-                    - schema
-                    - all
-                    type: string
-                  items:
-                    additionalProperties:
-                      properties:
-                        filter:
-                          description: Data that matches the filter will be copied.
-                          nullable: true
-                          type: string
-                      type: object
-                    description: An optional map of items (tables or collections) to copy with optional filters.
-                    nullable: true
-                    type: object
-                required:
-                - mode
                 type: object
               databaseName:
                 description: Database name.
                 nullable: true
                 type: string
-              dialect:
-                description: The database engine to provision.
-                enum:
-                - postgres
-                - mysql
-                - mongodb
-                - mssql
+              id:
+                description: ID derived by mirrord CLI.
                 type: string
-              dialectOptions:
-                description: Engine-specific configuration options.
+              mongodbOptions:
+                description: MongoDB-specific options.
                 nullable: true
                 properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: 'Data that matches the filter will be copied. For SQL databases this is a WHERE clause (e.g. `username = ''alice''`). For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).'
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              mysqlOptions:
+                description: MySQL-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: 'Data that matches the filter will be copied. For SQL databases this is a WHERE clause (e.g. `username = ''alice''`). For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).'
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              postgresOptions:
+                description: PostgreSQL-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: 'Data that matches the filter will be copied. For SQL databases this is a WHERE clause (e.g. `username = ''alice''`). For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).'
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
                   iamAuth:
-                    description: IAM authentication configuration for the source database.
+                    description: IAM auth config for cloud-managed databases (RDS, Cloud SQL).
                     nullable: true
-                    oneOf:
-                    - required:
-                      - type
                     properties:
                       type:
                         enum:
                         - aws_rds
                         - gcp_cloud_sql
                         type: string
-                      region:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      access_key_id:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      secret_access_key:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      session_token:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      credentials_json:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      credentials_path:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      project:
-                        nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                    required:
+                    - type
                     type: object
+                    x-kubernetes-preserve-unknown-fields: true
                 type: object
-              id:
-                description: ID derived by mirrord CLI.
-                type: string
               target:
                 description: Target k8s resource to extract connection source info from.
                 properties:
                   apiVersion:
                     description: Kubernetes resource apiVersion.
+                    type: string
+                  container:
+                    description: Name of the container defined in the Pod spec.
                     type: string
                   kind:
                     description: Kubernetes resource kind.
@@ -2537,14 +2317,11 @@ spec:
                   name:
                     description: Kubernetes resource name.
                     type: string
-                  container:
-                    description: Name of the container defined in the Pod spec.
-                    type: string
                 required:
                 - apiVersion
+                - container
                 - kind
                 - name
-                - container
                 type: object
               ttlSecs:
                 description: The duration in seconds this branch database will live idling.
@@ -2552,12 +2329,11 @@ spec:
                 minimum: 0.0
                 type: integer
               version:
-                description: Database server image version.
+                description: Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
                 nullable: true
                 type: string
             required:
             - connectionSource
-            - dialect
             - id
             - target
             - ttlSecs
@@ -2566,7 +2342,7 @@ spec:
             nullable: true
             properties:
               error:
-                description: Error message if the branch database failed to create.
+                description: Error message when phase is Failed.
                 nullable: true
                 type: string
               expireTime:
@@ -2590,16 +2366,16 @@ spec:
                       description: Owner info of the session.
                       properties:
                         hostname:
-                          description: Creator hostname.
+                          description: Hostname of the machine where the CLI command was executed.
                           type: string
                         k8sUsername:
-                          description: Creator Kubernetes username.
+                          description: Name of the Kubernetes user who's identity was assumed by the CLI.
                           type: string
                         userId:
                           description: Unique ID.
                           type: string
                         username:
-                          description: Creator local username.
+                          description: Name of the POSIX user that executed the CLI command.
                           type: string
                       required:
                       - hostname
