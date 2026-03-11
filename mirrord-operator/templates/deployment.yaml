@@ -115,7 +115,7 @@ spec:
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
-        {{- end }}        
+        {{- end }}
         - name: OPERATOR_UNIFIED_BRANCH_DB_CRD
           value: "true"
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.databasePodVolumeLimit }}
