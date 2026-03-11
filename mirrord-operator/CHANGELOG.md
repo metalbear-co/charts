@@ -1,3 +1,24 @@
+## [mirrord-operator-1.55.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.55.1) - 2026-03-10
+
+- Bumped `appVersion`.
+
+## [mirrord-operator-1.55.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.55.0) - 2026-03-10
+
+### Added
+- Added an option to run the operator with a Kafka splitting sidecar container,
+  enabling Kafka splitting with Kafka Streams consumers.
+  The sidecar can be enabled with `--set
+  operator.kafkaSplittingSidecar.enabled=true`.
+
+## [mirrord-operator-1.54.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.4) - 2026-03-06
+
+### Fixed
+- Fixed permissions for the fluxcd suspend feature.
+
+## [mirrord-operator-1.54.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.3) - 2026-03-05
+
+- Bumped `appVersion`.
+
 ## [mirrord-operator-1.54.2](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.54.2) - 2026-03-04
 
 - Bumped `appVersion`.
@@ -391,7 +412,7 @@ to the mirrord-operator-user role.
 
 ### Removed
 
-- Removed the depcrecated `MirrordProfile` CRD. The name `MirrordProfile` will
+- Removed the deprecated `MirrordProfile` CRD. The name `MirrordProfile` will
   be re-introduced for namespaced profile CRD.
 
 ## [mirrord-operator-1.27.3](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.27.3) - 2025-06-10
