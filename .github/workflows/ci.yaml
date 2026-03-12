@@ -124,10 +124,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      ## POC setup.
       ## The vale-action currently downloads the latest version of Vale without checksum verification, which we want to avoid.
-      ## For this proof of concept we install a pinned version and verify the checksum.
-      ## Adopting Vale is still in question, due to additional maintenance overhead.
       - name: install vale
         run: |
           wget "https://github.com/errata-ai/vale/releases/download/v3.13.1/vale_3.13.1_Linux_64-bit.tar.gz" -O /tmp/vale.tgz
@@ -136,6 +133,9 @@ jobs:
           tar -xzf /tmp/vale.tgz -C /tmp/vale
           chmod +x /tmp/vale/vale
           mv /tmp/vale/vale /usr/local/bin
+
+      - name: print vale version
+        run: vale --version
 
       - name: check files
         run: vale . --output=report.tmpl
