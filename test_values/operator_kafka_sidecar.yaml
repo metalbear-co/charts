@@ -1,0 +1,10 @@
+operator:
+  kafkaSplitting: true
+  kafkaSplittingSidecar:
+    enabled: true
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

@@ -96,6 +96,27 @@ jobs:
         run: |
           uv run towncrier check --config mirrord-license-server/towncrier.toml --dir mirrord-license-server
 
+  typos_check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: install typos
+        uses: metalbear-co/install-action@62730e3d4f6bd81d824694e963e06d7153968c93
+        with:
+          tool: typos-cli
+
+      - name: print typos version
+        run: typos --version
+
+      - name: list files for spell check
+        run: typos --files
+
+      - name: spell check 
+        run: typos --format brief
+
   sanity:
     runs-on: ubuntu-latest
     needs: changed_files
@@ -318,6 +339,7 @@ jobs:
           operator-install-and-use,
           operator-install-with-license-server-and-use,
           towncrier_check,
+          typos_check,
           check-app-versions-equal,
         ]
       steps:
@@ -326,6 +348,7 @@ jobs:
           # then skipping is considered success by branch protection rules
           env:
             CI_SUCCESS: ${{ (needs.towncrier_check.result == 'success') &&
+              (needs.typos_check.result == 'success') &&
               (needs.sanity.result == 'success' || needs.sanity.result == 'skipped') &&
               (needs.operator-install.result == 'success' || needs.operator-install.result == 'skipped') &&
               (needs.operator-install-and-use.result == 'success' || needs.operator-install-and-use.result == 'skipped') &&
