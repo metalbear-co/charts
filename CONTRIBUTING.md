@@ -10,7 +10,7 @@ Feel free to join to our [Slack](https://metalbear.com/slack) for help and guida
 
 # Prose linting with Vale
 
-Markdown files are linted with [Vale](https://vale.sh) on every PR. Install Vale (`brew install vale`) and run it locally with:
+Markdown and YAML files are linted with [Vale](https://vale.sh) on every PR. Install Vale (`brew install vale`) and run it locally with:
 
 ```bash
 vale .
@@ -22,7 +22,6 @@ vale .
 
 ```
 fluxcd
-[Cc]ontroller
 mirrord('s)?
 ```
 
