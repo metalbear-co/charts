@@ -27,7 +27,7 @@ The [mirrord License Server](https://metalbear.co/mirrord/docs/managing-mirrord/
 
 ## Quick Start
 
-Add the MetalBear Helm repo:
+Add the MetalBear Helm repository:
 
 ```bash
 helm repo add metalbear https://metalbear-co.github.io/charts
@@ -235,9 +235,9 @@ Configure this chart if you use a `.pem` license and want full control of your s
 ---
 ## Contributing
 
-The workflow for creating pull requests to this repo from forks doesn't work at the moment. When contributing, create a pull request from a fork, and one of our team members will manually ensure it goes through CI and is merged.
+The workflow for creating pull requests to this repository from forks doesn't work at the moment. When contributing, create a pull request from a fork, and one of our team members will manually ensure it goes through CI and is merged.
 
-Team members contributing to this repo should create a branch instead of a fork.
+Team members contributing to this repository should create a branch instead of a fork.
 
 ---
 

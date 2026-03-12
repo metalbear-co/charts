@@ -117,6 +117,29 @@ jobs:
       - name: spell check 
         run: typos --format brief
 
+  vale_check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      ## POC setup.
+      ## The vale-action currently downloads the latest version of Vale without checksum verification, which we want to avoid.
+      ## For this proof of concept we install a pinned version and verify the checksum.
+      ## Adopting Vale is still in question, due to additional maintenance overhead.
+      - name: install vale
+        run: |
+          wget "https://github.com/errata-ai/vale/releases/download/v3.13.1/vale_3.13.1_Linux_64-bit.tar.gz" -O /tmp/vale.tgz
+          echo '99bd899f0ac52054444ffe3df571c749cc811f3b606cf5ef740c9a5a2db33df6 /tmp/vale.tgz' | sha256sum -c
+          mkdir -p /tmp/vale
+          tar -xzf /tmp/vale.tgz -C /tmp/vale
+          chmod +x /tmp/vale/vale
+          mv /tmp/vale/vale /usr/local/bin
+
+      - name: check files
+        run: vale . --output=report.tmpl
+
   sanity:
     runs-on: ubuntu-latest
     needs: changed_files
@@ -340,6 +363,7 @@ jobs:
           operator-install-with-license-server-and-use,
           towncrier_check,
           typos_check,
+          vale_check,
           check-app-versions-equal,
         ]
       steps:
@@ -349,6 +373,7 @@ jobs:
           env:
             CI_SUCCESS: ${{ (needs.towncrier_check.result == 'success') &&
               (needs.typos_check.result == 'success') &&
+              (needs.vale_check.result == 'success') &&
               (needs.sanity.result == 'success' || needs.sanity.result == 'skipped') &&
               (needs.operator-install.result == 'success' || needs.operator-install.result == 'skipped') &&
               (needs.operator-install-and-use.result == 'success' || needs.operator-install-and-use.result == 'skipped') &&

@@ -53,7 +53,7 @@
   preview environment session.
 
 ### Changed
-- Bump appversion (operator) to 3.143.0
+- Bump appVersion (operator) to 3.143.0
 
 ## [mirrord-operator-1.51.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.51.0) - 2026-02-19
 
@@ -127,8 +127,8 @@
 
 ### Added
 
-- Added an option to configure mirrord Operator's deployment replicas (`operator.replicas` in values.yaml).
-- Support for limiting outgoing connections from mirrord sessions using a kubernetes policy has been added to the operator.
+- Added an option to configure mirrord Operator's deployment replicas (`operator.replicas` in `values.yaml`).
+- Support for limiting outgoing connections from mirrord sessions using a Kubernetes policy has been added to the operator.
 
 ## Changed
 
@@ -206,7 +206,7 @@
 ### Changed
 
 - Bumped `appVersion` to `3.129.1`.
-- Added labels and annotations to the mysql branch config example.
+- Added labels and annotations to the MySQL branch config example.
 
 ## [mirrord-operator-1.39.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.4) - 2025-10-29
 
@@ -238,7 +238,7 @@
 
 ### Changed
 
-- `values.yaml` now uses a default of 60s for lingering SQS queues timeout.
+- `values.yaml` now uses a default of 60 seconds for lingering SQS queues timeout.
 - Bumped appVersion to 3.128.0.
 
 ## [mirrord-operator-1.39.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.39.1) - 2025-10-09
@@ -436,5 +436,5 @@ to the mirrord-operator-user role.
 ### Changed
 
 - App version update to `3.114.1`
-- Improve readme.md with better docs for the charts.
+- Improve README.md with better docs for the charts.
   [#170](https://github.com/metalbear-co/charts/issues/170)

@@ -1,0 +1,15 @@
+mirrord('s)?
+mirrordclusterssessions
+towncrier
+fluxcd
+[Yy]aml
+priorityClass
+appVersion
+appVersions
+[Cc]onfig
+[Ee]nv
+OTel
+[Uu]id
+scaledown
+[Nn]amespaced?
+Jira
