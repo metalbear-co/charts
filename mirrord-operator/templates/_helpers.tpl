@@ -115,6 +115,18 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - watch
   - delete
 {{- end }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mongodbBranching) }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases
+  verbs:
+  - get
+  - list
+  - create
+  - watch
+  - delete
+{{- end }}
 {{- end }}
 
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}

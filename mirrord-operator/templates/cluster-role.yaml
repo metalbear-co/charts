@@ -201,17 +201,12 @@ rules:
 {{- end }}
 {{- if .Values.operator.suspendFluxControllers }}
 - apiGroups:
-  - kustomize.toolkit.fluxcd.io
+  - fluxcd.io
   resources:
   - kustomizations
-  verbs:
-  - get
-  - patch
-- apiGroups:
-  - helm.toolkit.fluxcd.io
-  resources:
   - helmreleases
   verbs:
+  - list
   - get
   - patch
 {{- end }}
@@ -297,6 +292,29 @@ rules:
   - dbs.mirrord.metalbear.co
   resources:
   - mongodbbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching }}
+# Unified BranchDatabase CRD used by the unified controller and legacy adapter
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - create
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases/status
   verbs:
   - get
   - update
