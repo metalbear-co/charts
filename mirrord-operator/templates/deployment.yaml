@@ -110,6 +110,8 @@ spec:
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MONGODB_BRANCHING
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_MSSQL_BRANCHING
+          value: {{ .Values.operator.mssqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
@@ -140,6 +142,8 @@ spec:
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        - name: OPERATOR_MSSQL_BRANCH_CONFIG
+          value: /mirrord-config/mssql-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
