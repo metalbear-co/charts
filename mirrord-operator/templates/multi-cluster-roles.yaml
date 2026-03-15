@@ -204,6 +204,25 @@ rules:
   - mirrordclusterworkloadpatchrequests
   verbs:
   - create
+# SQS session management for copy target + SQS splitting.
+# The primary operator creates SQS sessions directly on the default cluster
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions/status
+  verbs:
+  - get
 {{- if not .Values.operator.multiClusterMemberIamGroup }}
 ---
 # ClusterRoleBinding to bind mirrord-operator-envoy to the operator ServiceAccount
