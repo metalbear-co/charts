@@ -2,12 +2,12 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: [main, '*staging*']
+    branches: [main, "*staging*"]
     paths:
       - "**.yaml"
       - "**.tpl"
   pull_request:
-    branches: [main, '*staging*']
+    branches: [main, "*staging*"]
     paths:
       - "**.yaml"
       - "**.tpl"
@@ -114,7 +114,7 @@ jobs:
       - name: list files for spell check
         run: typos --files
 
-      - name: spell check 
+      - name: spell check
         run: typos --format brief
 
   vale_check:
@@ -149,15 +149,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4.1.0
         with:
-          version: '3.19.2'
+          version: "3.19.2"
       - run: helm template mirrord-operator --set license.key=secret --debug
       - run: helm template mirrord-license-server --set license.key=secret --set license.file.data.license\\.pem=secret --debug
 
-  check-app-versions-equal:
+  check-versions-equal:
     runs-on: ubuntu-latest
     needs: changed_files
     if: ${{needs.changed_files.outputs.yaml_changed == 'true' || needs.changed_files.outputs.tpl_changed == 'true' || needs.changed_files.outputs.ci_changed == 'true'}}
-    name: check appVersions equal
+    name: check versions and appVersions equal
     steps:
       - name: Checkout Chart.yaml files
         uses: actions/checkout@v4
@@ -166,6 +166,16 @@ jobs:
             mirrord-operator/Chart.yaml
             mirrord-license-server/Chart.yaml
           sparse-checkout-cone-mode: false
+      - name: Read operator chart version
+        id: read-operator-chart-version
+        run: |
+          app=$(grep '^version:' ./mirrord-operator/Chart.yaml | cut -d'"' -f2)
+          echo "operator-chart-version=$app" >> "$GITHUB_OUTPUT"
+      - name: Read license server chart version
+        id: read-license-server-chart-version
+        run: |
+          app=$(grep '^version:' ./mirrord-license-server/Chart.yaml | cut -d'"' -f2)
+          echo "license-server-chart-version=$app" >> "$GITHUB_OUTPUT"
       - name: Read operator appVersion specified in the chart
         id: read-operator-app-version
         run: |
@@ -178,8 +188,15 @@ jobs:
           echo "license-server-app-version=$app" >> "$GITHUB_OUTPUT"
       - name: Print values
         run: |
+          echo Operator chart version: ${{ steps.read-operator-chart-version.outputs.read-operator-chart-version }}
+          echo License server chart version: ${{ steps.read-operator-chart-version.outputs.read-operator-chart-version }}
           echo Operator appVersion from the chart: ${{ steps.read-operator-app-version.outputs.operator-app-version }}
-          echo License server appVersion from the chart: ${{ steps.read-license-server-app-version.outputs.license-server-app-version }}
+          echo License server appVersion from the chart: ${{ steps.read-license-server-chart-version.outputs.license-server-chart-version }}
+      - name: Assert chart versions equal
+        run: |
+          if [ "${{ steps.read-operator-chart-version.outputs.operator-chart-version }}" != "${{ steps.read-license-server-chart-version.outputs.license-server-chart-version }}" ]; then
+            exit 1
+          fi
       - name: Assert appVersions equal
         run: |
           if [ "${{ steps.read-operator-app-version.outputs.operator-app-version }}" != "${{ steps.read-license-server-app-version.outputs.license-server-app-version }}" ]; then
@@ -197,11 +214,11 @@ jobs:
         uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
-          cpus: 'max'
-          memory: '4gb'
+          cpus: "max"
+          memory: "4gb"
       - uses: azure/setup-helm@v4.1.0
         with:
-          version: '3.19.2'
+          version: "3.19.2"
       - name: prepare custom namespaces for `test_values/operator_rolenamespaces.yaml`
         run: kubectl create namespace namespace1 && kubectl create namespace namespace2
       - name: check installing the chart with various `values` yamls
@@ -221,11 +238,11 @@ jobs:
         uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
-          cpus: 'max'
-          memory: '4gb'
+          cpus: "max"
+          memory: "4gb"
       - uses: azure/setup-helm@v4.1.0
         with:
-          version: '3.19.2'
+          version: "3.19.2"
       - name: prepare operator license
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
@@ -301,11 +318,11 @@ jobs:
         uses: metalbear-co/setup-minikube@3fa06c2257eb48a3ca8e24fedece59ee2479255a
         with:
           container-runtime: ${{ inputs.container-runtime }}
-          cpus: 'max'
-          memory: '4gb'
+          cpus: "max"
+          memory: "4gb"
       - uses: azure/setup-helm@v4.1.0
         with:
-          version: '3.19.2'
+          version: "3.19.2"
       - name: prepare operator license
         env:
           MIRRORD_OPERATOR_LICENSE: ${{ secrets.MIRRORD_OPERATOR_LICENSE }}
@@ -351,31 +368,31 @@ jobs:
         run: kubectl logs -n mirrord deployment/mirrord-license-server
 
   ci-success:
-      runs-on: ubuntu-latest
-      name: ci-success
-      # We want this to run even if some of the required jobs got skipped
-      if: always()
-      needs:
-        [
-          sanity,
-          operator-install,
-          operator-install-and-use,
-          operator-install-with-license-server-and-use,
-          towncrier_check,
-          typos_check,
-          vale_check,
-          check-app-versions-equal,
-        ]
-      steps:
-        - name: CI succeeded
-          # We have to do it in the shell since if it's in the if condition
-          # then skipping is considered success by branch protection rules
-          env:
-            CI_SUCCESS: ${{ (needs.towncrier_check.result == 'success') &&
-              (needs.typos_check.result == 'success') &&
-              (needs.vale_check.result == 'success') &&
-              (needs.sanity.result == 'success' || needs.sanity.result == 'skipped') &&
-              (needs.operator-install.result == 'success' || needs.operator-install.result == 'skipped') &&
-              (needs.operator-install-and-use.result == 'success' || needs.operator-install-and-use.result == 'skipped') &&
-              (needs.check-app-versions-equal.result == 'success' || needs.check-app-versions-equal.result == 'skipped') }}
-          run: echo $CI_SUCCESS && if [ "$CI_SUCCESS" == "true" ]; then echo "SUCCESS" && exit 0; else echo "FAILURE" && exit 1; fi
+    runs-on: ubuntu-latest
+    name: ci-success
+    # We want this to run even if some of the required jobs got skipped
+    if: always()
+    needs:
+      [
+        sanity,
+        operator-install,
+        operator-install-and-use,
+        operator-install-with-license-server-and-use,
+        towncrier_check,
+        typos_check,
+        vale_check,
+        check-versions-equal,
+      ]
+    steps:
+      - name: CI succeeded
+        # We have to do it in the shell since if it's in the if condition
+        # then skipping is considered success by branch protection rules
+        env:
+          CI_SUCCESS: ${{ (needs.towncrier_check.result == 'success') &&
+            (needs.typos_check.result == 'success') &&
+            (needs.vale_check.result == 'success') &&
+            (needs.sanity.result == 'success' || needs.sanity.result == 'skipped') &&
+            (needs.operator-install.result == 'success' || needs.operator-install.result == 'skipped') &&
+            (needs.operator-install-and-use.result == 'success' || needs.operator-install-and-use.result == 'skipped') &&
+            (needs.check-versions-equal.result == 'success' || needs.check-versions-equal.result == 'skipped') }}
+        run: echo $CI_SUCCESS && if [ "$CI_SUCCESS" == "true" ]; then echo "SUCCESS" && exit 0; else echo "FAILURE" && exit 1; fi

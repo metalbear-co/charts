@@ -1,3 +1,7 @@
+## [mirrord-operator-1.56.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.56.0) - 2026-03-16
+
+- Unified `mirrord-operator` and `mirrord-license-server` chart versions
+
 ## [mirrord-operator-1.55.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.55.1) - 2026-03-10
 
 - Bumped `appVersion`.
