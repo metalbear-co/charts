@@ -49,7 +49,8 @@ The button is clicked by the user.
     1. For `version`, bump a patch version if the new release only contains `internal` and `fixed` changes,
     e.g. `1.4.13` to `1.4.14`.
     Otherwise, bump a minor version, e.g. `1.42.0` to `1.43.0`.
-    2. `appVersion` should be the released operator Docker image tag. Make sure operator and license
+    Make sure the operator and license server have the same `version`.
+    2. `appVersion` should be the released operator Docker image tag. Make sure the operator and license
     server have the same `appVersion`.
 3. Operator and license server each has its own `CHANGELOG.md` file. In the repository root directory,
 run the following towncrier commands to generate changelogs. Use `version` from `Chart.yaml` for the `--version` argument.
@@ -63,4 +64,3 @@ run the following towncrier commands to generate changelogs. Use `version` from 
 After the release PR is merged, manually dispatch the `Release` workflow.
 
 **Note**: Ensure the branch or tag you use is attached to the release commit.
-
