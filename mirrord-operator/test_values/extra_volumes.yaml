@@ -1,0 +1,9 @@
+operator:
+  extraVolumeMounts:
+    - name: my-secret
+      mountPath: /etc/my-secret
+      readOnly: true
+  extraVolumes:
+    - name: my-secret
+      secret:
+        secretName: my-secret
