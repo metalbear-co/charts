@@ -115,7 +115,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - watch
   - delete
 {{- end }}
-{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mongodbBranching) }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:

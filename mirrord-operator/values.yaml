@@ -81,6 +81,8 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the MSSQL database branching feature.
+  mssqlBranching: false
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
 

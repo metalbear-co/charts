@@ -4202,7 +4202,7 @@ spec:
     subresources:
       status: {}
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4237,6 +4237,8 @@ spec:
               - mysqlOptions
             - required:
               - mongodbOptions
+            - required:
+              - mssqlOptions
             properties:
               connectionSource:
                 oneOf:
@@ -4518,6 +4520,31 @@ spec:
                       mode:
                         enum:
                         - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              mssqlOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
                         - all
                         type: string
                     required:
