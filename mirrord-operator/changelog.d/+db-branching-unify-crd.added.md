@@ -1,1 +1,1 @@
-Db Branching unify CRDs, changing it so we have 1 common CRD instead of per database.
+Db Branching unify, changing it so we have 1 common CRD instead of per database.
