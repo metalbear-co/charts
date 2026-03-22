@@ -1,3 +1,9 @@
+## [mirrord-operator-1.56.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.56.0) - 2026-03-21
+
+### Added
+- Added support for extra volume mounts and volumes in the operator deployment
+  via `operator.extraVolumeMounts` and `operator.extraVolumes` values.
+
 ## [mirrord-operator-1.55.1](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.55.1) - 2026-03-10
 
 - Bumped `appVersion`.

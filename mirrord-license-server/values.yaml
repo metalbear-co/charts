@@ -52,6 +52,11 @@ server:
   # avoid using lower port since it might conflict with security policies.
   port: 8080
 
+  # Data retention settings.
+  retention:
+    # Retention period for operator errors stored in the license server (in days).
+    operatorErrors: 30
+
 license:
   ## ID of a secret from the Google Secrets Manager.
   ##

@@ -7,6 +7,9 @@ This repository contains Helm charts for deploying [mirrord](https://metalbear.c
 - [`mirrord-operator`](./mirrord-operator): Manages concurrent usage of mirrord in multi-user environments.
 - [`mirrord-license-server`](./mirrord-license-server): Handles license management without external telemetry (Enterprise only).
 
+NOTE: This repository is read-only. If you would like to suggest changes, please open an issue or a discussion.
+Feel free to join to our [Slack](https://metalbear.com/slack) for help and guidance.
+
 ---
 
 ## mirrord Operator
