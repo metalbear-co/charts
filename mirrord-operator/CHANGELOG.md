@@ -1,3 +1,13 @@
+## [mirrord-operator-1.57.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.57.0) - 2026-03-26
+
+### Added
+- Db Branching unification, now there is one common CRD instead of one per
+  database.
+
+### Fixed
+- Preserve the YAML document separator in `namespaced-role.yaml` when
+  `roleNamespaces` contains more than one namespace.
+
 ## [mirrord-operator-1.56.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-1.56.0) - 2026-03-21
 
 ### Added

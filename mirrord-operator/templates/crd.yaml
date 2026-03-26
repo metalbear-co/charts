@@ -4202,3 +4202,498 @@ spec:
     subresources:
       status: {}
 {{- end }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: branchdatabases.dbs.mirrord.metalbear.co
+spec:
+  group: dbs.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: BranchDatabase
+    plural: branchdatabases
+    shortNames: []
+    singular: branchdatabase
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            oneOf:
+            - required:
+              - postgresOptions
+            - required:
+              - mysqlOptions
+            - required:
+              - mongodbOptions
+            - required:
+              - mssqlOptions
+            properties:
+              connectionSource:
+                oneOf:
+                - required:
+                  - url
+                - required:
+                  - params
+                properties:
+                  params:
+                    description: Individual connection parameters (host, port, user, password, database).
+                    properties:
+                      database:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      host:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      password:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      port:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                      user:
+                        nullable: true
+                        oneOf:
+                        - required:
+                          - env
+                        - required:
+                          - envFrom
+                        - required:
+                          - secret
+                        properties:
+                          env:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          envFrom:
+                            properties:
+                              container:
+                                nullable: true
+                                type: string
+                              variable:
+                                type: string
+                            required:
+                            - variable
+                            type: object
+                          secret:
+                            properties:
+                              key:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - key
+                            - name
+                            type: object
+                        type: object
+                    type: object
+                  url:
+                    description: A complete connection URL.
+                    oneOf:
+                    - required:
+                      - env
+                    - required:
+                      - envFrom
+                    - required:
+                      - secret
+                    properties:
+                      env:
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      envFrom:
+                        properties:
+                          container:
+                            nullable: true
+                            type: string
+                          variable:
+                            type: string
+                        required:
+                        - variable
+                        type: object
+                      secret:
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                    type: object
+                type: object
+              databaseName:
+                type: string
+              id:
+                type: string
+              mongodbOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              mssqlOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              mysqlOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              postgresOptions:
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                  iamAuth:
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - aws_rds
+                        - gcp_cloud_sql
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              target:
+                properties:
+                  apiVersion:
+                    type: string
+                  container:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - apiVersion
+                - container
+                - kind
+                - name
+                type: object
+              ttlSecs:
+                format: uint64
+                type: integer
+              version:
+                type: string
+            required:
+            - connectionSource
+            - id
+            - target
+            - ttlSecs
+            type: object
+          status:
+            properties:
+              error:
+                nullable: true
+                type: string
+              expireTime:
+                format: date-time
+                type: string
+              phase:
+                enum:
+                - Init
+                - Pending
+                - Ready
+                - Failed
+                type: string
+              sessionInfo:
+                additionalProperties:
+                  properties:
+                    id:
+                      type: string
+                    owner:
+                      properties:
+                        hostname:
+                          type: string
+                        k8sUsername:
+                          type: string
+                        userId:
+                          type: string
+                        username:
+                          type: string
+                      required:
+                      - hostname
+                      - k8sUsername
+                      - userId
+                      - username
+                      type: object
+                  required:
+                  - id
+                  - owner
+                  type: object
+                default: {}
+                type: object
+            required:
+            - expireTime
+            - phase
+            type: object
+        required:
+        - apiVersion
+        - kind
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{- end }}

@@ -1,0 +1,3 @@
+{{- if not (or .Values.license.key .Values.license.keyRef) }}
+WARNING: Missing license key, some mirrord for CI features might not work
+{{- end }}

@@ -52,6 +52,14 @@ data:
     {{- if and .Values.operator.mongodbBranching .Values.operator.mongodbBranchConfig }}
     {{- toYaml .Values.operator.mongodbBranchConfig | nindent 4 }}
     {{- end }}
+  preview-config.yaml: |-
+    {{- if .Values.operator.preview }}
+    {{- toYaml .Values.operator.preview | nindent 4 }}
+    {{- end }}
+  mssql-branch-config.yaml: |-
+    {{- if and .Values.operator.mssqlBranching .Values.operator.mssqlBranchConfig }}
+    {{- toYaml .Values.operator.mssqlBranchConfig | nindent 4 }}
+    {{- end }}
   {{- if .Values.operator.multiCluster.enabled }}
   multicluster-config.yaml: |-
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}

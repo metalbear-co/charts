@@ -1,2 +1,0 @@
-Added operator errors reporting. Error events retention period can be configured with `.server.retention.operatorErrors` (defaults to 30 days).
-Error reports are accessible at  `/api/v1/reports/errors`.

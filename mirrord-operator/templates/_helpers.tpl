@@ -29,6 +29,25 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end -}}
 {{- end }}
 
+{{/* Validate license source configuration before rendering the chart */}}
+{{- define "mirrord-operator.validateLicense" -}}
+{{- if and .Values.license.key .Values.license.keyRef -}}
+{{- fail "Only one of license.key or license.keyRef can be set." -}}
+{{- end -}}
+{{- if and .Values.license.file.data .Values.license.pemRef -}}
+{{- fail "Only one of license.file.data or license.pemRef can be set." -}}
+{{- end -}}
+{{- if and .Values.license.gsmRef .Values.license.file.data -}}
+{{- fail "Only one of license.gsmRef, license.file.data, or license.pemRef can be set." -}}
+{{- end -}}
+{{- if and .Values.license.gsmRef .Values.license.pemRef -}}
+{{- fail "Only one of license.gsmRef, license.file.data, or license.pemRef can be set." -}}
+{{- end -}}
+{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.file.data .Values.license.pemRef .Values.license.gsmRef) -}}
+{{- fail "At least one license source must be set: license.key, license.keyRef, license.file.data, license.pemRef, or license.gsmRef." -}}
+{{- end -}}
+{{- end }}
+
 {{/* rules needed to use mirrord and can be namespaced*/}}
 {{- define "mirrord-operator.rules" -}}
 - apiGroups:
@@ -108,6 +127,18 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - dbs.mirrord.metalbear.co
   resources:
   - mongodbbranchdatabases
+  verbs:
+  - get
+  - list
+  - create
+  - watch
+  - delete
+{{- end }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases
   verbs:
   - get
   - list

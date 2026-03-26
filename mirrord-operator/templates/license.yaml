@@ -1,4 +1,4 @@
-{{- if .Values.license.file.data }}
+{{- if or .Values.license.file.data .Values.license.key }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -7,18 +7,13 @@ metadata:
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 stringData:
-  {{- toYaml .Values.license.file.data | nindent 2 }}
-{{- else if .Values.license.key }}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.license.file.secret }}
-  namespace: {{ .Values.namespace }}
-  labels:
-    {{- include "mirrord-operator.labels" . | nindent 4 }}
-stringData:
-  OPERATOR_LICENSE_KEY: {{ .Values.license.key }}
+  {{- with .Values.license.file.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- if .Values.license.key }}
+  OPERATOR_LICENSE_KEY: {{ .Values.license.key | quote }}
+  {{- end }}
 {{- end }}
 {{- /*
-only create the secret if license PEM was provided
+only create the secret if PEM license data was provided
 */}}

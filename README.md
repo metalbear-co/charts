@@ -80,6 +80,8 @@ license:
   keyRef: "license-server-key"
 ```
 
+`license.key` and `license.keyRef` are mutually exclusive, but either one can be combined with another supported license source such as `license.file.data` or `license.pemRef`.
+
 #### 🧑‍💼 Enterprise License
 
 Paste the `.pem` certificate:
@@ -101,8 +103,10 @@ Or reference a secret:
 
 ```yaml
 license:
-  pemRef: "mirrord-operator-license-pem:license.pem"
+  pemRef: "mirrord-operator-license-pem"
 ```
+
+`license.file.data` and `license.pemRef` are mutually exclusive.
 
 > NOTE: When using the license server, you may need to configure the license certificate and keys differently. See [the section below](#mirrord-license-server-chart) for more details.
 

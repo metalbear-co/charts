@@ -3,8 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: mirrord-license-server-pvc
   namespace: {{ .Values.namespace }}
-  {{- if .Values.pvc.annotations }}
   annotations:
+    helm.sh/resource-policy: keep
+  {{- if .Values.pvc.annotations }}
     {{- toYaml .Values.pvc.annotations | nindent 4 }}
   {{- end }}
   labels:
