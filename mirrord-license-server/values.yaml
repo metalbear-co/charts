@@ -94,6 +94,13 @@ pvc:
   requests:
     storage: 1Gi
 
+  ## IMPORTANT: The PVC template includes `helm.sh/resource-policy: keep` by default,
+  ## which prevents Helm from deleting the PVC (and its data) on `helm uninstall` or
+  ## `helm upgrade`. After installation, operators should also patch the backing PV
+  ## to use `Retain` reclaim policy to prevent data loss if the PVC is manually deleted:
+  ##
+  ##   kubectl patch pv <pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+
 sa:
   name: mirrord-operator-license-server
 
