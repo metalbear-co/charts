@@ -77,6 +77,8 @@ spec:
         - name: DASHBOARD_PORT
           value: {{ .Values.dashboard.port | quote }}
         {{- end }}
+        - name: ERROR_EVENTS_RETENTION_DAYS
+          value: {{ .Values.server.retention.operatorErrors | quote }}
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: TLS_CERT_PATH
           value: /tls/tls.crt

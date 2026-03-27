@@ -1,4 +1,4 @@
-{{- range .Values.roleNamespaces -}}
+{{- range .Values.roleNamespaces }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -12,4 +12,4 @@ metadata:
 rules:
 {{- include "mirrord-operator.rules" $ | nindent 0 }}
 ---
-{{- end }}  
+{{- end }}

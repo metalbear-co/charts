@@ -1,3 +1,16 @@
+## [mirrord-operator-license-server-1.57.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.57.0) - 2026-03-26
+
+### Added
+- Added operator errors reporting. Error events retention period can be
+  configured with `.server.retention.operatorErrors` (defaults to 30 days).
+  Error reports are accessible at  `/api/v1/reports/errors`.
+
+## [mirrord-operator-license-server-1.56.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.56.0) - 2026-03-21
+
+### Internal
+- Unified `mirrord-operator` and `mirrord-license-server` chart versions to
+  match.
+
 ## [mirrord-operator-license-server-1.5.4](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.5.4) - 2026-03-10
 
 - Bumped `appVersion`.

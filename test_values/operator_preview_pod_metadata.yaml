@@ -1,0 +1,15 @@
+operator:
+  previewEnv: true
+  preview:
+    labels:
+      feature: preview
+      owner: platform
+    annotations:
+      preview.metalbear.co/team: platform
+      preview.metalbear.co/source: test-values
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

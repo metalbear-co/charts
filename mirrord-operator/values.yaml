@@ -56,6 +56,16 @@ operator:
   jsonLog: false
   # Define additional environment variables for the operator.
   extraEnv: {}
+  # Define additional volume mounts for the operator container.
+  # extraVolumeMounts:
+  #   - name: my-secret
+  #     mountPath: /etc/my-secret
+  #     readOnly: true
+  # Define additional volumes for the operator deployment.
+  # extraVolumes:
+  #   - name: my-secret
+  #     secret:
+  #       secretName: my-secret
   # Has to be set to `true` in order to use the SQS queue splitting feature.
   sqsSplitting: false
   # Has to be set to `true` in order to use the Kafka queue splitting feature.
@@ -71,8 +81,13 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the MSSQL database branching feature.
+  mssqlBranching: false
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
+  preview:
+    annotations: {}
+    labels: {}
 
   # dbBranching:
   #   # Volume limit for the init container that does the copy

@@ -1,3 +1,4 @@
+{{- include "mirrord-operator.validateLicense" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -110,6 +111,8 @@ spec:
           value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MONGODB_BRANCHING
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_MSSQL_BRANCHING
+          value: {{ .Values.operator.mssqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
@@ -140,6 +143,10 @@ spec:
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        - name: OPERATOR_PREVIEW_CONFIG
+          value: /mirrord-config/preview-config.yaml
+        - name: OPERATOR_MSSQL_BRANCH_CONFIG
+          value: /mirrord-config/mssql-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
@@ -183,7 +190,7 @@ spec:
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
         {{- if .Values.operator.injectSessionKeyHeader }}
-        - name: OPERATOR_INJECT_SESSION_KEY_HEADER 
+        - name: OPERATOR_INJECT_SESSION_KEY_HEADER
           value: "true"
         {{- end }}
         {{- if .Values.operator.sqsSplittingLingerTimeout }}
@@ -215,11 +222,13 @@ spec:
         {{- end }}
         {{- if .Values.license.gsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF
-          value: {{ .Values.license.gsmRef }}
-        {{- else if or .Values.license.file.data .Values.license.pemRef }}
+          value: {{ .Values.license.gsmRef | quote }}
+        {{- end }}
+        {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
-        {{- else if .Values.license.key }}
+        {{- end }}
+        {{- if .Values.license.key }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.file.secret }}
@@ -227,8 +236,6 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Values.license.keyRef }}
-        {{- else }}
-          {{- required "Either keyRef, pemRef, gsmRef, file or key value is required for license!" .Values.license.keyRef }}
         {{- end }}
         image: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}

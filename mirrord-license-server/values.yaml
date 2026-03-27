@@ -52,6 +52,11 @@ server:
   # avoid using lower port since it might conflict with security policies.
   port: 8080
 
+  # Data retention settings.
+  retention:
+    # Retention period for operator errors stored in the license server (in days).
+    operatorErrors: 30
+
 license:
   ## ID of a secret from the Google Secrets Manager.
   ##
@@ -88,6 +93,13 @@ pvc:
   ## NOTE this might need to change this if this value is lower than minimal provisionable size
   requests:
     storage: 1Gi
+
+  ## The PVC template includes `helm.sh/resource-policy: keep` by default,
+  ## which prevents Helm from deleting the PVC (and its data) on uninstall
+  ## or upgrade. After installation, also patch the backing PV to use Retain
+  ## reclaim policy to prevent data loss if the PVC is manually deleted:
+  ##
+  ##   kubectl patch pv <pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 
 sa:
   name: mirrord-operator-license-server
