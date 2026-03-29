@@ -1,3 +1,9 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
 operator:
   extraVolumeMounts:
     - name: my-secret

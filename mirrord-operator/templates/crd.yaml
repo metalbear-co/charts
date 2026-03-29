@@ -4087,6 +4087,56 @@ spec:
           spec:
             description: This resource represents a preview environment created by the `mirrord preview start` command.
             properties:
+              dbBranching:
+                description: Database branching configuration for this preview session.
+                nullable: true
+                properties:
+                  mongodbBranchNames:
+                    description: MongoDB branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  mssqlBranchNames:
+                    description: MSSQL branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  mysqlBranchNames:
+                    description: MySQL branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  pgBranchNames:
+                    description: PostgreSQL branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                type: object
+              env:
+                description: User-configured environment variable settings for this preview session.
+                nullable: true
+                properties:
+                  exclude:
+                    description: Glob patterns selecting which env vars to remove from the target pod spec.
+                    items:
+                      type: string
+                    type: array
+                  include:
+                    description: Glob patterns selecting which env vars to keep from the target pod spec.
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  overrides:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Env vars to set or replace in the target container.
+
+                      The CLI folds `feature.env.env_file` into this map before creating the CR, then applies
+                      explicit `feature.env.override` values on top.
+                    type: object
+                type: object
               image:
                 description: User's container image to run in the preview pod.
                 type: string
@@ -4094,17 +4144,38 @@ spec:
                 description: |-
                   Incoming traffic configuration for the preview environment.
 
-                  Specifies which ports to steal/mirror traffic from and optional HTTP filters. This configuration is extracted from the user's mirrord config. When `None`, incoming traffic is not intercepted.
+                  Specifies which ports to steal/mirror traffic from and optional HTTP filters.
+                  This configuration is extracted from the user's mirrord config.
+                  When `None`, incoming traffic is not intercepted.
                 nullable: true
                 properties:
                   httpFilter:
-                    description: JSON-serialized `HttpFilterConfig`. Stored as an opaque string to avoid coupling the CRD schema to `HttpFilterConfig`, which is too large to manually duplicate here and could break backwards compatibility if stored directly.
+                    description: |-
+                      JSON-serialized `HttpFilterConfig`. Stored as an opaque string to avoid coupling
+                      the CRD schema to `HttpFilterConfig`, which is too large to manually duplicate here
+                      and could break backwards compatibility if stored directly.
                     nullable: true
                     type: string
-                  ports:
-                    description: Explicit list of ports to steal/mirror. When `None`, the operator discovers ports from the preview pod's container port declarations.
+                  ignorePorts:
+                    description: |-
+                      Ports to ignore while preview traffic interception is enabled.
+
+                      Mutually exclusive with `ports`.
                     items:
                       format: uint16
+                      maximum: 65535.0
+                      minimum: 0.0
+                      type: integer
+                    type: array
+                  ports:
+                    description: |-
+                      Explicit list of ports to steal/mirror. When `None`, the operator discovers ports from
+                      the preview pod's container port declarations.
+
+                      Mutually exclusive with `ignore_ports`.
+                    items:
+                      format: uint16
+                      maximum: 65535.0
                       minimum: 0.0
                       type: integer
                     nullable: true
@@ -4118,8 +4189,55 @@ spec:
               key:
                 description: Environment key used to group related preview pods and for traffic filtering.
                 type: string
+              queueSplitting:
+                description: Queue splitting configuration for this preview session.
+                nullable: true
+                properties:
+                  kafkaQueueFilters:
+                    additionalProperties:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    description: |-
+                      Kafka queue splitting filters, keyed by topic ID.
+
+                      Each value maps header names to regex patterns that messages must match.
+                    type: object
+                  sqsQueueFilters:
+                    additionalProperties:
+                      description: Per-queue SQS filter configuration for preview sessions.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression.
+
+                            For each SQS message, the jq filter runs on a JSON representation of the
+                            SQS `Message` object. If the jq program outputs `true`, the message is
+                            considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute filter: a mapping from attribute names to regex patterns.
+
+                            Only messages whose attributes match **all** patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: |-
+                      SQS queue splitting filters, keyed by queue ID.
+
+                      Each entry configures how messages from a specific SQS queue should be filtered
+                      for this preview session.
+                    type: object
+                type: object
               target:
-                description: Target to copy pod configuration from (deployment, pod, statefulset, etc.). The preview pod will be a copy of the target's pod spec with the user's image.
+                description: |-
+                  Target to copy pod configuration from (deployment, pod, statefulset, etc.).
+                  The preview pod will be a copy of the target's pod spec with the user's image.
                 properties:
                   apiVersion:
                     description: Kubernetes resource apiVersion.
@@ -4140,7 +4258,9 @@ spec:
                 - name
                 type: object
               ttlSecs:
-                description: How long (in seconds) this session is allowed to live. The operator will terminate the session when this time elapses.
+                description: |-
+                  How long (in seconds) this session is allowed to live.
+                  Values >= `u32::MAX` are treated as infinite.
                 format: uint64
                 minimum: 0.0
                 type: integer
@@ -4158,7 +4278,10 @@ spec:
                 description: |-
                   Timestamp when the session's TTL expires.
 
-                  Set when the session enters the `Ready` phase. Computed as `now + ttl_secs` at the moment the operator starts the TTL countdown. `None` during earlier phases or when running against an older operator that does not set this field.
+                  Set when the session enters the `Ready` phase for finite TTL sessions.
+                  Computed as `now + ttl_secs` at the moment the operator starts the TTL countdown.
+                  `None` for infinite TTL, during earlier phases, or when running against an older
+                  operator that does not set this field.
                 format: date-time
                 nullable: true
                 type: string
@@ -4182,7 +4305,8 @@ spec:
                 description: |-
                   Name of the preview pod created for this session.
 
-                  Set once the pod is created (from the `Waiting` phase onward). `None` during `Initializing` or if pod creation failed before a name was assigned.
+                  Set once the pod is created (from the `Waiting` phase onward). `None` during
+                  `Initializing` or if pod creation failed before a name was assigned.
                 nullable: true
                 type: string
               startedAt:

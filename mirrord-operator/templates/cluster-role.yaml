@@ -7,25 +7,43 @@ metadata:
 rules:
 - apiGroups:
   - ''
-  - apps
-  - batch
-  - argoproj.io
   resources:
   - nodes
   - pods
   - pods/log
   - pods/ephemeralcontainers
+  - services
+  - pods/proxy
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
   - deployments
   - deployments/scale
-  - rollouts
-  - rollouts/scale
-  - jobs
-  - cronjobs
   - statefulsets
   - statefulsets/scale
-  - services
   - replicasets
-  - pods/proxy
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  - rollouts/scale
   verbs:
   - get
   - list
@@ -47,10 +65,15 @@ rules:
   - patch
 - apiGroups:
   - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+- apiGroups:
   - batch
   resources:
   - jobs
-  - pods
   verbs:
   - create
   - delete
@@ -62,11 +85,15 @@ rules:
   - update
 - apiGroups:
   - apps
-  - argoproj.io
   resources:
   - deployments/scale
-  - rollouts/scale
   - statefulsets/scale
+  verbs:
+  - patch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts/scale
   verbs:
   - patch
 - apiGroups:

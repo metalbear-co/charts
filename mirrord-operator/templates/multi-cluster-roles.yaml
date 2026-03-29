@@ -169,6 +169,64 @@ rules:
   verbs:
   - get
   - watch
+# Copy target pod lifecycle on the default (workload) cluster.
+# Mirrors the single-cluster operator permissions for pod management.
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - patch
+# Target resolution needs to read services, rollouts, and pod templates
+# in addition to pods/deployments/statefulsets already in the envoy role.
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - podtemplates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  verbs:
+  - get
+  - list
+  - watch
+# Create workload patch requests for multi-cluster copy target scale-down.
+# Cleanup is handled via K8s garbage collection (owned by the child session).
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclusterworkloadpatchrequests
+  verbs:
+  - create
+{{- if .Values.operator.sqsSplitting }}
+# SQS session management for copy target + SQS splitting.
+# The primary operator creates SQS sessions directly on the default cluster.
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions/status
+  verbs:
+  - get
+{{- end }}
 {{- if not .Values.operator.multiClusterMemberIamGroup }}
 ---
 # ClusterRoleBinding to bind mirrord-operator-envoy to the operator ServiceAccount

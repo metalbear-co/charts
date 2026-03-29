@@ -42,12 +42,4 @@ The button is clicked by the user.
 
 ## Release charts
 
-### Release PR
-
 Refer to the operator `contributing.md`.
-
-### Dispatch release
-
-After the release PR is merged, manually dispatch the `Release` workflow.
-
-**Note**: Ensure the branch or tag you use is attached to the release commit.

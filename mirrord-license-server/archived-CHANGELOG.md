@@ -1,3 +1,7 @@
+# WARNING: This changelog is not the latest version
+
+You can find the changelog for the charts and operator [on our website](https://metalbear.com/mirrord/docs/changelog).
+
 ## [mirrord-operator-license-server-1.57.0](https://github.com/metalbear-co/charts/tree/mirrord-operator-license-server-1.57.0) - 2026-03-26
 
 ### Added

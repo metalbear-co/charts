@@ -112,6 +112,8 @@ spec:
                     lastHeartbeat:
                       type: string
                       format: date-time
+                    scaledownOnly:
+                      type: boolean
               phase:
                 description: Overall session state
                 type: string
