@@ -339,7 +339,7 @@ spec:
           secretName: {{ .Values.license.pemRef }}
       {{- end }}
       {{- with .Values.operator.extraVolumes }}
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 6 }}
       {{- end }}
       - emptyDir: {}
         name: tmp

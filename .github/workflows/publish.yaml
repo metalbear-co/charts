@@ -41,11 +41,11 @@ jobs:
         run: helm package mirrord-operator
 
       - name: Log in to GitHub Container Registry (manual dispatch)
-        if: ${{ github.event_name }} == "workflow_dispatch"
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Log in to GitHub Container Registry (remote trigger)
-        if: ${{ github.event_name }} == "repository_dispatch"
+        if: ${{ github.event_name == 'repository_dispatch' }}
         run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u ${{ github.event.client_payload.actor }} --password-stdin
 
       - name: Push Helm chart to GHCR
