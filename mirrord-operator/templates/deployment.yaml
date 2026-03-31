@@ -103,6 +103,8 @@ spec:
         {{- end }}
         - name: OPERATOR_SQS_SPLITTING
           value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_RMQ_SPLITTING
+          value: {{ .Values.operator.rmqSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_KAFKA_SPLITTING
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_MYSQL_BRANCHING

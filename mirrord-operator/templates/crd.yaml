@@ -625,7 +625,7 @@ spec:
         type: object
     served: true
     storage: true
-{{ if .Values.operator.sqsSplitting }}
+{{ if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -634,6 +634,7 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories: []
     kind: MirrordWorkloadQueueRegistry
     plural: mirrordworkloadqueueregistries
     shortNames:
@@ -641,14 +642,16 @@ spec:
     singular: mirrordworkloadqueueregistry
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns: []
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
         properties:
           spec:
             description: |-
-              Defines a Custom Resource that holds a central configuration for splitting queues for a QueueConsumer (a target workload for which queues should be split).
+              Defines a Custom Resource that holds a central configuration for splitting queues for a
+              QueueConsumer (a target workload for which queues should be split).
 
               This means there should be 1 such resource per queue splitting target.
             properties:
@@ -656,7 +659,9 @@ spec:
                 description: The resource (deployment or Argo rollout) that reads from the queues.
                 properties:
                   container:
-                    description: If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    description: |-
+                      If a container is not specified, the workload queue registry will apply to every run that
+                      targets any of the workload's containers.
                     nullable: true
                     type: string
                   name:
@@ -673,61 +678,24 @@ spec:
                 type: object
               queues:
                 additionalProperties:
-                  description: The details of a queue that should be split.
-                  oneOf:
-                  - required:
-                    - nameSource
-                    - queueType
                   properties:
-                    fallbackName:
-                      description: 'Fallback queue name, if the source specified in `nameSource` is not present on the target. If the configured source is not present and the fallback is used - the configured source will be used to make the target use the temporary queue. For example, if `nameSource` is `envVar: MEME_QUEUE_NAME`, but `MEME_QUEUE_NAME` is not present in the target, and `IncomingMemeQueue.fifo` was set as a fallback queue name, then the target will be modified to include the environment variable `MEME_QUEUE_NAME`, with the name of the temporary queue as a value. Setting a fallback name only makes sense if the target application indeed uses the defined queue name source to override the source it uses on its absence.'
-                      nullable: true
-                      type: string
-                    nameSource:
-                      description: Where the application gets the queue name from. Will be used to read messages from that queue and distribute them to the output queues. When running with mirrord and splitting this queue, applications will get a modified name from that source.
-                      oneOf:
-                      - required:
-                        - envVar
-                      - required:
-                        - regexPattern
-                      properties:
-                        envVar:
-                          description: |-
-                            Name of an environment variable.
-
-                            References a single environment variable that contains the queue name. Only this one queue will be split.
-                          type: string
-                        regexPattern:
-                          description: |-
-                            Regex pattern for environment variable name.
-
-                            References multiple environment variables that can contain names of multiple queues. All found queues will be split.
-                          type: string
-                      type: object
-                    namesFromJsonMap:
-                      description: If set, the value read from `name_source` or `fallback_name` will be parsed as a JSON map. The values in this map will be used as queue names.
-                      nullable: true
-                      type: boolean
                     queueType:
                       enum:
                       - SQS
+                      - RMQ
                       type: string
-                    sns:
-                      description: When this is set, the mirrord SQS splitting operator will try to parse SQS messages as json objects that are created when SQS messages are created from SNS notifications. The filters will then be matched also against the message attributes that are found inside the body of the SQS message, and originate in SNS notification attributes.
-                      nullable: true
-                      type: boolean
-                    tags:
-                      additionalProperties:
-                        type: string
-                      description: These tags will be set for all temporary SQS queues created by mirrord for queues defined in this MirrordWorkloadQueueRegistry, alongside with the original tags of the respective original queue. In case of a collision, the temporary queue will get the value from the tag passed in here.
-                      nullable: true
-                      type: object
+                  required:
+                  - queueType
                   type: object
-                description: A map of the queues that should be split. The key is used by users to associate filters to the right queues.
+                  x-kubernetes-preserve-unknown-fields: true
+                description: |-
+                  A map of the queues that should be split.
+                  The key is used by users to associate filters to the right queues.
                 type: object
               workloadRestartTimeout:
                 description: |-
-                  Timeout for waiting until workload patch takes effect, that is - at least one pod reads from the main temporary queue.
+                  Timeout for waiting until workload patch takes effect, that is - at least one pod reads
+                  from the main temporary queue.
 
                   Specified in seconds. Defaults to 120s.
                 format: uint32
@@ -742,13 +710,17 @@ spec:
             nullable: true
             properties:
               sqsDetails:
-                description: Optional even though it's currently the only field, because in the future there will be fields for other queue types.
+                description: |-
+                  Optional even though it's currently the only field, because in the future there will be
+                  fields for other queue types.
                 nullable: true
                 properties:
                   directEnvVars:
                     additionalProperties:
                       type: string
-                    description: Names of env vars that contain the queue name directly in the pod template, without config map refs, mapped to their queue id.
+                    description: |-
+                      Names of env vars that contain the queue name directly in the pod template, without config
+                      map refs, mapped to their queue id.
                     type: object
                   envUpdates:
                     additionalProperties:
@@ -773,7 +745,9 @@ spec:
                       - originalName
                       - outputName
                       type: object
-                    description: For each queue_id, the actual queue name as retrieved from the target's pod spec or config map, together with the name of its temporary output queue.
+                    description: |-
+                      For each queue_id, the actual queue name as retrieved from the target's pod spec or config
+                      map, together with the name of its temporary output queue.
                     type: object
                 required:
                 - directEnvVars
@@ -789,6 +763,8 @@ spec:
     storage: true
     subresources:
       status: {}
+{{ end }}
+{{ if .Values.operator.sqsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1020,6 +996,396 @@ spec:
     storage: true
     subresources:
       status: {}
+{{ end }}
+{{ if .Values.operator.rmqSplitting }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordrmqsessions.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordRMQSession
+    plural: mirrordrmqsessions
+    shortNames: []
+    singular: mirrordrmqsession
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns: []
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordRmqSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              The operator creates this object when a user runs mirrord against a target that is a queue
+              consumer.
+            properties:
+              namespace:
+                description: Kubernetes namespace for the session (in workload clusters)
+                type: string
+              outputQueueNames:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Multi-cluster coordination: explicit output queue names.
+
+                  Maps original queue names to their corresponding output queue names.
+                  For multi-cluster: the default cluster creates temp queues and passes the exact names here.
+                  Other clusters use these names directly instead of generating their own.
+                type: object
+              queueConsumer:
+                description: The target of this session.
+                properties:
+                  container:
+                    description: |-
+                      If a container is not specified, the workload queue registry will apply to every run that
+                      targets any of the workload's containers.
+                    nullable: true
+                    type: string
+                  name:
+                    type: string
+                  workloadType:
+                    description: A workload that is a consumer of a queue that is being split.
+                    enum:
+                    - Deployment
+                    - Rollout
+                    type: string
+                required:
+                - name
+                - workloadType
+                type: object
+              queueFilters:
+                additionalProperties:
+                  additionalProperties:
+                    type: string
+                  type: object
+                description: |-
+                  For each queue_id, a mapping from attribute name, to attribute value regex.
+                  The queue_id for a queue is determined at the queue registry. It is not (necessarily)
+                  The name of the queue on AWS.
+                type: object
+              sessionId:
+                description: The id of the mirrord exec session, from the operator.
+                type: string
+            required:
+            - namespace
+            - queueConsumer
+            - queueFilters
+            - sessionId
+            type: object
+          status:
+            nullable: true
+            oneOf:
+            - required:
+              - Starting
+            - required:
+              - RegisteringFilters
+            - required:
+              - Ready
+            - required:
+              - StartError
+            - required:
+              - CleanupError
+            properties:
+              CleanupError:
+                properties:
+                  details:
+                    nullable: true
+                    properties:
+                      envUpdates:
+                        additionalProperties:
+                          properties:
+                            originalName:
+                              type: string
+                            outputName:
+                              type: string
+                          required:
+                          - originalName
+                          - outputName
+                          type: object
+                        description: Env var name -> old and new queue names.
+                        type: object
+                      queueNames:
+                        additionalProperties:
+                          properties:
+                            originalName:
+                              type: string
+                            outputName:
+                              type: string
+                          required:
+                          - originalName
+                          - outputName
+                          type: object
+                        description: Queue ID -> old and new queue names.
+                        type: object
+                    required:
+                    - envUpdates
+                    - queueNames
+                    type: object
+                  error:
+                    description: Representation of Sqs errors for the status of RMQ session resources.
+                    properties:
+                      reason:
+                        description: Human-readable explanation of what went wrong.
+                        type: string
+                      statusCode:
+                        description: HTTP code for operator response.
+                        format: uint16
+                        maximum: 65535.0
+                        minimum: 0.0
+                        type: integer
+                    required:
+                    - reason
+                    - statusCode
+                    type: object
+                required:
+                - error
+                type: object
+              Ready:
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
+                type: object
+              RegisteringFilters:
+                description: |-
+                  RMQ operator sets this status before it starts registering filters, so that if anything
+                  fails during the registration of filters, we have all the queues we need to delete on
+                  cleanup.
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Env var name -> old and new queue names.
+                    type: object
+                  queueNames:
+                    additionalProperties:
+                      properties:
+                        originalName:
+                          type: string
+                        outputName:
+                          type: string
+                      required:
+                      - originalName
+                      - outputName
+                      type: object
+                    description: Queue ID -> old and new queue names.
+                    type: object
+                required:
+                - envUpdates
+                - queueNames
+                type: object
+              StartError:
+                description: Representation of Sqs errors for the status of RMQ session resources.
+                properties:
+                  reason:
+                    description: Human-readable explanation of what went wrong.
+                    type: string
+                  statusCode:
+                    description: HTTP code for operator response.
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    type: integer
+                required:
+                - reason
+                - statusCode
+                type: object
+              Starting:
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
+            type: object
+        required:
+        - spec
+        title: MirrordRmqSession
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordpropertylists.mirrord.metalbear.co
+spec:
+  group: mirrord.metalbear.co
+  names:
+    categories: []
+    kind: MirrordPropertyList
+    plural: mirrordpropertylists
+    shortNames:
+    - mpl
+    singular: mirrordpropertylist
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns: []
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordPropertyListSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Generic configuration properties related to mirrord.
+
+              Modeled after environment variables in container specs, properties can be declared inline or
+              loaded from ConfigMaps/Secrets.
+            properties:
+              properties:
+                description: Properties declared inline.
+                items:
+                  description: Property declared inline.
+                  oneOf:
+                  - required:
+                    - value
+                  - required:
+                    - valueFrom
+                  properties:
+                    name:
+                      description: Name of the property.
+                      type: string
+                    value:
+                      description: Value declared inline.
+                      type: string
+                    valueFrom:
+                      description: Value loaded from some other resource.
+                      oneOf:
+                      - required:
+                        - configMapKeyRef
+                      - required:
+                        - secretKeyRef
+                      properties:
+                        configMapKeyRef:
+                          description: Value loaded from a ConfigMap key.
+                          properties:
+                            key:
+                              description: Key within the resource.
+                              type: string
+                            name:
+                              description: Name of the resource.
+                              type: string
+                            optional:
+                              default: false
+                              description: Determines how we handle the case when the key or the resource is not found.
+                              type: boolean
+                          required:
+                          - key
+                          - name
+                          type: object
+                        secretKeyRef:
+                          description: Value loaded from a Secret key.
+                          properties:
+                            key:
+                              description: Key within the resource.
+                              type: string
+                            name:
+                              description: Name of the resource.
+                              type: string
+                            optional:
+                              default: false
+                              description: Determines how we handle the case when the key or the resource is not found.
+                              type: boolean
+                          required:
+                          - key
+                          - name
+                          type: object
+                      type: object
+                  required:
+                  - name
+                  type: object
+                type: array
+              propertiesFrom:
+                description: Properties loaded from other resources.
+                items:
+                  description: Properties loaded from some resource.
+                  oneOf:
+                  - required:
+                    - configMapRef
+                  - required:
+                    - secretRef
+                  properties:
+                    configMapRef:
+                      description: Load properties from a ConfigMap.
+                      properties:
+                        name:
+                          description: Name of the resource.
+                          type: string
+                        optional:
+                          default: false
+                          description: Determines how we handle the case when the resource is not found.
+                          type: boolean
+                      required:
+                      - name
+                      type: object
+                    prefix:
+                      description: Optional prefix to be added to the names of all loaded properties.
+                      type: string
+                    secretRef:
+                      description: Load properties from a Secret.
+                      properties:
+                        name:
+                          description: Name of the resource.
+                          type: string
+                        optional:
+                          default: false
+                          description: Determines how we handle the case when the resource is not found.
+                          type: boolean
+                      required:
+                      - name
+                      type: object
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        title: MirrordPropertyList
+        type: object
+    served: true
+    storage: true
+    subresources: {}
 {{ end }}
 {{ if .Values.operator.kafkaSplitting}}
 ---
@@ -4029,12 +4395,15 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories: []
     kind: MirrordClusterExternalResource
     plural: mirrordclusterexternalresources
+    shortNames: []
     singular: mirrordclusterexternalresource
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns: []
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterExternalResourceSpec via `CustomResource`
@@ -4043,8 +4412,35 @@ spec:
             description: |-
               Generic external resource created by the operator.
 
-              For future compatibility and to avoid any schema issues, every resource type is represented in a separate optional field.
+              For future compatibility and to avoid any schema issues, every resource type is represented in a
+              separate optional field.
             properties:
+              rmqResource:
+                description: Resource allocated in a RabbitMQ cluster for queue splitting.
+                nullable: true
+                properties:
+                  kind:
+                    enum:
+                    - queue
+                    - exchange
+                    - unknown
+                    type: string
+                  name:
+                    type: string
+                  propertiesListName:
+                    description: Name of the `MirrordPropertiesList` that should be used to resolve client configuration.
+                    type: string
+                  propertiesListNamespace:
+                    description: |-
+                      Namespace of the `MirrordPropertiesList` that should be used to resolve client
+                      configuration.
+                    type: string
+                required:
+                - kind
+                - name
+                - propertiesListName
+                - propertiesListNamespace
+                type: object
               sqsQueue:
                 description: Temporary SQS queue created for queue splitting.
                 nullable: true

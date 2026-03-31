@@ -111,7 +111,7 @@ rules:
   - list
   - get
   - watch
-{{- if .Values.operator.sqsSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -127,6 +127,8 @@ rules:
   - mirrordworkloadqueueregistries/status
   verbs:
   - update
+{{- end }}
+{{- if .Values.operator.sqsSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -145,6 +147,34 @@ rules:
   - mirrordsqssessions/status
   verbs:
   - update
+{{- end }}
+{{- if .Values.operator.rmqSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordrmqsessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordrmqsessions/status
+  verbs:
+  - update
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+  - list
+  - watch
 {{- end }}
 # For deleting previously mutated pods
 - apiGroups:
@@ -206,7 +236,7 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting }}
 - apiGroups:
   - ''
   resources:
