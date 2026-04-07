@@ -42,4 +42,4 @@ The button is clicked by the user.
 
 ## Release charts
 
-Refer to the operator `contributing.md`.
+Refer to the operator `contributing.md` at `contributing.md`.

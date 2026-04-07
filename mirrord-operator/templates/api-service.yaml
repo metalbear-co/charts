@@ -7,7 +7,11 @@ metadata:
 spec:
   group: operator.metalbear.co
   groupPriorityMinimum: 1000
-  insecureSkipTLSVerify: {{ .Values.tls.apiService.insecureSkipTLSVerify }}
+  {{- if .Values.tls.apiService.insecureSkipTLSVerify }}
+  {{- /* Omitted when false: the API default is false, and emitting `insecureSkipTLSVerify: false`
+       causes ArgoCD to show a perpetual diff because Kubernetes normalizes the field away. */}}
+  insecureSkipTLSVerify: true
+  {{- end }}
   service:
     name: {{ .Values.service.name }}
     namespace: {{ .Values.namespace }}

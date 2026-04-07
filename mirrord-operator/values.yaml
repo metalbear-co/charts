@@ -90,6 +90,7 @@ operator:
   preview:
     annotations: {}
     labels: {}
+    # image_pull_policy: "Always"
 
   # dbBranching:
   #   # Volume limit for the init container that does the copy

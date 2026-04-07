@@ -634,7 +634,6 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordWorkloadQueueRegistry
     plural: mirrordworkloadqueueregistries
     shortNames:
@@ -642,8 +641,7 @@ spec:
     singular: mirrordworkloadqueueregistry
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
@@ -1006,15 +1004,12 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordRMQSession
     plural: mirrordrmqsessions
-    shortNames: []
     singular: mirrordrmqsession
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordRmqSessionSpec via `CustomResource`
@@ -1253,7 +1248,6 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordPropertyList
     plural: mirrordpropertylists
     shortNames:
@@ -1261,8 +1255,7 @@ spec:
     singular: mirrordpropertylist
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1
+  - name: v1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPropertyListSpec via `CustomResource`
@@ -2701,6 +2694,10 @@ spec:
                 - Ready
                 - Failed
                 type: string
+              podName:
+                description: Name of the pod created for this branch database.
+                nullable: true
+                type: string
               sessionInfo:
                 additionalProperties:
                   properties:
@@ -3474,6 +3471,10 @@ spec:
                 - Ready
                 - Failed
                 type: string
+              podName:
+                description: Name of the pod created for this branch database.
+                nullable: true
+                type: string
               sessionInfo:
                 additionalProperties:
                   properties:
@@ -3911,6 +3912,10 @@ spec:
                 enum:
                 - Pending
                 - Ready
+                type: string
+              podName:
+                description: Name of the pod created for this branch database.
+                nullable: true
                 type: string
               sessionInfo:
                 additionalProperties:
@@ -4395,15 +4400,12 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
-    categories: []
     kind: MirrordClusterExternalResource
     plural: mirrordclusterexternalresources
-    shortNames: []
     singular: mirrordclusterexternalresource
   scope: Cluster
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterExternalResourceSpec via `CustomResource`
@@ -4467,15 +4469,12 @@ metadata:
 spec:
   group: preview.mirrord.metalbear.co
   names:
-    categories: []
     kind: PreviewSession
     plural: previewsessions
-    shortNames: []
     singular: previewsession
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha
+  - name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for PreviewSessionSpec via `CustomResource`
@@ -4731,15 +4730,12 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
-    categories: []
     kind: BranchDatabase
     plural: branchdatabases
-    shortNames: []
     singular: branchdatabase
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:
@@ -5174,6 +5170,10 @@ spec:
                 - Pending
                 - Ready
                 - Failed
+                type: string
+              podName:
+                description: Name of the pod created for this branch database.
+                nullable: true
                 type: string
               sessionInfo:
                 additionalProperties:
