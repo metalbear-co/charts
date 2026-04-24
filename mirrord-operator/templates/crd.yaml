@@ -2307,12 +2307,15 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories: []
     kind: MysqlBranchDatabase
     plural: mysqlbranchdatabases
+    shortNames: []
     singular: mysqlbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns: []
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MysqlBranchDatabaseSpec via `CustomResource`
@@ -2327,264 +2330,424 @@ spec:
                 - required:
                   - params
                 properties:
-                  url:
-                    description: A complete connection URL.
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
                   params:
                     description: Individual connection parameters (host, port, user, password, database).
                     properties:
-                      host:
-                        description: Host parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      port:
-                        description: Port parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      user:
-                        description: User parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      password:
-                        description: Password parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
                       database:
-                        description: Database name parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      host:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      password:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      port:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      user:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
                     type: object
+                  url:
+                    description: One or more complete connection URL sources.
+                    items:
+                      oneOf:
+                      - required:
+                        - env
+                      - required:
+                        - envFrom
+                      - required:
+                        - secret
+                      - required:
+                        - envPattern
+                      properties:
+                        env:
+                          description: Environment variable with value defined directly in the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envFrom:
+                          description: Environment from resource reference in the the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envPattern:
+                          description: Environment variable whose value is extracted via a regex pattern.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            value_pattern:
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - value_pattern
+                          - variable
+                          type: object
+                        secret:
+                          description: |-
+                            Value read directly from a Kubernetes Secret at resolution time.
+                            When `env_var_name` is set, the operator resolves the Secret and emits
+                            the value to the local mirrord process under that name. Without it,
+                            the Secret is only used by the operator for branch provisioning.
+                          properties:
+                            env_var_name:
+                              nullable: true
+                              type: string
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                      type: object
+                    type: array
                 type: object
               copy:
                 default:
@@ -2602,11 +2765,15 @@ spec:
                     additionalProperties:
                       properties:
                         filter:
-                          description: Data that matches the filter will be copied. For MySQL, this filter is a `where` clause that looks like `username = 'alice'`.
+                          description: |-
+                            Data that matches the filter will be copied.
+                            For MySQL, this filter is a `where` clause that looks like `username = 'alice'`.
                           nullable: true
                           type: string
                       type: object
-                    description: An optional list of tables whose schema and data will be copied based on their table level copy config. Only compatible with `Empty` and `Schema` copy mode.
+                    description: |-
+                      An optional list of tables whose schema and data will be copied based on their
+                      table level copy config. Only compatible with `Empty` and `Schema` copy mode.
                     nullable: true
                     type: object
                 required:
@@ -2625,6 +2792,8 @@ spec:
                 type: string
               target:
                 description: Target k8s resource to extract connection source info from.
+                enum:
+                - targetless
                 oneOf:
                 - required:
                   - deployment
@@ -2649,17 +2818,23 @@ spec:
                   cron_job:
                     type: string
                   deployment:
-                    description: <!--${internal}--> Deployment to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Deployment to mirror.
                     type: string
                   job:
                     type: string
                   pod:
-                    description: <!--${internal}--> Pod to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Pod to mirror.
                     type: string
                   replica_set:
                     type: string
                   rollout:
-                    description: <!--${internal}--> Rollout to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Rollout to mirror.
                     type: string
                   service:
                     type: string
@@ -2681,7 +2856,7 @@ spec:
             nullable: true
             properties:
               error:
-                description: Error message if the branch database failed to create.
+                description: Error message when phase is Failed.
                 nullable: true
                 type: string
               expireTime:
@@ -2690,12 +2865,12 @@ spec:
                 type: string
               phase:
                 enum:
+                - Init
                 - Pending
                 - Ready
                 - Failed
                 type: string
               podName:
-                description: Name of the pod created for this branch database.
                 nullable: true
                 type: string
               sessionInfo:
@@ -2708,16 +2883,16 @@ spec:
                       description: Owner info of the session.
                       properties:
                         hostname:
-                          description: Creator hostname.
+                          description: Hostname of the machine where the CLI command was executed.
                           type: string
                         k8sUsername:
-                          description: Creator Kubernetes username.
+                          description: Name of the Kubernetes user who's identity was assumed by the CLI.
                           type: string
                         userId:
                           description: Unique ID.
                           type: string
                         username:
-                          description: Creator local username.
+                          description: Name of the POSIX user that executed the CLI command.
                           type: string
                       required:
                       - hostname
@@ -2755,12 +2930,15 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories: []
     kind: PgBranchDatabase
     plural: pgbranchdatabases
+    shortNames: []
     singular: pgbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns: []
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for PgBranchDatabaseSpec via `CustomResource`
@@ -2775,264 +2953,424 @@ spec:
                 - required:
                   - params
                 properties:
-                  url:
-                    description: A complete connection URL.
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
                   params:
                     description: Individual connection parameters (host, port, user, password, database).
                     properties:
-                      host:
-                        description: Host parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      port:
-                        description: Port parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      user:
-                        description: User parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      password:
-                        description: Password parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
                       database:
-                        description: Database name parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      host:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      password:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      port:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      user:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
                     type: object
+                  url:
+                    description: One or more complete connection URL sources.
+                    items:
+                      oneOf:
+                      - required:
+                        - env
+                      - required:
+                        - envFrom
+                      - required:
+                        - secret
+                      - required:
+                        - envPattern
+                      properties:
+                        env:
+                          description: Environment variable with value defined directly in the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envFrom:
+                          description: Environment from resource reference in the the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envPattern:
+                          description: Environment variable whose value is extracted via a regex pattern.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            value_pattern:
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - value_pattern
+                          - variable
+                          type: object
+                        secret:
+                          description: |-
+                            Value read directly from a Kubernetes Secret at resolution time.
+                            When `env_var_name` is set, the operator resolves the Secret and emits
+                            the value to the local mirrord process under that name. Without it,
+                            the Secret is only used by the operator for branch provisioning.
+                          properties:
+                            env_var_name:
+                              nullable: true
+                              type: string
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                      type: object
+                    type: array
                 type: object
               copy:
                 default:
@@ -3050,11 +3388,15 @@ spec:
                     additionalProperties:
                       properties:
                         filter:
-                          description: Data that matches the filter will be copied. For PostgreSQL, this filter is a `where` clause that looks like `username = 'alice'`.
+                          description: |-
+                            Data that matches the filter will be copied.
+                            For PostgreSQL, this filter is a `WHERE` clause that looks like `username = 'alice'`.
                           nullable: true
                           type: string
                       type: object
-                    description: An optional list of tables whose schema and data will be copied based on their table level copy config. Only compatible with `Empty` and `Schema` copy mode.
+                    description: |-
+                      An optional list of tables whose schema and data will be copied based on their
+                      table level copy config. Only compatible with `Empty` and `Schema` copy mode.
                     nullable: true
                     type: object
                 required:
@@ -3065,343 +3407,31 @@ spec:
                 nullable: true
                 type: string
               iamAuth:
-                description: IAM authentication configuration for the source database. Use this when the source database (RDS, Cloud SQL) requires IAM auth instead of passwords.
+                description: |-
+                  IAM authentication configuration for the source database.
+                  Use this when the source database (RDS, Cloud SQL) requires IAM auth instead of passwords.
                 nullable: true
-                oneOf:
-                - required:
-                  - type
                 properties:
                   type:
-                    description: Type of IAM authentication.
                     enum:
                     - aws_rds
                     - gcp_cloud_sql
                     type: string
-                  region:
-                    description: AWS region source (only for aws_rds type). If not specified, uses AWS_REGION or AWS_DEFAULT_REGION.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  access_key_id:
-                    description: AWS Access Key ID source (only for aws_rds type). If not specified, uses AWS_ACCESS_KEY_ID.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  secret_access_key:
-                    description: AWS Secret Access Key source (only for aws_rds type). If not specified, uses AWS_SECRET_ACCESS_KEY.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  session_token:
-                    description: AWS Session Token source (only for aws_rds type). If not specified, uses AWS_SESSION_TOKEN.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  credentials_json:
-                    description: Inline GCP service account JSON credentials (only for gcp_cloud_sql type). Pass credentials directly from an env var instead of mounting a file.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  credentials_path:
-                    description: Path to GCP service account JSON key file (only for gcp_cloud_sql type). The file must be accessible from the init container.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
-                  project:
-                    description: GCP project ID source (only for gcp_cloud_sql type). If not specified, uses GOOGLE_CLOUD_PROJECT.
-                    nullable: true
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
+                required:
+                - type
                 type: object
+                x-kubernetes-preserve-unknown-fields: true
               id:
                 description: ID derived by mirrord CLI.
                 type: string
               postgresVersion:
-                description: PostgreSQL server image version, e.g. "17".
+                description: PostgreSQL server image version, e.g. "16".
                 nullable: true
                 type: string
               target:
                 description: Target k8s resource to extract connection source info from.
+                enum:
+                - targetless
                 oneOf:
                 - required:
                   - deployment
@@ -3426,17 +3456,23 @@ spec:
                   cron_job:
                     type: string
                   deployment:
-                    description: <!--${internal}--> Deployment to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Deployment to mirror.
                     type: string
                   job:
                     type: string
                   pod:
-                    description: <!--${internal}--> Pod to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Pod to mirror.
                     type: string
                   replica_set:
                     type: string
                   rollout:
-                    description: <!--${internal}--> Rollout to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Rollout to mirror.
                     type: string
                   service:
                     type: string
@@ -3458,7 +3494,7 @@ spec:
             nullable: true
             properties:
               error:
-                description: Error message if the branch database failed to create.
+                description: Error message when phase is Failed.
                 nullable: true
                 type: string
               expireTime:
@@ -3467,12 +3503,12 @@ spec:
                 type: string
               phase:
                 enum:
+                - Init
                 - Pending
                 - Ready
                 - Failed
                 type: string
               podName:
-                description: Name of the pod created for this branch database.
                 nullable: true
                 type: string
               sessionInfo:
@@ -3485,16 +3521,16 @@ spec:
                       description: Owner info of the session.
                       properties:
                         hostname:
-                          description: Creator hostname.
+                          description: Hostname of the machine where the CLI command was executed.
                           type: string
                         k8sUsername:
-                          description: Creator Kubernetes username.
+                          description: Name of the Kubernetes user who's identity was assumed by the CLI.
                           type: string
                         userId:
                           description: Unique ID.
                           type: string
                         username:
-                          description: Creator local username.
+                          description: Name of the POSIX user that executed the CLI command.
                           type: string
                       required:
                       - hostname
@@ -3532,12 +3568,15 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories: []
     kind: MongodbBranchDatabase
     plural: mongodbbranchdatabases
+    shortNames: []
     singular: mongodbbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns: []
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MongodbBranchDatabaseSpec via `CustomResource`
@@ -3552,264 +3591,424 @@ spec:
                 - required:
                   - params
                 properties:
-                  url:
-                    description: A complete connection URL.
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        description: Environment variable with value defined directly in the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        description: Environment from resource reference in the the pod template.
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        description: Value read directly from a Kubernetes Secret.
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
                   params:
                     description: Individual connection parameters (host, port, user, password, database).
                     properties:
-                      host:
-                        description: Host parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      port:
-                        description: Port parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      user:
-                        description: User parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
-                      password:
-                        description: Password parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
                       database:
-                        description: Database name parameter.
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            description: Value read directly from a Kubernetes Secret.
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      host:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      password:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      port:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
+                      user:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        nullable: true
+                        type: array
                     type: object
+                  url:
+                    description: One or more complete connection URL sources.
+                    items:
+                      oneOf:
+                      - required:
+                        - env
+                      - required:
+                        - envFrom
+                      - required:
+                        - secret
+                      - required:
+                        - envPattern
+                      properties:
+                        env:
+                          description: Environment variable with value defined directly in the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envFrom:
+                          description: Environment from resource reference in the the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envPattern:
+                          description: Environment variable whose value is extracted via a regex pattern.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            value_pattern:
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - value_pattern
+                          - variable
+                          type: object
+                        secret:
+                          description: |-
+                            Value read directly from a Kubernetes Secret at resolution time.
+                            When `env_var_name` is set, the operator resolves the Secret and emits
+                            the value to the local mirrord process under that name. Without it,
+                            the Secret is only used by the operator for branch provisioning.
+                          properties:
+                            env_var_name:
+                              nullable: true
+                              type: string
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                      type: object
+                    type: array
                 type: object
               copy:
                 default:
@@ -3820,15 +4019,19 @@ spec:
                     additionalProperties:
                       properties:
                         filter:
-                          description: 'Data that matches the filter will be copied. For MongoDB, this filter is a JSON query document like {"age": {"$gte": 18}}.'
+                          description: |-
+                            Data that matches the filter will be copied.
+                            For MongoDB, this filter is a JSON query document like `{"username": "alice"}`.
                           nullable: true
                           type: string
                       type: object
-                    description: An optional map of collection names to their copy configurations. When specified, only these collections will be copied with their respective filters.
+                    description: |-
+                      An optional list of collections to copy with their filters.
+                      If not specified, all collections are copied (for `All` mode) or none (for `Empty` mode).
                     nullable: true
                     type: object
                   mode:
-                    description: The copy mode for the branch. 'empty' creates an empty database, 'all' copies all collections with data.
+                    description: The copy mode for the branch.
                     enum:
                     - empty
                     - all
@@ -3849,6 +4052,8 @@ spec:
                 type: string
               target:
                 description: Target k8s resource to extract connection source info from.
+                enum:
+                - targetless
                 oneOf:
                 - required:
                   - deployment
@@ -3873,17 +4078,23 @@ spec:
                   cron_job:
                     type: string
                   deployment:
-                    description: <!--${internal}--> Deployment to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Deployment to mirror.
                     type: string
                   job:
                     type: string
                   pod:
-                    description: <!--${internal}--> Pod to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Pod to mirror.
                     type: string
                   replica_set:
                     type: string
                   rollout:
-                    description: <!--${internal}--> Rollout to mirror.
+                    description: |-
+                      <!--${internal}-->
+                      Rollout to mirror.
                     type: string
                   service:
                     type: string
@@ -3904,17 +4115,22 @@ spec:
           status:
             nullable: true
             properties:
+              error:
+                description: Error message when phase is Failed.
+                nullable: true
+                type: string
               expireTime:
                 description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
               phase:
                 enum:
+                - Init
                 - Pending
                 - Ready
+                - Failed
                 type: string
               podName:
-                description: Name of the pod created for this branch database.
                 nullable: true
                 type: string
               sessionInfo:
@@ -3927,16 +4143,16 @@ spec:
                       description: Owner info of the session.
                       properties:
                         hostname:
-                          description: Creator hostname.
+                          description: Hostname of the machine where the CLI command was executed.
                           type: string
                         k8sUsername:
-                          description: Creator Kubernetes username.
+                          description: Name of the Kubernetes user who's identity was assumed by the CLI.
                           type: string
                         userId:
                           description: Unique ID.
                           type: string
                         username:
-                          description: Creator local username.
+                          description: Name of the POSIX user that executed the CLI command.
                           type: string
                       required:
                       - hostname
@@ -4730,33 +4946,23 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories: []
     kind: BranchDatabase
     plural: branchdatabases
+    shortNames: []
     singular: branchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns: []
+    name: v1alpha1
     schema:
       openAPIV3Schema:
+        description: Auto-generated derived type for BranchDatabaseSpec via `CustomResource`
         properties:
-          apiVersion:
-            type: string
-          kind:
-            type: string
-          metadata:
-            type: object
           spec:
-            oneOf:
-            - required:
-              - postgresOptions
-            - required:
-              - mysqlOptions
-            - required:
-              - mongodbOptions
-            - required:
-              - mssqlOptions
             properties:
               connectionSource:
+                description: Database connection info from the workload.
                 oneOf:
                 - required:
                   - url
@@ -4767,258 +4973,431 @@ spec:
                     description: Individual connection parameters (host, port, user, password, database).
                     properties:
                       database:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
                         nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        type: array
                       host:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
                         nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        type: array
                       password:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
                         nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        type: array
                       port:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
                         nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        type: array
                       user:
+                        items:
+                          oneOf:
+                          - required:
+                            - env
+                          - required:
+                            - envFrom
+                          - required:
+                            - secret
+                          - required:
+                            - envPattern
+                          properties:
+                            env:
+                              description: Environment variable with value defined directly in the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envFrom:
+                              description: Environment from resource reference in the the pod template.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - variable
+                              type: object
+                            envPattern:
+                              description: Environment variable whose value is extracted via a regex pattern.
+                              properties:
+                                container:
+                                  nullable: true
+                                  type: string
+                                value_pattern:
+                                  type: string
+                                variable:
+                                  type: string
+                              required:
+                              - value_pattern
+                              - variable
+                              type: object
+                            secret:
+                              description: |-
+                                Value read directly from a Kubernetes Secret at resolution time.
+                                When `env_var_name` is set, the operator resolves the Secret and emits
+                                the value to the local mirrord process under that name. Without it,
+                                the Secret is only used by the operator for branch provisioning.
+                              properties:
+                                env_var_name:
+                                  nullable: true
+                                  type: string
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
                         nullable: true
-                        oneOf:
-                        - required:
-                          - env
-                        - required:
-                          - envFrom
-                        - required:
-                          - secret
-                        properties:
-                          env:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          envFrom:
-                            properties:
-                              container:
-                                nullable: true
-                                type: string
-                              variable:
-                                type: string
-                            required:
-                            - variable
-                            type: object
-                          secret:
-                            properties:
-                              key:
-                                type: string
-                              name:
-                                type: string
-                            required:
-                            - key
-                            - name
-                            type: object
-                        type: object
+                        type: array
                     type: object
                   url:
-                    description: A complete connection URL.
-                    oneOf:
-                    - required:
-                      - env
-                    - required:
-                      - envFrom
-                    - required:
-                      - secret
-                    properties:
-                      env:
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      envFrom:
-                        properties:
-                          container:
-                            nullable: true
-                            type: string
-                          variable:
-                            type: string
-                        required:
-                        - variable
-                        type: object
-                      secret:
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        type: object
-                    type: object
+                    description: One or more complete connection URL sources.
+                    items:
+                      oneOf:
+                      - required:
+                        - env
+                      - required:
+                        - envFrom
+                      - required:
+                        - secret
+                      - required:
+                        - envPattern
+                      properties:
+                        env:
+                          description: Environment variable with value defined directly in the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envFrom:
+                          description: Environment from resource reference in the the pod template.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - variable
+                          type: object
+                        envPattern:
+                          description: Environment variable whose value is extracted via a regex pattern.
+                          properties:
+                            container:
+                              nullable: true
+                              type: string
+                            value_pattern:
+                              type: string
+                            variable:
+                              type: string
+                          required:
+                          - value_pattern
+                          - variable
+                          type: object
+                        secret:
+                          description: |-
+                            Value read directly from a Kubernetes Secret at resolution time.
+                            When `env_var_name` is set, the operator resolves the Secret and emits
+                            the value to the local mirrord process under that name. Without it,
+                            the Secret is only used by the operator for branch provisioning.
+                          properties:
+                            env_var_name:
+                              nullable: true
+                              type: string
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                      type: object
+                    type: array
                 type: object
               databaseName:
+                description: Database name.
+                nullable: true
                 type: string
               id:
+                description: ID derived by mirrord CLI.
                 type: string
               mongodbOptions:
+                description: MongoDB-specific options.
+                nullable: true
                 properties:
                   copy:
                     default:
@@ -5028,6 +5407,10 @@ spec:
                         additionalProperties:
                           properties:
                             filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
                               nullable: true
                               type: string
                           type: object
@@ -5043,6 +5426,8 @@ spec:
                     type: object
                 type: object
               mssqlOptions:
+                description: MSSQL-specific options.
+                nullable: true
                 properties:
                   copy:
                     default:
@@ -5052,9 +5437,14 @@ spec:
                         additionalProperties:
                           properties:
                             filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
                               nullable: true
                               type: string
                           type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
                         nullable: true
                         type: object
                       mode:
@@ -5068,6 +5458,8 @@ spec:
                     type: object
                 type: object
               mysqlOptions:
+                description: MySQL-specific options.
+                nullable: true
                 properties:
                   copy:
                     default:
@@ -5077,9 +5469,14 @@ spec:
                         additionalProperties:
                           properties:
                             filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
                               nullable: true
                               type: string
                           type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
                         nullable: true
                         type: object
                       mode:
@@ -5093,6 +5490,8 @@ spec:
                     type: object
                 type: object
               postgresOptions:
+                description: PostgreSQL-specific options.
+                nullable: true
                 properties:
                   copy:
                     default:
@@ -5102,9 +5501,14 @@ spec:
                         additionalProperties:
                           properties:
                             filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
                               nullable: true
                               type: string
                           type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
                         nullable: true
                         type: object
                       mode:
@@ -5117,6 +5521,7 @@ spec:
                     - mode
                     type: object
                   iamAuth:
+                    description: IAM auth config for cloud-managed databases (RDS, Cloud SQL).
                     nullable: true
                     properties:
                       type:
@@ -5130,14 +5535,19 @@ spec:
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
               target:
+                description: Target k8s resource to extract connection source info from.
                 properties:
                   apiVersion:
+                    description: Kubernetes resource apiVersion.
                     type: string
                   container:
+                    description: Name of the container defined in the Pod spec.
                     type: string
                   kind:
+                    description: Kubernetes resource kind.
                     type: string
                   name:
+                    description: Kubernetes resource name.
                     type: string
                 required:
                 - apiVersion
@@ -5146,9 +5556,13 @@ spec:
                 - name
                 type: object
               ttlSecs:
+                description: The duration in seconds this branch database will live idling.
                 format: uint64
+                minimum: 0.0
                 type: integer
               version:
+                description: Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
+                nullable: true
                 type: string
             required:
             - connectionSource
@@ -5157,11 +5571,14 @@ spec:
             - ttlSecs
             type: object
           status:
+            nullable: true
             properties:
               error:
+                description: Error message when phase is Failed.
                 nullable: true
                 type: string
               expireTime:
+                description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
               phase:
@@ -5172,23 +5589,28 @@ spec:
                 - Failed
                 type: string
               podName:
-                description: Name of the pod created for this branch database.
                 nullable: true
                 type: string
               sessionInfo:
                 additionalProperties:
                   properties:
                     id:
+                      description: Session id.
                       type: string
                     owner:
+                      description: Owner info of the session.
                       properties:
                         hostname:
+                          description: Hostname of the machine where the CLI command was executed.
                           type: string
                         k8sUsername:
+                          description: Name of the Kubernetes user who's identity was assumed by the CLI.
                           type: string
                         userId:
+                          description: Unique ID.
                           type: string
                         username:
+                          description: Name of the POSIX user that executed the CLI command.
                           type: string
                       required:
                       - hostname
@@ -5201,16 +5623,15 @@ spec:
                   - owner
                   type: object
                 default: {}
+                description: Information of sessions that are using this branch database.
                 type: object
             required:
             - expireTime
             - phase
             type: object
         required:
-        - apiVersion
-        - kind
-        - metadata
         - spec
+        title: BranchDatabase
         type: object
     served: true
     storage: true

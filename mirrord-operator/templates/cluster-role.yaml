@@ -381,6 +381,18 @@ rules:
   - get
   - update
   - patch
+# The operator creates Secrets to store literal credential values from the
+# mirrord config and patches them to set owner references for cleanup.
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - delete
+  - patch
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)

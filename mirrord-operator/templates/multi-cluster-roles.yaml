@@ -230,6 +230,16 @@ rules:
   - mirrordclusterworkloadpatchrequests
   verbs:
   - create
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+# The primary operator creates credential Secrets on the default cluster
+# when the mirrord config contains literal connection values.
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+{{- end }}
 {{- if .Values.operator.sqsSplitting }}
 # SQS session management for copy target + SQS splitting.
 # The primary operator creates SQS sessions directly on the default cluster.
