@@ -44,26 +44,33 @@ spec:
               env:
                 default:
                   exclude: []
-                description: Controls how mirrord-operator handles user requests to fetch environment variables from the target.
+                description: |-
+                  Controls how mirrord-operator handles user requests to fetch environment variables from the
+                  target.
                 properties:
                   exclude:
                     default: []
                     description: |-
                       List of environment variables that should be excluded when using mirrord.
 
-                      These environment variables won't be retrieved from the target even if the user specifies them in their `feature.env.include` mirrord config.
+                      These environment variables won't be retrieved from the target even if the user
+                      specifies them in their `feature.env.include` mirrord config.
 
-                      Variable names can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character, e.g. `DATABASE_*` will match `DATABASE_URL` and `DATABASE_PORT`.
+                      Variable names can be matched using `*` and `?` where `?` matches exactly one occurrence of
+                      any character and `*` matches arbitrary many (including zero) occurrences of any character,
+                      e.g. `DATABASE_*` will match `DATABASE_URL` and `DATABASE_PORT`.
                     items:
                       type: string
                     type: array
                 type: object
               fs:
                 default:
+                  readOnly: []
                   local: []
                   notFound: []
-                  readOnly: []
-                description: Overrides fs ops behaviour, granting control over them to the operator policy, instead of the user config.
+                description: |-
+                  Overrides fs ops behaviour, granting control over them to the operator policy, instead of
+                  the user config.
                 properties:
                   local:
                     default: []
@@ -101,7 +108,9 @@ spec:
                   outgoing:
                     allow: []
                     block: []
-                description: Fine grained control over network features like specifying required HTTP filters and limiting outgoing connections.
+                description: |-
+                  Fine grained control over network features like specifying required HTTP filters and
+                  limiting outgoing connections.
                 properties:
                   incoming:
                     default:
@@ -118,13 +127,16 @@ spec:
                             description: |-
                               Require the user's header filter to match this regex, if such filter is provided.
 
-                              This auto enables `steal-without-filter` policy block to require that the user specifies a header filter for the network steal feature.
+                              This auto enables `steal-without-filter` policy block to require that the user specifies a
+                              header filter for the network steal feature.
 
                               # Composed filters
 
-                              When the user requests an `all_of` HTTP filter, at least one of the nested filters must be a header filter that matches this regex. At least one nested filter is required.
+                              When the user requests an `all_of` HTTP filter, at least one of the nested filters
+                              must be a header filter that matches this regex. At least one nested filter is required.
 
-                              When the user requests an `any_of` HTTP filter, all nested header filters must match this regex. At least one nested header filter is required.
+                              When the user requests an `any_of` HTTP filter, all nested header filters must match this
+                              regex. At least one nested header filter is required.
                             nullable: true
                             type: string
                         type: object
@@ -137,7 +149,10 @@ spec:
                     properties:
                       allow:
                         default: []
-                        description: List of allowed outgoing connections. If specified, only connections matching these rules will be permitted. Evaluated before `block` rules, so a connection that matches both will be blocked.
+                        description: |-
+                          List of allowed outgoing connections.
+                          If specified, only connections matching these rules will be permitted.
+                          Evaluated before `block` rules, so a connection that matches both will be blocked.
                         items:
                           description: A rule describing outgoing network connections (for either allow or block lists).
                           properties:
@@ -163,13 +178,16 @@ spec:
                               type: object
                             ports:
                               default: []
-                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              description: |-
+                                List of ports and protocols this rule applies to.
+                                If not specified, the rule applies to all ports.
                               items:
                                 description: Port and protocol specification for outgoing connections.
                                 properties:
                                   port:
                                     description: Port number.
                                     format: uint16
+                                    maximum: 65535.0
                                     minimum: 0.0
                                     type: integer
                                   protocol:
@@ -187,7 +205,10 @@ spec:
                         type: array
                       block:
                         default: []
-                        description: List of blocked outgoing connections. If specified, connections matching these rules will be denied. Evaluated after `allow` rules, so a connection that matches both will be blocked.
+                        description: |-
+                          List of blocked outgoing connections.
+                          If specified, connections matching these rules will be denied.
+                          Evaluated after `allow` rules, so a connection that matches both will be blocked.
                         items:
                           description: A rule describing outgoing network connections (for either allow or block lists).
                           properties:
@@ -213,13 +234,16 @@ spec:
                               type: object
                             ports:
                               default: []
-                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              description: |-
+                                List of ports and protocols this rule applies to.
+                                If not specified, the rule applies to all ports.
                               items:
                                 description: Port and protocol specification for outgoing connections.
                                 properties:
                                   port:
                                     description: Port number.
                                     format: uint16
+                                    maximum: 65535.0
                                     minimum: 0.0
                                     type: integer
                                   protocol:
@@ -241,9 +265,12 @@ spec:
                 description: |-
                   A list of allowed mirrord profiles.
 
-                  If multiple policies apply to a session, user's mirrord profile must be present in all allowlists.
+                  If multiple policies apply to a session,
+                  user's mirrord profile must be present in all allowlists.
 
-                  Mind that mirrord profiles are only a functional feature. mirrord Operator is not able to enforce that the application running on the user's machine follows the selected profile.
+                  Mind that mirrord profiles are only a functional feature.
+                  mirrord Operator is not able to enforce that the
+                  application running on the user's machine follows the selected profile.
 
                   This setting should not be used in order to prevent malicious actions.
 
@@ -257,26 +284,34 @@ spec:
                 description: |-
                   Enforces that the user selects a mirrord profile for their session.
 
-                  Mind that mirrord profiles are only a functional feature. mirrord Operator is not able to enforce that the application running on the user's machine follows the selected profile.
+                  Mind that mirrord profiles are only a functional feature.
+                  mirrord Operator is not able to enforce that the
+                  application running on the user's machine follows the selected profile.
 
                   This setting should not be used in order to prevent malicious actions.
 
                   Defaults to `false`.
                 type: boolean
               selector:
-                description: If specified in a policy, the policy will only apply to targets with labels that match all of the selector's rules.
+                description: |-
+                  If specified in a policy, the policy will only apply to targets with labels that match all
+                  of the selector's rules.
                 nullable: true
                 properties:
                   matchExpressions:
                     description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
                     items:
-                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
                       properties:
                         key:
                           description: key is the label key that the selector applies to.
                           type: string
                         operator:
-                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          description: |-
+                            operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                            Exists and DoesNotExist.
                           enum:
                           - In
                           - NotIn
@@ -284,7 +319,10 @@ spec:
                           - DoesNotExist
                           type: string
                         values:
-                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn, the values array must
+                            be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                            This array is replaced during a strategic merge patch.
                           items:
                             type: string
                           nullable: true
@@ -298,12 +336,19 @@ spec:
                   matchLabels:
                     additionalProperties:
                       type: string
-                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                      equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                      "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
                 type: object
               targetPath:
-                description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
+                description: |-
+                  Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy
+                  notation. Targets can be matched using `*` and `?` where `?` matches exactly one
+                  occurrence of any character and `*` matches arbitrary many (including zero) occurrences
+                  of any character. If not specified, this policy does not depend on the target's path.
                 nullable: true
                 type: string
             required:
@@ -315,6 +360,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -362,26 +408,33 @@ spec:
               env:
                 default:
                   exclude: []
-                description: Controls how mirrord-operator handles user requests to fetch environment variables from the target.
+                description: |-
+                  Controls how mirrord-operator handles user requests to fetch environment variables from the
+                  target.
                 properties:
                   exclude:
                     default: []
                     description: |-
                       List of environment variables that should be excluded when using mirrord.
 
-                      These environment variables won't be retrieved from the target even if the user specifies them in their `feature.env.include` mirrord config.
+                      These environment variables won't be retrieved from the target even if the user
+                      specifies them in their `feature.env.include` mirrord config.
 
-                      Variable names can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character, e.g. `DATABASE_*` will match `DATABASE_URL` and `DATABASE_PORT`.
+                      Variable names can be matched using `*` and `?` where `?` matches exactly one occurrence of
+                      any character and `*` matches arbitrary many (including zero) occurrences of any character,
+                      e.g. `DATABASE_*` will match `DATABASE_URL` and `DATABASE_PORT`.
                     items:
                       type: string
                     type: array
                 type: object
               fs:
                 default:
+                  readOnly: []
                   local: []
                   notFound: []
-                  readOnly: []
-                description: Overrides fs ops behaviour, granting control over them to the operator policy, instead of the user config.
+                description: |-
+                  Overrides fs ops behaviour, granting control over them to the operator policy, instead of
+                  the user config.
                 properties:
                   local:
                     default: []
@@ -419,7 +472,9 @@ spec:
                   outgoing:
                     allow: []
                     block: []
-                description: Fine grained control over network features like specifying required HTTP filters and limiting outgoing connections.
+                description: |-
+                  Fine grained control over network features like specifying required HTTP filters and
+                  limiting outgoing connections.
                 properties:
                   incoming:
                     default:
@@ -436,13 +491,16 @@ spec:
                             description: |-
                               Require the user's header filter to match this regex, if such filter is provided.
 
-                              This auto enables `steal-without-filter` policy block to require that the user specifies a header filter for the network steal feature.
+                              This auto enables `steal-without-filter` policy block to require that the user specifies a
+                              header filter for the network steal feature.
 
                               # Composed filters
 
-                              When the user requests an `all_of` HTTP filter, at least one of the nested filters must be a header filter that matches this regex. At least one nested filter is required.
+                              When the user requests an `all_of` HTTP filter, at least one of the nested filters
+                              must be a header filter that matches this regex. At least one nested filter is required.
 
-                              When the user requests an `any_of` HTTP filter, all nested header filters must match this regex. At least one nested header filter is required.
+                              When the user requests an `any_of` HTTP filter, all nested header filters must match this
+                              regex. At least one nested header filter is required.
                             nullable: true
                             type: string
                         type: object
@@ -455,7 +513,10 @@ spec:
                     properties:
                       allow:
                         default: []
-                        description: List of allowed outgoing connections. If specified, only connections matching these rules will be permitted. Evaluated before `block` rules, so a connection that matches both will be blocked.
+                        description: |-
+                          List of allowed outgoing connections.
+                          If specified, only connections matching these rules will be permitted.
+                          Evaluated before `block` rules, so a connection that matches both will be blocked.
                         items:
                           description: A rule describing outgoing network connections (for either allow or block lists).
                           properties:
@@ -481,13 +542,16 @@ spec:
                               type: object
                             ports:
                               default: []
-                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              description: |-
+                                List of ports and protocols this rule applies to.
+                                If not specified, the rule applies to all ports.
                               items:
                                 description: Port and protocol specification for outgoing connections.
                                 properties:
                                   port:
                                     description: Port number.
                                     format: uint16
+                                    maximum: 65535.0
                                     minimum: 0.0
                                     type: integer
                                   protocol:
@@ -505,7 +569,10 @@ spec:
                         type: array
                       block:
                         default: []
-                        description: List of blocked outgoing connections. If specified, connections matching these rules will be denied. Evaluated after `allow` rules, so a connection that matches both will be blocked.
+                        description: |-
+                          List of blocked outgoing connections.
+                          If specified, connections matching these rules will be denied.
+                          Evaluated after `allow` rules, so a connection that matches both will be blocked.
                         items:
                           description: A rule describing outgoing network connections (for either allow or block lists).
                           properties:
@@ -531,13 +598,16 @@ spec:
                               type: object
                             ports:
                               default: []
-                              description: List of ports and protocols this rule applies to. If not specified, the rule applies to all ports.
+                              description: |-
+                                List of ports and protocols this rule applies to.
+                                If not specified, the rule applies to all ports.
                               items:
                                 description: Port and protocol specification for outgoing connections.
                                 properties:
                                   port:
                                     description: Port number.
                                     format: uint16
+                                    maximum: 65535.0
                                     minimum: 0.0
                                     type: integer
                                   protocol:
@@ -559,7 +629,8 @@ spec:
                 description: |-
                   A list of allowed mirrord profiles.
 
-                  If multiple policies apply to a session, user's mirrord profile must be present in all allowlists.
+                  If multiple policies apply to a session,
+                  user's mirrord profile must be present in all allowlists.
 
                   Optional.
                 items:
@@ -574,19 +645,25 @@ spec:
                   Defaults to `false`.
                 type: boolean
               selector:
-                description: If specified in a policy, the policy will only apply to targets with labels that match all of the selector's rules.
+                description: |-
+                  If specified in a policy, the policy will only apply to targets with labels that match all
+                  of the selector's rules.
                 nullable: true
                 properties:
                   matchExpressions:
                     description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
                     items:
-                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
                       properties:
                         key:
                           description: key is the label key that the selector applies to.
                           type: string
                         operator:
-                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          description: |-
+                            operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                            Exists and DoesNotExist.
                           enum:
                           - In
                           - NotIn
@@ -594,7 +671,10 @@ spec:
                           - DoesNotExist
                           type: string
                         values:
-                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn, the values array must
+                            be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                            This array is replaced during a strategic merge patch.
                           items:
                             type: string
                           nullable: true
@@ -608,12 +688,19 @@ spec:
                   matchLabels:
                     additionalProperties:
                       type: string
-                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                      equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                      "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
                 type: object
               targetPath:
-                description: Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy notation. Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this policy does not depend on the target's path.
+                description: |-
+                  Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy
+                  notation. Targets can be matched using `*` and `?` where `?` matches exactly one
+                  occurrence of any character and `*` matches arbitrary many (including zero) occurrences
+                  of any character. If not specified, this policy does not depend on the target's path.
                 nullable: true
                 type: string
             required:
@@ -625,6 +712,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 {{ if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -782,13 +870,27 @@ spec:
         description: Auto-generated derived type for MirrordSqsSessionSpec via `CustomResource`
         properties:
           spec:
-            description: The operator creates this object when a user runs mirrord against a target that is a queue consumer.
+            description: |-
+              The operator creates this object when a user runs mirrord against a target that is a queue
+              consumer.
             properties:
+              outputQueueNames:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Multi-cluster coordination: explicit output queue names.
+
+                  Maps original queue names to their corresponding output queue names.
+                  For multi-cluster: the default cluster creates temp queues and passes the exact names here.
+                  Other clusters use these names directly instead of generating their own.
+                type: object
               queueConsumer:
                 description: The target of this session.
                 properties:
                   container:
-                    description: If a container is not specified, the workload queue registry will apply to every run that targets any of the workload's containers.
+                    description: |-
+                      If a container is not specified, the workload queue registry will apply to every run that
+                      targets any of the workload's containers.
                     nullable: true
                     type: string
                   name:
@@ -808,24 +910,24 @@ spec:
                   additionalProperties:
                     type: string
                   type: object
-                description: For each queue_id, a mapping from attribute name, to attribute value regex. The queue_id for a queue is determined at the queue registry. It is not (necessarily) The name of the queue on AWS.
+                description: |-
+                  For each queue_id, a mapping from attribute name, to attribute value regex.
+                  The queue_id for a queue is determined at the queue registry. It is not (necessarily)
+                  The name of the queue on AWS.
                 type: object
               queueJqFilters:
                 additionalProperties:
                   type: string
                 description: |-
-                  Specify jq programs that will be used to filter messages from queues. For queues with a specified jq program, for every message the jq filter runs on a JSON representation of the SQS `Message` object.
+                  Specify jq programs that will be used to filter messages from queues.
+                  For queues with a specified jq program, for every message the jq filter runs on a JSON
+                  representation of the SQS `Message` object.
 
                   If the jq program outputs `true`, that message is considered as matching the filter.
                 type: object
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
-              outputQueueNames:
-                description: Explicit output queue names for multi-cluster coordination. Maps original queue names to their output queue names.
-                type: object
-                additionalProperties:
-                  type: string
             required:
             - queueConsumer
             - queueFilters
@@ -889,6 +991,7 @@ spec:
                       statusCode:
                         description: HTTP code for operator response.
                         format: uint16
+                        maximum: 65535.0
                         minimum: 0.0
                         type: integer
                     required:
@@ -931,7 +1034,10 @@ spec:
                 - queueNames
                 type: object
               RegisteringFilters:
-                description: SQS operator sets this status before it starts registering filters, so that if anything fails during the registration of filters, we have all the queues we need to delete on cleanup.
+                description: |-
+                  SQS operator sets this status before it starts registering filters, so that if anything
+                  fails during the registration of filters, we have all the queues we need to delete on
+                  cleanup.
                 properties:
                   envUpdates:
                     additionalProperties:
@@ -972,6 +1078,7 @@ spec:
                   statusCode:
                     description: HTTP code for operator response.
                     format: uint16
+                    maximum: 65535.0
                     minimum: 0.0
                     type: integer
                 required:
@@ -1061,7 +1168,7 @@ spec:
                 description: |-
                   For each queue_id, a mapping from attribute name, to attribute value regex.
                   The queue_id for a queue is determined at the queue registry. It is not (necessarily)
-                  The name of the queue on AWS.
+                  the name of the queue.
                 type: object
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
@@ -1380,7 +1487,7 @@ spec:
     storage: true
     subresources: {}
 {{ end }}
-{{ if .Values.operator.kafkaSplitting}}
+{{ if .Values.operator.kafkaSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1417,7 +1524,9 @@ spec:
         description: Auto-generated derived type for MirrordKafkaClientConfigSpec via `CustomResource`
         properties:
           spec:
-            description: Configuration to use when creating operator's Kafka client. Resources of this kind should live in the operator's namespace.
+            description: |-
+              Configuration to use when creating operator's Kafka client.
+              Resources of this kind should live in the operator's namespace.
             properties:
               authenticationExtra:
                 description: Additional authentication configuration.
@@ -1434,7 +1543,8 @@ spec:
                     description: |-
                       Authentication kind.
 
-                      Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER authentication with Amazon Managed Streaming for Apache Kafka.
+                      Right now the only supported value is `MSK_IAM`, which enables IAM/OAUTHBEARER
+                      authentication with Amazon Managed Streaming for Apache Kafka.
                     type: string
                 required:
                 - kind
@@ -1454,7 +1564,9 @@ spec:
                 description: |-
                   Namespace and name of a `Secret` to use as another source of properties.
 
-                  The secret is fetched and entries in its `.data` field are resolved to properties. Properties resolved this way override properties from the parent configuration. Properties defined inline in this object override properties resolved from the secret.
+                  The secret is fetched and entries in its `.data` field are resolved to properties.
+                  Properties resolved this way override properties from the parent configuration.
+                  Properties defined inline in this object override properties resolved from the secret.
 
                   Example value: `default/my-secret`
                 nullable: true
@@ -1467,9 +1579,11 @@ spec:
                 description: |-
                   Properties to set.
 
-                  When performing Kafka splitting, the operator will override `group.id`/`application.id` property.
+                  When performing Kafka splitting, the operator will override `group.id`/`application.id`
+                  property.
 
-                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) for librdkafka clients, and [here](https://docs.confluent.io/platform/current/installation/configuration/index.html#ak-configuration-reference-for-cp) for Java clients.
+                  The list of all available properties can be found [here](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md)
+                  for librdkafka clients, and [here](https://docs.confluent.io/platform/current/installation/configuration/index.html#ak-configuration-reference-for-cp) for Java clients.
                 items:
                   description: Property to use when creating operator's Kafka client.
                   properties:
@@ -1477,7 +1591,9 @@ spec:
                       description: Name of the property, e.g `bootstrap.servers`.
                       type: string
                     value:
-                      description: Value for the property, e.g `kafka.default.svc.cluster.local:9092`. `null` clears the property from parent resource when resolving the final configuration.
+                      description: |-
+                        Value for the property, e.g `kafka.default.svc.cluster.local:9092`.
+                        `null` clears the property from parent resource when resolving the final configuration.
                       nullable: true
                       type: string
                   required:
@@ -1523,12 +1639,16 @@ spec:
         properties:
           spec:
             description: |-
-              Ephemeral topic created in your Kafka cluster for the purpose of running a Kafka splitting session.
+              Ephemeral topic created in your Kafka cluster for the purpose of running a Kafka splitting
+              session.
 
-              Resources of this kind should live in the operator's namespace. They will be used to clean up topics that are no longer used.
+              Resources of this kind should live in the operator's namespace. They will be used to clean up
+              topics that are no longer used.
             properties:
               clientConfig:
-                description: Links to [`MirrordKafkaClientConfigSpec`] resource living in the same namespace.
+                description: |-
+                  Links to `operator_crd::crd::kafka::MirrordKafkaClientConfig` resource living in the same
+                  namespace.
                 type: string
               name:
                 description: Name of the topic.
@@ -1543,6 +1663,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1584,23 +1705,54 @@ spec:
 
               # Concurrent splitting
 
-              Concurrent Kafka splitting sessions are allowed, as long as they use the same topic id or their topics' `nameSources` do not overlap.
+              Concurrent Kafka splitting sessions are allowed, as long as they use the same topic id or their
+              topics' `nameSources` do not overlap.
 
               # Example
 
-              ```yaml apiVersion: queues.mirrord.metalbear.co/v1alpha kind: MirrordKafkaTopicsConsumer metadata: name: example namespace: default spec: consumerName: example-deployment consumerApiVersion: apps/v1 consumerKind: Deployment topics: - id: example-topic nameSources: - directEnvVar: container: example-container name: KAFKA_TOPIC_NAME groupIdSources: - directEnvVar: container: example-container name: KAFKA_GROUP_ID clientConfig: example-config ```
+              ```yaml
+              apiVersion: queues.mirrord.metalbear.co/v1alpha
+              kind: MirrordKafkaTopicsConsumer
+              metadata:
+                name: example
+                namespace: default
+              spec:
+                consumerName: example-deployment
+                consumerApiVersion: apps/v1
+                consumerKind: Deployment
+                topics:
+                  - id: example-topic
+                    nameSources:
+                      - directEnvVar:
+                          container: example-container
+                          name: KAFKA_TOPIC_NAME
+                    groupIdSources:
+                      - directEnvVar:
+                          container: example-container
+                          name: KAFKA_GROUP_ID
+                    clientConfig: example-config
+              ```
 
-              1. Creating the resource below will enable Kafka splitting on a deployment `example-deployment` living in namespace `default`. Id `example-topic` can be then used in the mirrord config to split the topic for the duration of the mirrord session.
+              1. Creating the resource below will enable Kafka splitting on a deployment `example-deployment`
+                 living in namespace `default`. Id `example-topic` can be then used in the mirrord config to
+                 split the topic for the duration of the mirrord session.
 
-              2. Topic name will be resolved based on `example-deployment`'s pod template by extracting value of variable `KAFKA_TOPIC_NAME` defined directly in `example-container`.
+              2. Topic name will be resolved based on `example-deployment`'s pod template by extracting value
+                 of variable `KAFKA_TOPIC_NAME` defined directly in `example-container`.
 
-              3. Consumer group id used by the mirrord operator will be resolved based on `example-deployment`'s pod template by extracting value of variable `KAFKA_GROUP_ID` defined directly in `example-container`.
+              3. Consumer group id used by the mirrord operator will be resolved based on
+                 `example-deployment`'s pod template by extracting value of variable `KAFKA_GROUP_ID` defined
+                 directly in `example-container`.
 
-              4. For the duration of the session, `example-deployment` will be patched - the mirrord operator will substitute topic name in `KAFKA_TOPIC_NAME` variable with a name of an ephemeral Kafka topic.
+              4. For the duration of the session, `example-deployment` will be patched - the mirrord operator
+                 will substitute topic name in `KAFKA_TOPIC_NAME` variable with a name of an ephemeral Kafka
+                 topic.
 
-              5. Local application will see a different value of the `KAFKA_TOPIC_NAME` - it will be a name of another ephemeral Kafka topic.
+              5. Local application will see a different value of the `KAFKA_TOPIC_NAME` - it will be a name of
+                 another ephemeral Kafka topic.
 
-              6. `MirrordKafkaClientConfig` named `example-config` living in mirrord operator's namespace will be used to manage ephemeral Kafka topics and consume/produce messages.
+              6. `MirrordKafkaClientConfig` named `example-config` living in mirrord operator's namespace will
+                 be used to manage ephemeral Kafka topics and consume/produce messages.
             properties:
               consumerApiVersion:
                 description: Workload api version, for example `apps/v1`.
@@ -1613,7 +1765,8 @@ spec:
                 type: string
               consumerRestartTimeout:
                 description: |-
-                  Timeout for waiting until workload patch takes effect, that is at least one pod reads from the ephemeral topic.
+                  Timeout for waiting until workload patch takes effect, that is at least one pod reads from
+                  the ephemeral topic.
 
                   Specified in seconds. Defaults to 60s.
                 format: uint32
@@ -1622,11 +1775,16 @@ spec:
                 type: integer
               splitTtl:
                 description: |-
-                  Period of time to wait before cleaning up Kafka splits for this consumer and reverting Pod template patches (in seconds).
+                  Period of time to wait before cleaning up Kafka splits for this consumer and reverting Pod
+                  template patches (in seconds).
 
-                  For any given topic, starting the first Kafka splitting session requires patching the target workload. Similarly, stopping the last Kafka splitting session requires another patch, that reverts the first one.
+                  For any given topic, starting the first Kafka splitting session requires patching the
+                  target workload. Similarly, stopping the last Kafka splitting session requires another
+                  patch, that reverts the first one.
 
-                  If the target workload takes a long time to restart, it may be desirable to keep the Kafka splits alive longer, so that the next Kafka splitting session will not have to patch the workload again.
+                  If the target workload takes a long time to restart, it may be desirable to keep the Kafka
+                  splits alive longer, so that the next Kafka splitting session will not have to patch
+                  the workload again.
                 format: uint32
                 minimum: 0.0
                 nullable: true
@@ -1640,9 +1798,11 @@ spec:
                       description: |-
                         All occurrences of this topic's application id in the workload's pod template.
 
-                        Relevant only for Kafka Streams consumers. Must be empty if `groupIdSources` is not empty.
+                        Relevant only for Kafka Streams consumers.
+                        Must be empty if `groupIdSources` is not empty.
 
-                        Note that Kafka Streams consumers are supported only when the [`MirrordKafkaClientConfig`] is configured to use the Java Kafka client implementation.
+                        Note that Kafka Streams consumers are supported only when the [`MirrordKafkaClientConfig`]
+                        is configured to use the Java Kafka client implementation.
                       items:
                         description: Source of some topic property required for Kafka splitting.
                         oneOf:
@@ -1665,13 +1825,17 @@ spec:
                         type: object
                       type: array
                     clientConfig:
-                      description: Links to [`MirrordKafkaClientConfig`] in the operator's namespace. This config will be used to manage ephemeral Kafka topics and consume/produce messages.
+                      description: |-
+                        Links to [`MirrordKafkaClientConfig`] in the operator's namespace.
+                        This config will be used to manage ephemeral Kafka topics and consume/produce messages.
                       type: string
                     groupIdSources:
+                      default: []
                       description: |-
                         All occurrences of this topic's group id in the workload's pod template.
 
-                        Relevant only for standard Kafka consumers. Must be empty if `applicationIdSources` is not empty.
+                        Relevant only for standard Kafka consumers.
+                        Must be empty if `applicationIdSources` is not empty.
                       items:
                         description: Source of some topic property required for Kafka splitting.
                         oneOf:
@@ -1737,6 +1901,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 {{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -1758,7 +1923,8 @@ spec:
         properties:
           spec:
             description: |-
-              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected targets.
+              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected
+              targets.
 
               Namespaced.
             properties:
@@ -1769,9 +1935,11 @@ spec:
                   properties:
                     agentAsClient:
                       description: |-
-                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS client.
+                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS
+                        client.
 
-                        mirrord-agent acts as a TLS client when passing unmatched requests to their original destination.
+                        mirrord-agent acts as a TLS client when passing unmatched traffic to its original
+                        destination.
                       properties:
                         authentication:
                           description: |-
@@ -1784,13 +1952,16 @@ spec:
                               description: |-
                                 Path to a PEM file containing a certificate chain to use.
 
-                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                                This file must contain at least one certificate.
+                                It can contain entries of other types, e.g private keys, which are ignored.
                               type: string
                             keyPem:
                               description: |-
-                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+                                Path to a PEM file containing a private key matching the certificate chain found in
+                                `cert_pem`.
 
-                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                                This file must contain exactly one private key.
+                                It can contain entries of other types, e.g certificates, which are ignored.
                               type: string
                           required:
                           - certPem
@@ -1811,7 +1982,8 @@ spec:
 
                                 Directories are not traversed recursively.
 
-                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+                                Each certificate found in the files is treated as an allowed root.
+                                The files can contain entries of other types, e.g private keys, which are ignored.
 
                                 Optional. Defaults to an empty list.
                               items:
@@ -1823,7 +1995,8 @@ spec:
                       type: object
                     agentAsServer:
                       description: |-
-                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS server.
+                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS
+                        server.
 
                         mirrord-agent acts as a TLS server when accepting stolen connections.
                       properties:
@@ -1844,13 +2017,16 @@ spec:
                               description: |-
                                 Path to a PEM file containing a certificate chain to use.
 
-                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                                This file must contain at least one certificate.
+                                It can contain entries of other types, e.g private keys, which are ignored.
                               type: string
                             keyPem:
                               description: |-
-                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+                                Path to a PEM file containing a private key matching the certificate chain found in
+                                `cert_pem`.
 
-                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                                This file must contain exactly one private key.
+                                It can contain entries of other types, e.g certificates, which are ignored.
                               type: string
                           required:
                           - certPem
@@ -1867,7 +2043,8 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not.
+                                If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -1883,7 +2060,8 @@ spec:
 
                                 Directories are not traversed recursively.
 
-                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+                                Each certificate found in the files is treated as an allowed root.
+                                The files can contain entries of other types, e.g private keys, which are ignored.
 
                                 Optional. Defaults to an empty list.
                               items:
@@ -1896,6 +2074,7 @@ spec:
                     port:
                       description: Remote port to which this configuration applies.
                       format: uint16
+                      maximum: 65535.0
                       minimum: 0.0
                       type: integer
                   required:
@@ -1905,19 +2084,25 @@ spec:
                   type: object
                 type: array
               selector:
-                description: If this selector is provided, this configuration will only apply to targets with labels that match all of the selector's rules.
+                description: |-
+                  If this selector is provided, this configuration will only apply to targets with labels
+                  that match all of the selector's rules.
                 nullable: true
                 properties:
                   matchExpressions:
                     description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
                     items:
-                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
                       properties:
                         key:
                           description: key is the label key that the selector applies to.
                           type: string
                         operator:
-                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          description: |-
+                            operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                            Exists and DoesNotExist.
                           enum:
                           - In
                           - NotIn
@@ -1925,7 +2110,10 @@ spec:
                           - DoesNotExist
                           type: string
                         values:
-                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn, the values array must
+                            be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                            This array is replaced during a strategic merge patch.
                           items:
                             type: string
                           nullable: true
@@ -1939,15 +2127,22 @@ spec:
                   matchLabels:
                     additionalProperties:
                       type: string
-                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                      equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                      "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
                 type: object
               targetPath:
                 description: |-
-                  Specify the targets for which this configuration applies, in the `pod/my-pod`, `deploy/my-deploy/container/my-container` notation.
+                  Specify the targets for which this configuration applies, in the `pod/my-pod`,
+                  `deploy/my-deploy/container/my-container` notation.
 
-                  Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this configuration does not depend on the target's path.
+                  Targets can be matched using `*` and `?` where `?` matches exactly one
+                  occurrence of any character and `*` matches arbitrary many (including zero) occurrences
+                  of any character. If not specified, this configuration does not depend on the target's
+                  path.
                 nullable: true
                 type: string
             required:
@@ -1959,6 +2154,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1979,7 +2175,8 @@ spec:
         properties:
           spec:
             description: |-
-              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected targets.
+              Custom resource for configuring how the mirrord-agent handles stealing TLS traffic from selected
+              targets.
 
               Clusterwide.
             properties:
@@ -1990,9 +2187,11 @@ spec:
                   properties:
                     agentAsClient:
                       description: |-
-                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS client.
+                        Configures how mirrord-agent authenticates itself and the server when acting as a TLS
+                        client.
 
-                        mirrord-agent acts as a TLS client when passing unmatched requests to their original destination.
+                        mirrord-agent acts as a TLS client when passing unmatched traffic to its original
+                        destination.
                       properties:
                         authentication:
                           description: |-
@@ -2005,13 +2204,16 @@ spec:
                               description: |-
                                 Path to a PEM file containing a certificate chain to use.
 
-                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                                This file must contain at least one certificate.
+                                It can contain entries of other types, e.g private keys, which are ignored.
                               type: string
                             keyPem:
                               description: |-
-                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+                                Path to a PEM file containing a private key matching the certificate chain found in
+                                `cert_pem`.
 
-                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                                This file must contain exactly one private key.
+                                It can contain entries of other types, e.g certificates, which are ignored.
                               type: string
                           required:
                           - certPem
@@ -2032,7 +2234,8 @@ spec:
 
                                 Directories are not traversed recursively.
 
-                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+                                Each certificate found in the files is treated as an allowed root.
+                                The files can contain entries of other types, e.g private keys, which are ignored.
 
                                 Optional. Defaults to an empty list.
                               items:
@@ -2044,7 +2247,8 @@ spec:
                       type: object
                     agentAsServer:
                       description: |-
-                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS server.
+                        Configures how mirrord-agent authenticates itself and the clients when acting as a TLS
+                        server.
 
                         mirrord-agent acts as a TLS server when accepting stolen connections.
                       properties:
@@ -2065,13 +2269,16 @@ spec:
                               description: |-
                                 Path to a PEM file containing a certificate chain to use.
 
-                                This file must contain at least one certificate. It can contain entries of other types, e.g private keys, which are ignored.
+                                This file must contain at least one certificate.
+                                It can contain entries of other types, e.g private keys, which are ignored.
                               type: string
                             keyPem:
                               description: |-
-                                Path to a PEM file containing a private key matching the certificate chain found in `cert_pem`.
+                                Path to a PEM file containing a private key matching the certificate chain found in
+                                `cert_pem`.
 
-                                This file must contain exactly one private key. It can contain entries of other types, e.g certificates, which are ignored.
+                                This file must contain exactly one private key.
+                                It can contain entries of other types, e.g certificates, which are ignored.
                               type: string
                           required:
                           - certPem
@@ -2088,7 +2295,8 @@ spec:
                               description: |-
                                 Whether to accept any certificate, regardless of its validity and who signed it.
 
-                                Note that this setting does not affect whether anonymous clients are accepted or not. If `allow_anonymous` is not set, a certificate will still be required.
+                                Note that this setting does not affect whether anonymous clients are accepted or not.
+                                If `allow_anonymous` is not set, a certificate will still be required.
 
                                 Optional. Defaults to `false`.
                               type: boolean
@@ -2104,7 +2312,8 @@ spec:
 
                                 Directories are not traversed recursively.
 
-                                Each certificate found in the files is treated as an allowed root. The files can contain entries of other types, e.g private keys, which are ignored.
+                                Each certificate found in the files is treated as an allowed root.
+                                The files can contain entries of other types, e.g private keys, which are ignored.
 
                                 Optional. Defaults to an empty list.
                               items:
@@ -2117,6 +2326,7 @@ spec:
                     port:
                       description: Remote port to which this configuration applies.
                       format: uint16
+                      maximum: 65535.0
                       minimum: 0.0
                       type: integer
                   required:
@@ -2126,19 +2336,25 @@ spec:
                   type: object
                 type: array
               selector:
-                description: If this selector is provided, this configuration will only apply to targets with labels that match all of the selector's rules.
+                description: |-
+                  If this selector is provided, this configuration will only apply to targets with labels
+                  that match all of the selector's rules.
                 nullable: true
                 properties:
                   matchExpressions:
                     description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
                     items:
-                      description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
                       properties:
                         key:
                           description: key is the label key that the selector applies to.
                           type: string
                         operator:
-                          description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                          description: |-
+                            operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                            Exists and DoesNotExist.
                           enum:
                           - In
                           - NotIn
@@ -2146,7 +2362,10 @@ spec:
                           - DoesNotExist
                           type: string
                         values:
-                          description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn, the values array must
+                            be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                            This array is replaced during a strategic merge patch.
                           items:
                             type: string
                           nullable: true
@@ -2160,15 +2379,22 @@ spec:
                   matchLabels:
                     additionalProperties:
                       type: string
-                    description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                      equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                      "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
                 type: object
               targetPath:
                 description: |-
-                  Specify the targets for which this configuration applies, in the `pod/my-pod`, `deploy/my-deploy/container/my-container` notation.
+                  Specify the targets for which this configuration applies, in the `pod/my-pod`,
+                  `deploy/my-deploy/container/my-container` notation.
 
-                  Targets can be matched using `*` and `?` where `?` matches exactly one occurrence of any character and `*` matches arbitrary many (including zero) occurrences of any character. If not specified, this configuration does not depend on the target's path.
+                  Targets can be matched using `*` and `?` where `?` matches exactly one
+                  occurrence of any character and `*` matches arbitrary many (including zero) occurrences
+                  of any character. If not specified, this configuration does not depend on the target's
+                  path.
                 nullable: true
                 type: string
             required:
@@ -2180,6 +2406,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2204,7 +2431,12 @@ spec:
 
               Can be selected from the user's mirrord config.
 
-              Example: ```json { "profile": "my-namespace/my-profile" } ```
+              Example:
+              ```json
+              {
+                  "profile": "my-namespace/my-profile"
+              }
+              ```
             properties:
               featureAdjustments:
                 description: |-
@@ -2238,6 +2470,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2262,7 +2495,9 @@ spec:
 
               Can be selected from the user's mirrord config.
 
-              Mind that mirrord profiles are only a functional feature. mirrord Operator is not able to enforce that the application running on the user's machine follows the selected profile.
+              Mind that mirrord profiles are only a functional feature.
+              mirrord Operator is not able to enforce that the
+              application running on the user's machine follows the selected profile.
 
               This feature should not be used in order to prevent malicious actions.
             properties:
@@ -2298,6 +2533,7 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}
 {{ if .Values.operator.mysqlBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -2307,15 +2543,12 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
-    categories: []
     kind: MysqlBranchDatabase
     plural: mysqlbranchdatabases
-    shortNames: []
     singular: mysqlbranchdatabase
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MysqlBranchDatabaseSpec via `CustomResource`
@@ -2519,7 +2752,6 @@ spec:
     subresources:
       status: {}
 {{ end }}
----
 {{ if .Values.operator.pgBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -2529,15 +2761,12 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
-    categories: []
     kind: PgBranchDatabase
     plural: pgbranchdatabases
-    shortNames: []
     singular: pgbranchdatabase
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for PgBranchDatabaseSpec via `CustomResource`
@@ -2756,7 +2985,6 @@ spec:
     subresources:
       status: {}
 {{ end }}
----
 {{ if .Values.operator.mongodbBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -2766,15 +2994,12 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
-    categories: []
     kind: MongodbBranchDatabase
     plural: mongodbbranchdatabases
-    shortNames: []
     singular: mongodbbranchdatabase
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MongodbBranchDatabaseSpec via `CustomResource`
@@ -3276,6 +3501,13 @@ spec:
                 required:
                 - scaledown
                 type: object
+              httpFilter:
+                nullable: true
+                properties:
+                  headerFilter:
+                    nullable: true
+                    type: string
+                type: object
               jiraMetrics:
                 description: Resources needed to report session metrics to the mirrord Jira app.
                 nullable: true
@@ -3286,6 +3518,18 @@ spec:
                 required:
                 - branchName
                 type: object
+              key:
+                nullable: true
+                type: string
+              multiClusterParentName:
+                description: |-
+                  Multi-cluster: name of the parent MirrordMultiClusterSession.
+
+                  When set, this is a child session created by the Primary operator
+                  as part of a multi-cluster session. The parent session coordinates
+                  all child sessions across clusters.
+                nullable: true
+                type: string
               namespace:
                 description: Kubernetes namespace of the session.
                 type: string
@@ -3334,22 +3578,6 @@ spec:
                 - container
                 - kind
                 - name
-                type: object
-              multiClusterParentName:
-                description: Name of the parent MirrordMultiClusterSession. When set, this is a child session created by the Primary operator as part of a multi-cluster session.
-                type: string
-              key:
-                description: Joinable session key, supplied by the user via `key` in mirrord.json. Surfaced through `MirrordOperator.status.sessions[].key` so external clients (browser extension via `mirrord ui`) can list sessions grouped by this key and join them.
-                nullable: true
-                type: string
-              httpFilter:
-                description: Subset of the session's HTTP filter that we surface to external consumers. Surfaced through `MirrordOperator.status.sessions[].http_filter` so the browser extension can parse the filter regex and derive the header to inject when joining.
-                nullable: true
-                properties:
-                  headerFilter:
-                    description: Raw `feature.network.incoming.http_filter.header_filter` regex.
-                    nullable: true
-                    type: string
                 type: object
             required:
             - namespace
@@ -3486,7 +3714,7 @@ spec:
     served: true
     storage: true
     subresources: {}
-{{- if .Values.operator.previewEnv }}
+{{ if .Values.operator.previewEnv }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3746,8 +3974,8 @@ spec:
     storage: true
     subresources:
       status: {}
-{{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+{{ end }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3756,15 +3984,12 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
-    categories: []
     kind: BranchDatabase
     plural: branchdatabases
-    shortNames: []
     singular: branchdatabase
   scope: Namespaced
   versions:
-  - additionalPrinterColumns: []
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for BranchDatabaseSpec via `CustomResource`
@@ -4046,4 +4271,4 @@ spec:
     storage: true
     subresources:
       status: {}
-{{- end }}
+{{ end }}

@@ -40,6 +40,23 @@ The button is clicked by the user.
 <!-- vale on -->
 ```
 
+## Regenerating CRD definitions
+
+The Helm chart's `templates/crd.yaml` is **auto-generated** from the Rust CRD types, do NOT edit it manually. The `generate_helm_crd_yaml` test produces the full file (schemas, document separators, Helm conditionals) so the chart stays in sync with the Rust types without hand-writing OpenAPI schemas.
+
+Whenever you modify a CRD type (in `operator-crd` or `mirrord-operator`), regenerate the chart by running:
+
+```bash
+cargo test -p operator-crd generate_helm_crd_yaml -- --ignored --nocapture
+```
+
+The only thing the generator does **not** handle automatically is Helm conditional guards. When you add a new CRD type you need to:
+
+1. Add an entry to the `entries` list in `generate_helm_crd_yaml` (`operator-crd/src/crd.rs`).
+2. Choose the right `HelmCondition` -- `Always` if the CRD should always be installed, `If(".Values.operator.someFeature")` if it is behind a feature flag, or `IfOr` for multiple flags.
+
+After regenerating, review the git diff to make sure only your intended changes are present.
+
 ## Release charts
 
 Refer to the operator `contributing.md` at `contributing.md`.
