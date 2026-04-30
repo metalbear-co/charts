@@ -261,6 +261,18 @@ rules:
   verbs:
   - get
 {{- end }}
+{{- if .Values.operator.gcpPubsubSplitting }}
+# The envoy watches MirrordClusterSplitSession on the default cluster to
+# collect tmpResources before connecting to non-default clusters.
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
 {{- if not .Values.operator.multiClusterMemberIamGroup }}
 ---
 # ClusterRoleBinding to bind mirrord-operator-envoy to the operator ServiceAccount

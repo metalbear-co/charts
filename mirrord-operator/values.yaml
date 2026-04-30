@@ -72,6 +72,8 @@ operator:
   kafkaSplitting: false
   # Has to be set to `true` in order to use the RabbitMQ queue splitting feature.
   rmqSplitting: false
+  # Has to be set to `true` in order to use the GCP Pub/Sub queue splitting feature.
+  gcpPubsubSplitting: false
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
 
@@ -85,6 +87,10 @@ operator:
   mongodbBranching: false
   # Has to be set to `true` in order to use the MSSQL database branching feature.
   mssqlBranching: false
+  # Grants cluster-wide Secret permissions needed when users pass literal
+  # database credentials in the mirrord config instead of referencing
+  # existing K8s Secrets.
+  dbBranchingLiteralCredentials: true
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
   preview:

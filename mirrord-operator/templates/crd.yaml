@@ -1347,6 +1347,8 @@ spec:
     storage: true
     subresources:
       status: {}
+{{ end }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3671,6 +3673,37 @@ spec:
               For future compatibility and to avoid any schema issues, every resource type is represented in a
               separate optional field.
             properties:
+              gcpPubsubResource:
+                description: |-
+                  Temporary Google Cloud Pub/Sub resource (topic or subscription) created for queue
+                  splitting.
+                nullable: true
+                properties:
+                  kind:
+                    enum:
+                    - topic
+                    - subscription
+                    - unknown
+                    type: string
+                  name:
+                    description: Resource name (topic or subscription name, not the full path).
+                    type: string
+                  project:
+                    description: GCP project that owns the resource.
+                    type: string
+                  propertiesListName:
+                    description: Name of the `MirrordPropertyList` used to build the Pub/Sub client for cleanup.
+                    type: string
+                  propertiesListNamespace:
+                    description: Namespace of the `MirrordPropertyList`.
+                    type: string
+                required:
+                - kind
+                - name
+                - project
+                - propertiesListName
+                - propertiesListNamespace
+                type: object
               rmqResource:
                 description: Resource allocated in a RabbitMQ cluster for queue splitting.
                 nullable: true
@@ -4266,6 +4299,698 @@ spec:
         required:
         - spec
         title: BranchDatabase
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{ end }}
+{{ if .Values.operator.gcpPubsubSplitting }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordsplitconfigs.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    kind: MirrordSplitConfig
+    plural: mirrordsplitconfigs
+    singular: mirrordsplitconfig
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Kind of the target workload.
+      jsonPath: .spec.targetRef.kind
+      name: TARGET-KIND
+      type: string
+    - description: Name of the target workload.
+      jsonPath: .spec.targetRef.name
+      name: TARGET-NAME
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordSplitConfigSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Unified queue splitting configuration for a single workload.
+
+              Replaces per-broker CRDs (`MirrordWorkloadQueueRegistry`, `MirrordKafkaTopicsConsumer`) with a
+              single resource that covers SQS, Kafka, RabbitMQ, Google Cloud Pub/Sub, and future broker
+              types.
+
+              There must be at most one `MirrordSplitConfig` per workload. If the operator discovers
+              duplicates targeting the same workload, it fails the session rather than guessing.
+            properties:
+              clientConfigs:
+                description: |-
+                  Default broker client configuration per queue kind. Each field holds the name of a
+                  `MirrordPropertyList` in the same namespace.
+                nullable: true
+                properties:
+                  googlePubSub:
+                    nullable: true
+                    type: string
+                  kafka:
+                    nullable: true
+                    type: string
+                  rmq:
+                    nullable: true
+                    type: string
+                  sqs:
+                    nullable: true
+                    type: string
+                type: object
+              drainTimeout:
+                description: |-
+                  How long (in seconds) to wait for fallback queues to drain after the last session ends.
+                  `0` means skip drain entirely. If absent, wait indefinitely while fallback queues have
+                  unconsumed messages.
+                format: uint32
+                minimum: 0.0
+                nullable: true
+                type: integer
+              queues:
+                description: Splittable queues that developers can reference from their mirrord config.
+                items:
+                  description: |-
+                    One logical queue ID that developers reference from their mirrord config.
+
+                    A single entry may resolve to more than one physical queue/topic/subscription name.
+                  properties:
+                    appConfig:
+                      description: Describes how the target application is configured to consume the queue.
+                      properties:
+                        appId:
+                          description: Kafka Streams application ID.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        exchange:
+                          description: RabbitMQ exchange name.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        groupId:
+                          description: Kafka consumer group ID (standard consumers).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        projectId:
+                          description: Google Cloud Pub/Sub project ID.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        queue:
+                          description: SQS queue URL or name.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        subscription:
+                          description: Google Cloud Pub/Sub subscription name.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        topic:
+                          description: Kafka topic name.
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                      type: object
+                    clientConfig:
+                      description: Override for the kind-level default in `clientConfigs`. Name of a `MirrordPropertyList`.
+                      nullable: true
+                      type: string
+                    id:
+                      description: Arbitrary queue ID used in the developer's mirrord config.
+                      type: string
+                    kind:
+                      description: Broker kind for this queue.
+                      enum:
+                      - sqs
+                      - kafka
+                      - rmq
+                      - googlePubSub
+                      - unknown
+                      type: string
+                    queueConfig:
+                      description: |-
+                        Name of a `MirrordPropertyList` with additional queue-specific configuration (e.g. labels
+                        on temporary resources, marker tags).
+                      nullable: true
+                      type: string
+                  required:
+                  - appConfig
+                  - id
+                  - kind
+                  type: object
+                type: array
+              restart:
+                description: Restart behavior for the workload.
+                nullable: true
+                properties:
+                  strategy:
+                    description: '`standard` or `isolatePods`. Defaults to the global operator setting.'
+                    enum:
+                    - standard
+                    - isolatePods
+                    - unknown
+                    - null
+                    nullable: true
+                    type: string
+                  timeout:
+                    description: Timeout in seconds for reaching the `waitForPods` condition after the restart starts.
+                    format: uint32
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                  waitForPods:
+                    description: How many patched and ready target pods are required before mirrord sessions may start.
+                    nullable: true
+                    x-kubernetes-int-or-string: true
+                type: object
+              targetRef:
+                description: The workload to patch for queue splitting.
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - apiVersion
+                - kind
+                - name
+                type: object
+              tmpNameTemplate:
+                description: |-
+                  Template for temporary resource names. Available placeholders (each
+                  wrapped in double curly braces): RANDOM, FALLBACK, ORIGINAL.
+                  Default: mirrord-tmp-RANDOM-FALLBACK-ORIGINAL (with double-brace wrapping).
+                nullable: true
+                type: string
+            required:
+            - queues
+            - targetRef
+            type: object
+        required:
+        - spec
+        title: MirrordSplitConfig
+        type: object
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordclustersplitsessions.queues.mirrord.metalbear.co
+spec:
+  group: queues.mirrord.metalbear.co
+  names:
+    kind: MirrordClusterSplitSession
+    plural: mirrordclustersplitsessions
+    singular: mirrordclustersplitsession
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordClusterSplitSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: |-
+              Represents one active queue-splitting session.
+
+              When a developer runs mirrord with queue splitting, the operator creates one of
+              these to track the session. The session controller watches it and does the actual
+              work: creating temporary topics/subscriptions, starting the message forwarder, and
+              updating the status so the CLI knows when the session is ready or has failed.
+
+              This resource is cluster-scoped (not namespaced) because its owner,
+              `MirrordClusterSession`, is also cluster-scoped. Kubernetes only allows owner
+              references between resources in the same scope, so we store the target workload's
+              namespace as a field in the spec instead.
+            properties:
+              namespace:
+                description: Namespace of the target workload (same as the MirrordSplitConfig namespace).
+                type: string
+              owner:
+                description: The developer who initiated this session.
+                properties:
+                  hostname:
+                    type: string
+                  k8sUsername:
+                    type: string
+                  userId:
+                    type: string
+                  username:
+                    type: string
+                required:
+                - hostname
+                - k8sUsername
+                - userId
+                - username
+                type: object
+              queues:
+                description: Queues to split in this session. Each entry references a queue ID from MirrordSplitConfig.
+                items:
+                  properties:
+                    headersFilter:
+                      additionalProperties:
+                        type: string
+                      description: Regex-based header/attribute filters. Keys are attribute names, values are regex patterns.
+                      nullable: true
+                      type: object
+                    id:
+                      description: Queue ID from MirrordSplitConfig.
+                      type: string
+                    jqFilter:
+                      description: JQ-style filter on the queue-kind-specific structured message.
+                      nullable: true
+                      type: string
+                    kind:
+                      description: Broker kind for this queue.
+                      enum:
+                      - sqs
+                      - kafka
+                      - rmq
+                      - googlePubSub
+                      - unknown
+                      type: string
+                  required:
+                  - id
+                  - kind
+                  type: object
+                type: array
+              sessionKey:
+                description: Optional session key for backwards compatibility with existing session management.
+                nullable: true
+                type: string
+              target:
+                description: The target workload for this split session.
+                properties:
+                  apiVersion:
+                    type: string
+                  container:
+                    nullable: true
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - apiVersion
+                - kind
+                - name
+                type: object
+            required:
+            - namespace
+            - owner
+            - queues
+            - target
+            type: object
+          status:
+            nullable: true
+            oneOf:
+            - required:
+              - starting
+            - required:
+              - resourcesReady
+            - required:
+              - ready
+            - required:
+              - startError
+            - required:
+              - cleanupError
+            properties:
+              cleanupError:
+                properties:
+                  details:
+                    nullable: true
+                    properties:
+                      envUpdates:
+                        additionalProperties:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                            - name
+                            - value
+                            type: object
+                          type: array
+                        description: |-
+                          Environment variable updates for each container. The workload patch applies these
+                          so the application reads from temporary resources instead of originals.
+                        type: object
+                      tmpResources:
+                        description: Temporary resources created for each queue, keyed by queue ID.
+                        items:
+                          properties:
+                            queueId:
+                              description: Queue ID from MirrordSplitConfig.
+                              type: string
+                            subscription:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps original subscription name to temporary subscription name.
+                                One entry per physical subscription managed under this queue_id.
+                              type: object
+                            topic:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps original topic name to temporary topic name. One entry per
+                                physical topic managed under this queue_id.
+                              type: object
+                          required:
+                          - queueId
+                          type: object
+                        type: array
+                    type: object
+                  error:
+                    properties:
+                      code:
+                        format: uint16
+                        maximum: 65535.0
+                        minimum: 0.0
+                        type: integer
+                      message:
+                        type: string
+                      reason:
+                        type: string
+                    required:
+                    - code
+                    - message
+                    - reason
+                    type: object
+                required:
+                - error
+                type: object
+              ready:
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    description: |-
+                      Environment variable updates for each container. The workload patch applies these
+                      so the application reads from temporary resources instead of originals.
+                    type: object
+                  tmpResources:
+                    description: Temporary resources created for each queue, keyed by queue ID.
+                    items:
+                      properties:
+                        queueId:
+                          description: Queue ID from MirrordSplitConfig.
+                          type: string
+                        subscription:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original subscription name to temporary subscription name.
+                            One entry per physical subscription managed under this queue_id.
+                          type: object
+                        topic:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original topic name to temporary topic name. One entry per
+                            physical topic managed under this queue_id.
+                          type: object
+                      required:
+                      - queueId
+                      type: object
+                    type: array
+                type: object
+              resourcesReady:
+                description: |-
+                  Broker resources (topics, subscriptions) have been created and their
+                  names are available, but the target pod has not restarted yet. The
+                  envoy watches for this status so it can forward resource names to
+                  remote clusters without waiting for the full pod restart.
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    description: |-
+                      Environment variable updates for each container. The workload patch applies these
+                      so the application reads from temporary resources instead of originals.
+                    type: object
+                  tmpResources:
+                    description: Temporary resources created for each queue, keyed by queue ID.
+                    items:
+                      properties:
+                        queueId:
+                          description: Queue ID from MirrordSplitConfig.
+                          type: string
+                        subscription:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original subscription name to temporary subscription name.
+                            One entry per physical subscription managed under this queue_id.
+                          type: object
+                        topic:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original topic name to temporary topic name. One entry per
+                            physical topic managed under this queue_id.
+                          type: object
+                      required:
+                      - queueId
+                      type: object
+                    type: array
+                type: object
+              startError:
+                properties:
+                  code:
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    type: integer
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                required:
+                - code
+                - message
+                - reason
+                type: object
+              starting:
+                properties:
+                  start_time_utc:
+                    type: string
+                required:
+                - start_time_utc
+                type: object
+            type: object
+        required:
+        - spec
+        title: MirrordClusterSplitSession
         type: object
     served: true
     storage: true

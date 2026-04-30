@@ -200,6 +200,18 @@ Learn about:
 - [Kafka setup](https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#kafka-splitting)
 - [TTL behavior](https://github.com/metalbear-co/charts/tree/main/mirrord-operator#sqs-queue-splitting)
 
+#### ☁️ GCP Pub/Sub Splitting
+
+Enable subscription-level session isolation for Google Cloud Pub/Sub:
+
+```yaml
+operator:
+  gcpPubsubSplitting: true
+```
+
+Learn about:
+- [GCP Pub/Sub setup](https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#google-cloud-pubsub-splitting)
+
 #### 📝 Copy Target
 
 Control agent image usage:

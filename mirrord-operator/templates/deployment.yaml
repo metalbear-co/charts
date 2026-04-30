@@ -100,6 +100,8 @@ spec:
           value: {{ .Values.operator.rmqSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_KAFKA_SPLITTING
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_GCP_PUBSUB_SPLITTING
+          value: {{ .Values.operator.gcpPubsubSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
           value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PG_BRANCHING

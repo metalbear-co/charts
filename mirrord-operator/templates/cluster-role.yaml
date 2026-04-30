@@ -236,7 +236,44 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting }}
+{{- if .Values.operator.gcpPubsubSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsplitconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions/status
+  verbs:
+  - update
+  - patch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting }}
 - apiGroups:
   - ''
   resources:
@@ -381,6 +418,7 @@ rules:
   - get
   - update
   - patch
+{{- if .Values.operator.dbBranchingLiteralCredentials }}
 # The operator creates Secrets to store literal credential values from the
 # mirrord config and patches them to set owner references for cleanup.
 - apiGroups:
@@ -393,6 +431,7 @@ rules:
   - list
   - delete
   - patch
+{{- end }}
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)
