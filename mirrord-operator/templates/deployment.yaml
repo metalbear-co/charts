@@ -58,6 +58,13 @@ spec:
       {{- end }}
       containers:
       - env:
+        {{- /*
+        We set AWS_ROLE_SESSION_NAME because Kafka SASL on MSK expects it to be static.
+        If pod identity is set, the session name generated can change during the session leading to "Cannot change principals during re-authentication"
+        https://github.com/tulios/kafkajs/issues/1582
+        */}}
+        - name: AWS_ROLE_SESSION_NAME
+          value: mirrord-operator
         - name: RUST_LOG
           value: {{ .Values.operator.logLevel }}
         {{- if .Values.operator.otelLogLevel }}
