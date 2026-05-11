@@ -279,9 +279,12 @@ spec:
             cpu: {{ .Values.operator.limits.cpu }}
             memory: {{ .Values.operator.limits.memory }}
         securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
+          runAsNonRoot: true
           readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          privileged: false
         volumeMounts:
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
         - mountPath: /tls
@@ -316,9 +319,12 @@ spec:
             cpu: {{ .Values.operator.kafkaSplittingSidecar.limits.cpu }}
             memory: {{ .Values.operator.kafkaSplittingSidecar.limits.memory }}
         securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
+          runAsNonRoot: true
           readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          privileged: false
       {{- end }}
       # End of Kafka splitting sidecar
 
