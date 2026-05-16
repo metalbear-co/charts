@@ -236,7 +236,7 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if .Values.operator.gcpPubsubSplitting }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -273,7 +273,7 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting }}
 - apiGroups:
   - ''
   resources:

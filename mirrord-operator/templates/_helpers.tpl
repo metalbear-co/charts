@@ -146,6 +146,14 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - watch
   - delete
 {{- end }}
+{{- if .Values.operator.dbBranchingLiteralCredentials }}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - branchcredentials
+  verbs:
+  - create
+{{- end }}
 {{- end }}
 
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}

@@ -74,6 +74,8 @@ operator:
   rmqSplitting: false
   # Has to be set to `true` in order to use the GCP Pub/Sub queue splitting feature.
   gcpPubsubSplitting: false
+  # Has to be set to `true` in order to use the Azure Service Bus queue splitting feature.
+  azureServiceBusSplitting: false
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
 
@@ -348,6 +350,9 @@ operator:
   # Port for operator to listen on. If you can't listen on 443 due to privilege issues
   # you can change this to 3000/8443 or whatever you want - just make sure that nodes
   # can communicate on that port if it doesn't work then.
+  # The operator binds the kube API on IPv6 (`[::]`) by default, with an IPv4
+  # (`0.0.0.0`) fallback on the same port — set `OPERATOR_ADDR` /
+  # `OPERATOR_FALLBACK_ADDR` directly if you need to override either side.
   port: 443
 
   copyTarget:

@@ -80,7 +80,9 @@ spec:
           value: {{ .Values.operator.otelTraceExportUrl }}
         {{- end }}
         - name: OPERATOR_ADDR
-          value: {{ printf "0.0.0.0:%d" (int .Values.operator.port ) }}
+          value: {{ printf "[::]:%d" (int .Values.operator.port ) | quote }}
+        - name: OPERATOR_FALLBACK_ADDR
+          value: {{ printf "0.0.0.0:%d" (int .Values.operator.port ) | quote }}
         - name: OPERATOR_POD_NAME
           valueFrom:
             fieldRef:
@@ -109,6 +111,8 @@ spec:
           value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_GCP_PUBSUB_SPLITTING
           value: {{ .Values.operator.gcpPubsubSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_AZURE_SERVICE_BUS_SPLITTING
+          value: {{ .Values.operator.azureServiceBusSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
           value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PG_BRANCHING
@@ -137,6 +141,12 @@ spec:
         {{- end }}
         - name: OPERATOR_METRICS_ENABLED
           value: {{ .Values.operator.metrics | ternary "true" "false" | quote }}
+        {{- if .Values.operator.metrics }}
+        - name: OPERATOR_METRICS_ADDR
+          value: "[::]:9000"
+        - name: OPERATOR_METRICS_FALLBACK_ADDR
+          value: "0.0.0.0:9000"
+        {{- end }}
         - name: OPERATOR_JSON_LOG
           value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG
