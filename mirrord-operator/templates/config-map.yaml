@@ -86,6 +86,12 @@ data:
         {{- if $clusterConfig.region }}
         region: {{ $clusterConfig.region | quote }}
         {{- end }}
+        {{- if $clusterConfig.tenantId }}
+        tenantId: {{ $clusterConfig.tenantId | quote }}
+        {{- end }}
+        {{- if $clusterConfig.clientId }}
+        clientId: {{ $clusterConfig.clientId | quote }}
+        {{- end }}
     {{- end }}
   {{- end }}
   {{- end }}

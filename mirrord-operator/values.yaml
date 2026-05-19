@@ -210,6 +210,34 @@ operator:
     #          --principal-arn <sa.roleArn value> \
     #          --type STANDARD --kubernetes-groups mirrord-operator-envoy
     #
+    # Example with AKS Workload Identity auth:
+    # clusters:
+    #   remote-aks:
+    #     authType: aks
+    #     server: https://remote-aks-xxxxx.hcp.eastus.azmk8s.io:443
+    #     # caData is required for AKS (each cluster has its own self-signed CA).
+    #     # Get it from: az aks get-credentials --name <cluster> -g <rg> --file /dev/stdout | grep certificate-authority-data
+    #     caData: LS0tLS1CRUdJTi...
+    #     # tenantId and clientId are optional -- defaults to env vars injected by webhook
+    #     # tenantId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    #     # clientId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    #
+    # AKS` Workload Identity setup:
+    #   1. Create a User-Assigned Managed Identity in Azure
+    #   2. Create a Federated Identity Credential linking the operator's SA to the identity:
+    #        az identity federated-credential create \
+    #          --name mirrord-operator-federation \
+    #          --identity-name <managed-identity-name> \
+    #          --resource-group <rg> \
+    #          --issuer $(az AKS show -n <primary-cluster> -g <rg> --query oidcIssuerProfile.issuerUrl -o tsv) \
+    #          --subject "system:serviceaccount:mirrord:mirrord-operator" \
+    #          --audiences "api://AzureADTokenExchange"
+    #   3. Grant the identity access on each remote AKS cluster (Azure RBAC or K8s RBAC)
+    #   4. Set sa.azureClientId to the Managed Identity's client ID
+    #   5. Install mirrord on each remote cluster with:
+    #          --set operator.multiClusterMember=true \
+    #          --set operator.multiClusterMemberAzureGroup=mirrord-operator-envoy
+    #
     # Example with bearer token:
     # clusters:
     #   staging-us-east:
@@ -238,6 +266,13 @@ operator:
   # the IAM group the same permissions as the ServiceAccount-based setup.
   # Only used when multiClusterMember is true.
   # multiClusterMemberIamGroup: "mirrord-operator-envoy"
+
+  # When using AKS Workload Identity for multi-cluster, set this to the Azure AD
+  # group or object ID used for the ClusterRoleBinding on each remote AKS cluster.
+  # This creates a ClusterRoleBinding that grants the Azure identity the same
+  # permissions as the ServiceAccount-based setup.
+  # Only used when multiClusterMember is true.
+  # multiClusterMemberAzureGroup: "mirrord-operator-envoy"
 
   # imagePullSecrets:
   #   - name: value
@@ -544,6 +579,12 @@ sa:
   # roleArn: arn:aws:iam::111122223333:role/mirrord-operator-role
   ## GCP service account to impersonate.
   # gcpSa: <iam-sa-name>@<iam-sa-project-id>.iam.gserviceaccount.com
+  ## Azure Managed Identity client ID for AKS Workload Identity.
+  ## When set, the ServiceAccount gets the azure.workload.identity/client-id annotation
+  ## and the pod gets the azure.workload.identity/use label. The Workload Identity webhook
+  ## then injects Azure credentials (AZURE_CLIENT_ID, AZURE_TENANT_ID,
+  ## AZURE_FEDERATED_TOKEN_FILE) into the operator pod automatically.
+  # azureClientId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 tls:
   secret: mirrord-operator-tls

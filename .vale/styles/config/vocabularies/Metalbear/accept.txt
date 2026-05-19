@@ -17,3 +17,5 @@ scaledown
 [Nn]amespaced?
 NAMESPACE
 Jira
+AKS
+aks

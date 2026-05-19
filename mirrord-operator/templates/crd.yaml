@@ -3903,6 +3903,54 @@ spec:
                 description: Queue splitting configuration for this preview session.
                 nullable: true
                 properties:
+                  azureServiceBusQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: Azure Service Bus queue splitting filters, keyed by queue ID.
+                    type: object
+                  gcpPubsubQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: GCP Pub/Sub queue splitting filters, keyed by queue ID.
+                    type: object
                   kafkaQueueFilters:
                     additionalProperties:
                       additionalProperties:
@@ -3915,33 +3963,27 @@ spec:
                     type: object
                   sqsQueueFilters:
                     additionalProperties:
-                      description: Per-queue SQS filter configuration for preview sessions.
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
                       properties:
                         jqFilter:
                           description: |-
-                            A jq filter expression.
-
-                            For each SQS message, the jq filter runs on a JSON representation of the
-                            SQS `Message` object. If the jq program outputs `true`, the message is
-                            considered as matching.
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
                           nullable: true
                           type: string
                         messageFilter:
                           additionalProperties:
                             type: string
                           description: |-
-                            Message attribute filter: a mapping from attribute names to regex patterns.
-
-                            Only messages whose attributes match **all** patterns will be delivered
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
                             to the preview environment.
                           nullable: true
                           type: object
                       type: object
-                    description: |-
-                      SQS queue splitting filters, keyed by queue ID.
-
-                      Each entry configures how messages from a specific SQS queue should be filtered
-                      for this preview session.
+                    description: SQS queue splitting filters, keyed by queue ID.
                     type: object
                 type: object
               target:
@@ -4183,6 +4225,19 @@ spec:
                     required:
                     - mode
                     type: object
+                  iamAuth:
+                    description: IAM auth config for cloud-managed databases (RDS, Cloud SQL).
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - aws_rds
+                        - gcp_cloud_sql
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
                 type: object
               postgresOptions:
                 description: PostgreSQL-specific options.

@@ -9,3 +9,5 @@ ANDed = "ANDed"
 
 [default.extend-words]
 mirrord = "mirrord"
+aks = "aks"
+AKS = "AKS"

@@ -273,11 +273,11 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if not .Values.operator.multiClusterMemberIamGroup }}
+{{- if not (or .Values.operator.multiClusterMemberIamGroup .Values.operator.multiClusterMemberAzureGroup) }}
 ---
 # ClusterRoleBinding to bind mirrord-operator-envoy to the operator ServiceAccount
 # This allows the operator to manage multi-cluster sessions
-# Not created when using IAM auth (multiClusterMemberIamGroup creates an IAM group binding instead)
+# Not created when using IAM or `AKS` auth (group-based bindings are used instead)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -351,6 +351,42 @@ roleRef:
 subjects:
   - kind: Group
     name: {{ .Values.operator.multiClusterMemberIamGroup }}
+    apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- if .Values.operator.multiClusterMemberAzureGroup }}
+---
+# ClusterRoleBinding for AKS Workload Identity — binds the Azure AD group/identity
+# to the same ClusterRole as the ServiceAccount-based setup.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-operator-envoy-azure
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-operator-envoy
+subjects:
+  - kind: Group
+    name: {{ .Values.operator.multiClusterMemberAzureGroup }}
+    apiGroup: rbac.authorization.k8s.io
+---
+# ClusterRoleBinding for AKS Workload Identity — binds the Azure AD group/identity
+# to the remote role so the primary operator can create child sessions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-operator-envoy-remote-azure
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-operator-envoy-remote
+subjects:
+  - kind: Group
+    name: {{ .Values.operator.multiClusterMemberAzureGroup }}
     apiGroup: rbac.authorization.k8s.io
 {{- end }}
 {{- end }}
