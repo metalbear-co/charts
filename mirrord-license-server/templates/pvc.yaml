@@ -1,3 +1,4 @@
+{{- if eq .Values.database.kind "sqlite" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -23,3 +24,4 @@ spec:
   resources:
     requests:
       {{- toYaml .Values.pvc.requests | nindent 6 }}
+{{- end }}

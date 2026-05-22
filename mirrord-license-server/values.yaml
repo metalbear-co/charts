@@ -7,11 +7,29 @@ namespace: mirrord
 ## Whether we should create the namespace or not
 createNamespace: false
 
+database:
+  # If `kind=sqlite`, all other options are ignored,
+  kind: sqlite
+
+  # Required (if `kind=postgres`)
+  # host: postgres.something.svc
+
+  # Optional
+  # port: 5432
+
+  name: mirrord-license-server
+
+  # auth:
+  #   user: postgres
+  #   password: postgres
+
 server:
   image: ghcr.io/metalbear-co/operator
 
   # Override the pull policy, useful for local development.
   # imagePullPolicy: Always
+
+  replicas: 1
 
   podAnnotations: {}
   podLabels: {}

@@ -95,10 +95,29 @@ operator:
   dbBranchingLiteralCredentials: true
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
+
   preview:
+    # Annotations added to the pods created by preview environments.
     annotations: {}
+
+    # Labels added to the pods created by preview environments.
     labels: {}
-    # image_pull_policy: "Always"
+
+    # How long to retain "failed" preview sessions before deleting them.
+    #
+    # Note that this option controls the time that the session's _internal custom resource_ remains in the cluster, so
+    # that it's visible to the `mirrord preview` family of commands for inspection. The workload itself is deleted as
+    # soon as failure is detected.
+    #
+    # "Failed" in this case means an operator-side error, such as failing to create the necessary kubernetes resources,
+    # failing to create DB branches, etc.
+    #
+    # Application-side failures such as crashes and evictions are handled automatically by kubernetes through pod
+    # restarts and the underlying Deployment, this configuration doesn't change that.
+    cleanupAfterMins: 15
+
+    # The pull policy to use for preview environment's images.
+    # imagePullPolicy: "Always"
 
   # dbBranching:
   #   # Volume limit for the init container that does the copy

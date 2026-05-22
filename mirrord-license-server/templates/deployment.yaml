@@ -1,3 +1,7 @@
+{{- if and (gt (int .Values.server.replicas) 1) (eq .Values.database.kind "sqlite") }}
+  {{- fail "unable to set more than 1 replica when using sqlite, please switch to postgres database for multiple replicas" }}
+{{- end }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,9 +16,12 @@ spec:
   selector:
     matchLabels:
       app: mirrord-license-server
+  {{- if eq .Values.database.kind "sqlite" }}
   strategy:
     # This is needed, as the license server uses a ReadWriteOnce PVC.
     type: Recreate
+  {{- end }}
+  replicas: {{ .Values.server.replicas }}
   template:
     metadata:
       labels:
@@ -67,8 +74,75 @@ spec:
           value: {{ .Values.server.logLevel }}
         - name: ADDRESS
           value: {{ printf "0.0.0.0:%d" (int .Values.server.port ) }}
+        {{- if eq .Values.database.kind "sqlite" }}
         - name: DATABASE_URL
           value: sqlite:///opt/mirrord/data/license-server.db?mode=rwc
+        {{- else if eq .Values.database.kind "postgres" }}
+        - name: DATABASE_TYPE
+          value: "postgres"
+        {{- if kindIs "string" .Values.database.host }}
+        - name: PGHOST
+          value: {{ .Values.database.host | quote }}
+        {{- else if and .Values.database.host .Values.database.host.configMapKeyRef }}
+        - name: PGHOST
+          valueFrom:
+            configMapKeyRef: 
+              {{- toYaml .Values.database.host.configMapKeyRef | nindent 14 }}
+        {{- else if and .Values.database.host .Values.database.host.secretKeyRef }}
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef: 
+              {{- toYaml .Values.database.host.secretKeyRef | nindent 14 }}
+        {{- end }}
+        {{- if kindIs "string" .Values.database.name }}
+        - name: PGDATABASE
+          value: {{ .Values.database.name | quote }}
+        {{- else if and .Values.database.name .Values.database.name.configMapKeyRef }}
+        - name: PGDATABASE
+          valueFrom:
+            configMapKeyRef: 
+              {{- toYaml .Values.database.name.configMapKeyRef | nindent 14 }}
+        {{- else if and .Values.database.name .Values.database.name.secretKeyRef }}
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef: 
+              {{- toYaml .Values.database.name.secretKeyRef | nindent 14 }}
+        {{- end }}
+        {{- if .Values.database.auth }}
+        {{- if kindIs "string" .Values.database.auth.user }}
+        - name: PGUSER
+          value: {{ .Values.database.auth.user | quote }}
+        {{- else if and .Values.database.auth.user .Values.database.auth.user.configMapKeyRef }}
+        - name: PGUSER
+          valueFrom:
+            configMapKeyRef: 
+              {{- toYaml .Values.database.auth.user.configMapKeyRef | nindent 14 }}
+        {{- else if and .Values.database.auth.user .Values.database.auth.user.secretKeyRef }}
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef: 
+              {{- toYaml .Values.database.auth.user.secretKeyRef | nindent 14 }}
+        {{- end }}
+        {{- if kindIs "string" .Values.database.auth.password }}
+        - name: PGPASSWORD
+          value: {{ .Values.database.auth.password | quote }}
+        {{- else if and .Values.database.auth.password .Values.database.auth.password.configMapKeyRef }}
+        - name: PGPASSWORD
+          valueFrom:
+            configMapKeyRef: 
+              {{- toYaml .Values.database.auth.password.configMapKeyRef | nindent 14 }}
+        {{- else if and .Values.database.auth.password .Values.database.auth.password.secretKeyRef }}
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef: 
+              {{- toYaml .Values.database.auth.password.secretKeyRef | nindent 14 }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.database.tls }}
+        - name: PGSSLMODE
+          value: "VerifyFull"
+        {{- end }}
+        {{- end }}
         - name: JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
         {{- if .Values.dashboard.enabled }}
@@ -146,8 +220,10 @@ spec:
           name: license-volume
         {{- end }}
         # needed for the license-server create sqlite database
+        {{- if eq .Values.database.kind "sqlite" }}
         - mountPath: /opt/mirrord/data
           name: data
+        {{- end }}
         - mountPath: /tmp
           name: tmp
       serviceAccountName: {{ .Values.sa.name }}
@@ -163,8 +239,10 @@ spec:
         secret:
           secretName: {{ .Values.license.file.secret }}
       {{- end }}
+      {{- if eq .Values.database.kind "sqlite" }}
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc
+      {{- end }}
       - emptyDir: {}
         name: tmp

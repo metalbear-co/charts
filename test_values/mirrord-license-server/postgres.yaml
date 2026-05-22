@@ -1,0 +1,19 @@
+createNamespace: true
+
+database:
+  kind: postgres
+
+  host: hello-world.default.svc
+
+  name: test
+  
+  auth:
+    user: test
+    password: test
+
+license:
+  key: "foobar"
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

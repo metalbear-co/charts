@@ -3797,6 +3797,28 @@ spec:
           spec:
             description: This resource represents a preview environment created by the `mirrord preview start` command.
             properties:
+              configMounts:
+                description: File-based config mount settings for this preview session.
+                items:
+                  properties:
+                    data:
+                      description: Payload of the mount.
+                      type: string
+                    path:
+                      description: Path where the file should be mounted.
+                      type: string
+                    type:
+                      description: '`text` or `binary`'
+                      enum:
+                      - text
+                      - binary
+                      type: string
+                  required:
+                  - data
+                  - path
+                  - type
+                  type: object
+                type: array
               dbBranching:
                 description: Database branching configuration for this preview session.
                 nullable: true
@@ -4037,6 +4059,11 @@ spec:
                 format: date-time
                 nullable: true
                 type: string
+              failedAt:
+                description: Timestamp of when the session entered the `Failed` phase.
+                format: date-time
+                nullable: true
+                type: string
               failureMessage:
                 description: |-
                   Human-readable description of why the session failed.
@@ -4052,14 +4079,6 @@ spec:
                 - Ready
                 - Failed
                 - Unknown
-                type: string
-              podName:
-                description: |-
-                  Name of the preview pod created for this session.
-
-                  Set once the pod is created (from the `Waiting` phase onward). `None` during
-                  `Initializing` or if pod creation failed before a name was assigned.
-                nullable: true
                 type: string
               startedAt:
                 description: Timestamp of when the operator started processing this session.

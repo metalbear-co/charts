@@ -476,6 +476,20 @@ rules:
   - create
 {{- if .Values.operator.previewEnv }}
 - apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+- apiGroups:
   - preview.mirrord.metalbear.co
   resources:
   - previewsessions
@@ -489,6 +503,9 @@ rules:
   - patch
   - update
   - watch
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create]
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
