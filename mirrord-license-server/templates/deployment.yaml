@@ -75,6 +75,8 @@ spec:
         - name: ADDRESS
           value: {{ printf "0.0.0.0:%d" (int .Values.server.port ) }}
         {{- if eq .Values.database.kind "sqlite" }}
+        - name: DATABASE_TYPE
+          value: "sqlite"
         - name: DATABASE_URL
           value: sqlite:///opt/mirrord/data/license-server.db?mode=rwc
         {{- else if eq .Values.database.kind "postgres" }}
@@ -163,11 +165,11 @@ spec:
         - name: OPERATOR_LICENSE_GSM_REF
           value: {{ .Values.license.gsmRef }}
         {{- else }}
-        - name: LICENSE_PATH
+        - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
         {{- end }}
         {{- if .Values.license.key  }}
-        - name: LICENSE_KEY
+        - name: OPERATOR_LICENSE_KEY
           value: {{ .Values.license.key }}
         {{- end }}
         {{- if .Values.directorySync.enabled }}
