@@ -169,11 +169,62 @@ spec:
         {{- if .Values.license.key  }}
         - name: LICENSE_KEY
           value: {{ .Values.license.key }}
-        {{- else if .Values.license.keyRef }}
+        {{- end }}
+        {{- if .Values.directorySync.enabled }}
+        {{- if not .Values.directorySync.tenantId }}
+          {{- fail ".directorySync.enabled requires .directorySync.tenantId" }}
+        {{- end }}
+        {{- if not .Values.directorySync.clientId }}
+          {{- fail ".directorySync.enabled requires .directorySync.clientId" }}
+        {{- end }}
+        - name: DIRECTORY_TENANT_ID
+          value: {{ .Values.directorySync.tenantId | quote }}
+        - name: DIRECTORY_CLIENT_ID
+          value: {{ .Values.directorySync.clientId | quote }}
+        - name: DIRECTORY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.directorySync.clientSecretRef.name }}
+              key: {{ .Values.directorySync.clientSecretRef.key }}
+        - name: DIRECTORY_JOIN_KEY
+          value: {{ .Values.directorySync.joinKey | quote }}
+        - name: DIRECTORY_SYNC_INTERVAL_MINUTES
+          value: {{ .Values.directorySync.syncIntervalMinutes | quote }}
+        {{- end }}
+        {{- if .Values.saml.enabled }}
+        {{- if not .Values.saml.spEntityId }}
+          {{- fail ".saml.enabled requires .saml.spEntityId" }}
+        {{- end }}
+        {{- if not .Values.saml.spAcsUrl }}
+          {{- fail ".saml.enabled requires .saml.spAcsUrl" }}
+        {{- end }}
+        - name: SAML_SP_ENTITY_ID
+          value: {{ .Values.saml.spEntityId | quote }}
+        - name: SAML_SP_ACS_URL
+          value: {{ .Values.saml.spAcsUrl | quote }}
+        - name: SAML_IDP_METADATA_PATH
+          value: /etc/mirrord-saml/{{ .Values.saml.idpMetadataConfigMap.key }}
+        - name: SAML_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.saml.jwtSecretRef.name }}
+              key: {{ .Values.saml.jwtSecretRef.key }}
+        - name: SAML_SESSION_TTL_SECONDS
+          value: {{ .Values.saml.sessionTtlSeconds | quote }}
+        {{- if .Values.saml.adminGroupId }}
+        - name: SAML_ADMIN_GROUP_ID
+          value: {{ .Values.saml.adminGroupId | quote }}
+        {{- end }}
+        {{- if .Values.saml.managerGroupId }}
+        - name: SAML_MANAGER_GROUP_ID
+          value: {{ .Values.saml.managerGroupId | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.license.keyRef }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.keyRef }}
-        {{- else }}
+        {{- else if not .Values.license.key }}
           {{- fail "Either .license.keyRef or .license.key value is required" }}
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
@@ -226,6 +277,11 @@ spec:
         {{- end }}
         - mountPath: /tmp
           name: tmp
+        {{- if .Values.saml.enabled }}
+        - mountPath: /etc/mirrord-saml
+          name: saml-idp-metadata
+          readOnly: true
+        {{- end }}
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
       {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
@@ -246,3 +302,8 @@ spec:
       {{- end }}
       - emptyDir: {}
         name: tmp
+      {{- if .Values.saml.enabled }}
+      - name: saml-idp-metadata
+        configMap:
+          name: {{ .Values.saml.idpMetadataConfigMap.name }}
+      {{- end }}

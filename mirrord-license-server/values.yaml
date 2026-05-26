@@ -149,3 +149,85 @@ tls:
 dashboard:
   enabled: false
   port: 8050
+
+## HR / directory sync from an upstream identity provider (Microsoft Graph today).
+## When enabled, the license server polls Graph on `syncIntervalMinutes` and
+## upserts users + groups (BU / CIO domain / team) into its directory tables,
+## populating the dashboard's Adoption tab.
+##
+## Requires an Azure AD App Registration with these Application permissions on
+## Microsoft Graph (admin-consented): User.Read.All, Directory.Read.All. See
+## the dashboard onboarding doc for the `az` CLI commands.
+directorySync:
+  enabled: false
+
+  ## Azure Entra ID tenant the customer's users live in.
+  tenantId: ""
+
+  ## App Registration's appId.
+  clientId: ""
+
+  ## Secret containing the App Registration's client secret under the key
+  ## `clientSecret`. Create with:
+  ##   kubectl create secret generic mirrord-directory-sync \
+  ##     --from-literal=clientSecret=<...>
+  clientSecretRef:
+    name: mirrord-directory-sync
+    key: clientSecret
+
+  ## How operator_events rows are joined to directory users. Either:
+  ##   - kubernetes_username  (k8s user from RBAC, usually email-shaped)
+  ##   - client_username      (user's local OS username — required for setups
+  ##                          where many devs share a k8s user)
+  joinKey: kubernetes_username
+
+  ## Background sync cadence. The admin endpoint
+  ##   POST /api/v1/admin/directory/sync
+  ## forces an immediate sync regardless of this interval.
+  syncIntervalMinutes: 60
+
+## SAML 2.0 Single Sign-On for the dashboard. When enabled the dashboard
+## redirects unauthenticated requests to the IdP and issues a JWT cookie
+## post-assertion. Role (engineer / manager / admin) is derived from the
+## SAML group claim using `adminGroupId` / `managerGroupId` below.
+##
+## Requires a SAML enterprise app at the IdP with reply URL set to
+##   <dashboardBaseUrl>/api/v1/auth/saml/callback
+## See the onboarding doc for `az` CLI commands to configure Azure as an
+## IdP (any SAML 2.0 IdP — Azure, Okta, ADFS, Auth0 — works).
+saml:
+  enabled: false
+
+  ## SAML SP entity ID. Convention with Azure is
+  ##   api://<tenantId>/<some-name>
+  spEntityId: ""
+
+  ## SAML Assertion Consumer Service URL. Must be reachable from the IdP and
+  ## match the reply URL configured on the SAML enterprise app.
+  spAcsUrl: ""
+
+  ## ConfigMap holding the IdP federation metadata XML under key
+  ## `idp-metadata.xml`. Create with:
+  ##   kubectl create configmap mirrord-saml-idp-metadata \
+  ##     --from-file=idp-metadata.xml=<(curl -s "https://login.microsoftonline.com/$TENANT/FederationMetadata/2007-06/FederationMetadata.xml?appid=$APP")
+  idpMetadataConfigMap:
+    name: mirrord-saml-idp-metadata
+    key: idp-metadata.xml
+
+  ## Secret containing the JWT signing secret under key `jwtSecret`. Create with:
+  ##   kubectl create secret generic mirrord-saml-jwt \
+  ##     --from-literal=jwtSecret=$(openssl rand -base64 48)
+  jwtSecretRef:
+    name: mirrord-saml-jwt
+    key: jwtSecret
+
+  ## Session TTL — re-prompts SAML SSO after this many seconds.
+  sessionTtlSeconds: 3600
+
+  ## Optional. Azure AD security group object IDs that map to elevated roles.
+  ## Users not in either group are mapped to `engineer`. To populate the SAML
+  ## `groups` claim, patch the SAML app:
+  ##   az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/<saml-app-id>" \
+  ##     --body '{"groupMembershipClaims": "SecurityGroup"}'
+  adminGroupId: ""
+  managerGroupId: ""
