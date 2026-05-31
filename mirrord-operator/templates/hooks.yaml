@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mirrord-hooks
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-weight: "-1"
+    helm.sh/hook-delete-policy: before-hook-creation, hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mirrord-hooks
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-weight: "-1"
+    helm.sh/hook-delete-policy: before-hook-creation, hook-succeeded
+rules:
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    resourceNames:
+      - mirrordclustersessions.mirrord.metalbear.co
+      - mirrordmulticlustersessions.operator.metalbear.co
+      - previewsessions.preview.mirrord.metalbear.co
+      - branchdatabases.dbs.mirrord.metalbear.co
+    verbs: [list, get, watch, delete]
+  - apiGroups: [operator.metalbear.co, mirrord.metalbear.co]
+    resources: [mirrordclusterworkloadpatches, mirrordclusterexternalresources]
+    verbs: [list]
+  - apiGroups: [apps]
+    resources: [deployments]
+    resourceNames: [mirrord-operator]
+    verbs: [list, get, watch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mirrord-hooks
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-weight: "-1"
+    helm.sh/hook-delete-policy: before-hook-creation, hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mirrord-hooks
+subjects:
+  - kind: ServiceAccount
+    name: mirrord-hooks
+    namespace: {{ .Values.namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mirrord-cleanup
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-delete-policy: before-hook-creation, hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      {{- if .Values.operator.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.operator.imagePullSecrets }}
+        - {{ toYaml . }}
+        {{- end }}
+      {{- end }}
+      serviceAccountName: mirrord-hooks
+      restartPolicy: Never
+      containers:
+        - name: cleanup
+          image: "{{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
+          env:
+            - name: RUST_LOG
+              value: warn,helm_cleanup=trace
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if command -v helm-cleanup >/dev/null 2>&1; then
+                exec helm-cleanup
+              else
+                echo "Skipping cleanup because the necessary binary was not found." >&2
+              fi

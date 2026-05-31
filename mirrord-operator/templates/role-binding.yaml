@@ -9,7 +9,7 @@ roleRef:
   name: mirrord-operator-apiserver-authentication
 subjects:
 - kind: ServiceAccount
-  name: mirrord-operator
+  name: {{ .Values.sa.name }}
   namespace: {{ .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -24,5 +24,5 @@ roleRef:
 subjects:
 - apiGroup: ''
   kind: ServiceAccount
-  name: mirrord-operator
+  name: {{ .Values.sa.name }}
   namespace: {{ .Values.namespace }}

@@ -22,6 +22,19 @@ If you have a certificate license (usually part of Enterprise offering) you can:
     then reference it using `license.pemRef` in `values.yaml`
 
 
+### Using an existing ServiceAccount
+
+By default, the chart creates the ServiceAccount named by `sa.name`. To use a ServiceAccount managed outside the chart, create it in the operator namespace and install with:
+
+```yaml
+sa:
+  create: false
+  name: platform-managed-operator
+```
+
+The chart still binds its RBAC resources to `sa.name` and configures the operator Deployment to use it.
+
+
 ### SQS queue splitting
 
 #### IAM Role for the operator's service account

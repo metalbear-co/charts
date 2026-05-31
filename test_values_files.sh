@@ -10,6 +10,12 @@ for file in test_values/mirrord-operator/*.yaml; do
   if [ "$file" = "test_values/mirrord-operator/extra_volumes.yaml" ]; then
     echo "running with --dry-run"
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait --dry-run="client"
+  elif [ "$file" = "test_values/mirrord-operator/operator_existing_service_account.yaml" ]; then
+    kubectl create namespace existing-service-account
+    kubectl create serviceaccount existing-mirrord-operator --namespace existing-service-account
+    helm install -f "$file" mirrord-operator ./mirrord-operator --wait
+    helm uninstall mirrord-operator --wait
+    kubectl delete namespace existing-service-account --wait
   else
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait
     helm uninstall mirrord-operator --wait

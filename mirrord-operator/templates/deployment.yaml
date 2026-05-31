@@ -152,6 +152,8 @@ spec:
         {{- end }}
         - name: OPERATOR_JSON_LOG
           value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
+        - name: OPERATOR_REQUIRE_FRONT_PROXY_CLIENT_CERT
+          value: {{ .Values.operator.requireFrontProxyClientCert | ternary "true" "false" | quote }}
         - name: OPERATOR_AGENT_CONFIG
           value: /mirrord-config/agent-config.yaml
         - name: OPERATOR_MYSQL_BRANCH_CONFIG

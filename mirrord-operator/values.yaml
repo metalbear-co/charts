@@ -54,6 +54,12 @@ operator:
   labels: {}
 
   jsonLog: false
+  # Require Kubernetes front-proxy client certificates on operator API routes.
+  # The operator validates the certificate chain using the front-proxy CA from the cluster's
+  # extension-apiserver-authentication configmap. Disable this only for environments where
+  # requests reach the operator without kube-apiserver/front-proxy client certificates, for
+  # example local development, custom API routing, or debugging through traffic interception.
+  requireFrontProxyClientCert: true
   # Define additional environment variables for the operator.
   extraEnv: {}
   # Define additional volume mounts for the operator container.
@@ -592,6 +598,11 @@ service:
   name: mirrord-operator
 
 sa:
+  ## Whether the chart should create the operator ServiceAccount.
+  ## Set to `false` to use an existing ServiceAccount named by `sa.name`.
+  create: true
+
+  ## Name of the ServiceAccount used by the operator Deployment and RBAC bindings.
   name: mirrord-operator
 
   ## AWS role ARN to use for IAM role assumption.
@@ -599,8 +610,9 @@ sa:
   ## GCP service account to impersonate.
   # gcpSa: <iam-sa-name>@<iam-sa-project-id>.iam.gserviceaccount.com
   ## Azure Managed Identity client ID for AKS Workload Identity.
-  ## When set, the ServiceAccount gets the azure.workload.identity/client-id annotation
-  ## and the pod gets the azure.workload.identity/use label. The Workload Identity webhook
+  ## When set, the operator pod gets the azure.workload.identity/use label.
+  ## If `sa.create` is true, the ServiceAccount also gets the
+  ## azure.workload.identity/client-id annotation. The Workload Identity webhook
   ## then injects Azure credentials (AZURE_CLIENT_ID, AZURE_TENANT_ID,
   ## AZURE_FEDERATED_TOKEN_FILE) into the operator pod automatically.
   # azureClientId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
