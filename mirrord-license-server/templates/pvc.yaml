@@ -1,4 +1,4 @@
-{{- if eq .Values.database.kind "sqlite" }}
+{{- if or (eq .Values.database.kind "sqlite") .Values.database.migrateFromSqlite }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -3490,6 +3490,10 @@ spec:
                     nullable: true
                     type: string
                 type: object
+              clientCliVersion:
+                description: Version of the user's CLI, as reported in the `x-mirrord-cli-version` header.
+                nullable: true
+                type: string
               copyTarget:
                 description: |-
                   Copy target configuration for this session.
@@ -4008,6 +4012,11 @@ spec:
                     description: SQS queue splitting filters, keyed by queue ID.
                     type: object
                 type: object
+              replicas:
+                default: 1
+                description: Number of replicas created by the deployment.
+                format: int32
+                type: integer
               target:
                 description: |-
                   Target to copy pod configuration from (deployment, pod, statefulset, etc.).

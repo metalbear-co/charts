@@ -11,6 +11,8 @@ database:
   # If `kind=sqlite`, all other options are ignored,
   kind: sqlite
 
+  migrateFromSqlite: false
+
   # Required (if `kind=postgres`)
   # host: postgres.something.svc
 
@@ -128,8 +130,6 @@ sa:
 tls:
   secret: mirrord-operator-license-server-tls
 
-  # if certmanager is disabled and no tls.key and tls.crt is set,
-  # the operator will generate a self-signed certificate.
   certManager:
     enabled: false
     createIssuer: true
@@ -149,3 +149,66 @@ tls:
 dashboard:
   enabled: false
   port: 8050
+
+## Optional SAML front-proxy sidecar for the dashboard.
+##
+## Requires dashboard.enabled=true.
+##
+## When enabled, the license-server only binds dashboard API to localhost and all public traffic
+## must flow through the proxy sidecar. Existing tls.* settings continue to apply:
+## the proxy terminates HTTPS with the same certificate, while the Rust server
+## switches to localhost-only HTTP. The installer is expected to provide the
+## proxy config and any SAML metadata/certificate files the proxy needs.
+saml:
+  enabled: false
+
+  proxy:
+    image: soarinferret/mod_auth_mellon
+    tag: debian
+
+    # Override the pull policy, useful for local development.
+    imagePullPolicy: IfNotPresent
+
+    # extraEnv:
+    #   HTTPD_LOG_LEVEL: debug
+
+    # Resources for the front-proxy sidecar.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+    assets:
+      # Secret with the SAML files used by mod_auth_mellon.
+      #
+      # The generated Apache config expects the following files:
+      # - idp-metadata.xml  (must include the IdP's signing certificate, i.e. a
+      #   <KeyDescriptor use="signing"> in the IDPSSODescriptor; mod_auth_mellon rejects
+      #   assertions with "provider has no known public key" otherwise. For Azure AD use the
+      #   full app federation metadata from
+      #   https://login.microsoftonline.com/<tenant>/federationmetadata/2007-06/federationmetadata.xml?appid=<appId>)
+      # - sp-metadata.xml
+      # - sp.key   (SAML Service Provider private key, separate from tls.key)
+      # - sp.cert  (SAML Service Provider certificate, separate from tls.crt)
+      #
+      # You can either reference an existing secret with `.existingSecret`
+      # or let Helm create one using `.data`.
+      #
+      # existingSecret: my-license-server-saml-assets
+      mountPath: /mellon
+      # data:
+      #   idp-metadata.xml: |
+      #     <EntityDescriptor>...</EntityDescriptor>
+      #   sp-metadata.xml: |
+      #     <EntityDescriptor>...</EntityDescriptor>
+      #   sp.key: |
+      #     -----BEGIN PRIVATE KEY-----
+      #     ...
+      #     -----END PRIVATE KEY-----
+      #   sp.cert: |
+      #     -----BEGIN CERTIFICATE-----
+      #     ...
+      #     -----END CERTIFICATE-----

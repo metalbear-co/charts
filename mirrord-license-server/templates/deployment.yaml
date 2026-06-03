@@ -1,6 +1,13 @@
 {{- if and (gt (int .Values.server.replicas) 1) (eq .Values.database.kind "sqlite") }}
   {{- fail "unable to set more than 1 replica when using sqlite, please switch to postgres database for multiple replicas" }}
 {{- end }}
+{{- $tlsEnabled := or (not (empty (index .Values.tls.data "tls.key"))) .Values.tls.certManager.enabled }}
+{{- if and .Values.saml.enabled (not .Values.dashboard.enabled) }}
+  {{- fail "saml.enabled=true requires dashboard.enabled=true" }}
+{{- end }}
+{{- if and .Values.saml.enabled .Values.dashboard.enabled (not (or .Values.saml.proxy.assets.existingSecret .Values.saml.proxy.assets.data)) }}
+  {{- fail "saml.proxy.assets.existingSecret or saml.proxy.assets.data is required when saml.enabled=true" }}
+{{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -16,7 +23,7 @@ spec:
   selector:
     matchLabels:
       app: mirrord-license-server
-  {{- if eq .Values.database.kind "sqlite" }}
+  {{- if or (eq .Values.database.kind "sqlite") .Values.database.migrateFromSqlite }}
   strategy:
     # This is needed, as the license server uses a ReadWriteOnce PVC.
     type: Recreate
@@ -49,10 +56,10 @@ spec:
         runAsGroup: 2000
         fsGroup: 2000
         {{/* Allow low port using ip_unprivileged_port_start */}}
-        {{- if lt (int .Values.server.port) 1024 -}}
+        {{- if or (lt (int .Values.server.port) 1024) (lt (int .Values.dashboard.port) 1024) -}}
         sysctls:
         - name: net.ipv4.ip_unprivileged_port_start
-          value: {{ .Values.server.port | quote}}
+          value: {{ min (int .Values.server.port) (int .Values.dashboard.port) | quote}}
         {{- end }}
       {{- if .Values.server.tolerations }}
       tolerations:
@@ -68,6 +75,7 @@ spec:
       {{- end }}
 
       containers:
+      # License server container
       - args: ["license-server"]
         env:
         - name: RUST_LOG
@@ -80,6 +88,10 @@ spec:
         {{- else if eq .Values.database.kind "postgres" }}
         - name: DATABASE_TYPE
           value: "postgres"
+        {{- if .Values.database.migrateFromSqlite }}
+        - name: MIGRATE_DATABASE_URL
+          value: sqlite:///opt/mirrord/data/license-server.db
+        {{- end }}
         {{- if kindIs "string" .Values.database.host }}
         - name: PGHOST
           value: {{ .Values.database.host | quote }}
@@ -148,12 +160,27 @@ spec:
         {{- if .Values.dashboard.enabled }}
         - name: DASHBOARD_ENABLED
           value: "true"
-        - name: DASHBOARD_PORT
-          value: {{ .Values.dashboard.port | quote }}
+        {{- end }}
+        {{- if .Values.dashboard.enabled }}
+        - name: DASHBOARD_ADDRESS
+        {{- if .Values.saml.enabled }}
+          # SAML proxy listens on the dashboard port on public IP.
+          # License server listens on a different port on localhost.
+          value: {{ printf "127.0.0.1:%d" (add (int .Values.dashboard.port) 1) | quote }}
+        {{- else }}
+          # There is no proxy.
+          # License server listens on the dashboard port on public IP.
+          value: {{ printf "0.0.0.0:%d" (int .Values.dashboard.port) | quote }}
+        {{- end }}
+        {{- if .Values.saml.enabled }}
+        # SAML proxy terminates TLS and injects verified headers.
+        - name: DASHBOARD_AUTH_PROXY
+          value: "true"
+        {{- end }}
         {{- end }}
         - name: ERROR_EVENTS_RETENTION_DAYS
           value: {{ .Values.server.retention.operatorErrors | quote }}
-        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        {{- if $tlsEnabled }}
         - name: TLS_CERT_PATH
           value: /tls/tls.crt
         - name: TLS_KEY_PATH
@@ -182,13 +209,13 @@ spec:
           httpGet:
             path: /health
             port: {{ .Values.server.port }}
-            scheme: {{ or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled | ternary "HTTPS" "HTTP" | quote }}
+            scheme: {{ $tlsEnabled | ternary "HTTPS" "HTTP" | quote }}
           periodSeconds: 5
         name: license-server
         ports:
         - containerPort: {{ .Values.server.port }}
           name: https
-        {{- if .Values.dashboard.enabled }}
+        {{- if and .Values.dashboard.enabled (not .Values.saml.enabled) }}
         - containerPort: {{ .Values.dashboard.port }}
           name: dashboard
         {{- end }}
@@ -196,7 +223,7 @@ spec:
           httpGet:
             path: /health
             port: {{ .Values.server.port }}
-            scheme: {{ or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled | ternary "HTTPS" "HTTP" | quote }}
+            scheme: {{ $tlsEnabled | ternary "HTTPS" "HTTP" | quote }}
           periodSeconds: 5
         resources:
           requests:
@@ -210,7 +237,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         volumeMounts:
-        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        {{- if $tlsEnabled }}
         - mountPath: /tls
           name: tls-volume
         {{- end }}
@@ -220,15 +247,54 @@ spec:
           name: license-volume
         {{- end }}
         # needed for the license-server create sqlite database
-        {{- if eq .Values.database.kind "sqlite" }}
+        {{- if or (eq .Values.database.kind "sqlite") .Values.database.migrateFromSqlite }}
         - mountPath: /opt/mirrord/data
           name: data
         {{- end }}
         - mountPath: /tmp
           name: tmp
+
+      {{- if and .Values.saml.enabled .Values.dashboard.enabled }}
+      # SAML proxy container
+      - name: saml-proxy
+        image: {{ .Values.saml.proxy.image }}:{{ .Values.saml.proxy.tag }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.saml.proxy.imagePullPolicy }}
+        {{- if .Values.saml.proxy.extraEnv }}
+        env:
+        {{- range $name, $value := .Values.saml.proxy.extraEnv }}
+        - name: {{ $name }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.dashboard.port }}
+          name: dashboard
+        resources:
+          {{- toYaml .Values.saml.proxy.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: false
+        volumeMounts:
+        - mountPath: /usr/local/apache2/conf/httpd.conf
+          name: saml-proxy-config
+          subPath: httpd.conf
+        {{- if or .Values.saml.proxy.assets.existingSecret .Values.saml.proxy.assets.data }}
+        - mountPath: {{ .Values.saml.proxy.assets.mountPath }}
+          name: saml-proxy-assets
+          readOnly: true
+        {{- end }}
+        {{- if $tlsEnabled }}
+        - mountPath: /tls
+          name: tls-volume
+        {{- end }}
+        - mountPath: /tmp
+          name: tmp
+      {{- end }}
+
       serviceAccountName: {{ .Values.sa.name }}
       volumes:
-      {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+      {{- if $tlsEnabled }}
       - name: tls-volume
         secret:
           secretName: {{ .Values.tls.secret }}
@@ -239,10 +305,20 @@ spec:
         secret:
           secretName: {{ .Values.license.file.secret }}
       {{- end }}
-      {{- if eq .Values.database.kind "sqlite" }}
+      {{- if or (eq .Values.database.kind "sqlite") .Values.database.migrateFromSqlite }}
       - name: data
         persistentVolumeClaim:
           claimName: mirrord-license-server-pvc
+      {{- end }}
+      {{- if and .Values.saml.enabled .Values.dashboard.enabled }}
+      - name: saml-proxy-config
+        configMap:
+          name: {{ include "mirrord-license-server.samlProxyConfigMapName" . }}
+      {{- if or .Values.saml.proxy.assets.existingSecret .Values.saml.proxy.assets.data }}
+      - name: saml-proxy-assets
+        secret:
+          secretName: {{ default (include "mirrord-license-server.samlProxyAssetsSecretName" .) .Values.saml.proxy.assets.existingSecret }}
+      {{- end }}
       {{- end }}
       - emptyDir: {}
         name: tmp

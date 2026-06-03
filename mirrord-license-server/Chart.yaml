@@ -1,6 +1,6 @@
 apiVersion: v2
 name: mirrord-operator-license-server
-description: A Helm chart for Kubernetes
+description: Self-hosted, air-gapped license server for the mirrord Operator that manages Enterprise licenses with no external telemetry.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,10 +15,36 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 3.165.0
+version: 3.166.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.165.0"
+appVersion: "3.166.0"
+
+home: https://metalbear.com/mirrord
+icon: https://raw.githubusercontent.com/metalbear-co/mirrord/main/images/icon.png
+sources:
+  - https://github.com/metalbear-co/charts
+keywords:
+  - mirrord
+  - kubernetes
+  - license-server
+  - air-gapped
+  - enterprise
+  - metalbear
+maintainers:
+  - name: MetalBear
+    email: eyal@metalbear.com
+    url: https://metalbear.com
+annotations:
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://metalbear.com/mirrord/docs
+    - name: Pricing
+      url: https://metalbear.com/mirrord/pricing
+    - name: Source
+      url: https://github.com/metalbear-co/charts
+    - name: support
+      url: https://github.com/metalbear-co/mirrord/issues

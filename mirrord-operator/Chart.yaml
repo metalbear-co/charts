@@ -1,6 +1,6 @@
 apiVersion: v2
 name: mirrord-operator
-description: A Helm chart for Kubernetes
+description: The control plane for mirrord. Let every developer and AI agent on your team develop against a real Kubernetes cluster at once, with traffic filtering, queue splitting, DB branching, preview environments, CI support, and policy controls.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,10 +15,49 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 3.165.0
+version: 3.166.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "3.165.0"
+appVersion: "3.166.0"
+
+home: https://metalbear.com/mirrord
+icon: https://raw.githubusercontent.com/metalbear-co/mirrord/main/images/icon.png
+sources:
+  - https://github.com/metalbear-co/charts
+  - https://github.com/metalbear-co/mirrord
+keywords:
+  - mirrord
+  - kubernetes
+  - operator
+  - development
+  - developer-environment
+  - local-development
+  - remote-development
+  - cloud-development
+  - preview-environments
+  - cicd
+  - ci
+  - ai-agents
+  - claude
+  - database-branching
+  - traffic-filtering
+  - debugging
+  - metalbear
+maintainers:
+  - name: MetalBear
+    email: eyal@metalbear.com
+    url: https://metalbear.com
+annotations:
+  artifacthub.io/operator: "true"
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://metalbear.com/mirrord/docs
+    - name: Pricing
+      url: https://metalbear.com/mirrord/pricing
+    - name: Source
+      url: https://github.com/metalbear-co/charts
+    - name: support
+      url: https://github.com/metalbear-co/mirrord/issues

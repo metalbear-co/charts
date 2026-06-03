@@ -1,0 +1,107 @@
+{{- if and .Values.saml.enabled .Values.dashboard.enabled }}
+
+{{- $tlsEnabled := or (not (empty (index .Values.tls.data "tls.key"))) .Values.tls.certManager.enabled }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mirrord-license-server.samlProxyConfigMapName" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+data:
+  httpd.conf: |
+    # Apache httpd is the public-facing web server in this pod.
+    # We use it as a small "front door" in front of the Rust license server:
+    # - it listens on the public service port;
+    # - it performs browser-based SAML 2.0 login through the mod_auth_mellon module;
+    # - after a successful login, it forwards the request to the localhost-only Rust server;
+    # - it injects trusted identity headers that the Rust code can read.
+    #
+    # "Mellon" below refers to mod_auth_mellon, an Apache module that implements the SAML
+    # protocol for Apache. It handles the browser redirects, SAML assertion validation, and the
+    # login session cookie after authentication succeeds.
+
+    # Tell Apache where its bundled modules and default config files live inside the container.
+    ServerRoot "/usr/local/apache2"
+    # Open the public port that Kubernetes sends traffic to.
+    Listen {{ .Values.dashboard.port }}
+    # Store the Apache process ID in /tmp, which is writable in the container.
+    PidFile "/tmp/httpd.pid"
+    # Run worker processes as the non-root user that exists in the container image.
+    User daemon
+    # Run worker processes under the matching non-root group.
+    Group daemon
+    # Load MIME type definitions so proxied/static responses use sensible content types.
+    TypesConfig conf/mime.types
+
+    # Load Apache's event-based request-processing engine.
+    LoadModule mpm_event_module modules/mod_mpm_event.so
+
+    # Load Apache's core authentication and authorization framework.
+    # mod_auth_mellon plugs into these generic auth/authz hooks.
+    LoadModule authn_core_module modules/mod_authn_core.so
+    LoadModule authz_core_module modules/mod_authz_core.so
+    # Support access rules such as "Require all granted".
+    LoadModule authz_host_module modules/mod_authz_host.so
+    # Support access rules such as "Require valid-user".
+    LoadModule authz_user_module modules/mod_authz_user.so
+
+    # Keep standard path and request handling helpers enabled.
+    LoadModule alias_module modules/mod_alias.so
+    LoadModule dir_module modules/mod_dir.so
+
+    # Allow Apache to add, overwrite, and remove HTTP headers.
+    # We use this to clear spoofed auth headers and to inject trusted ones after SAML login.
+    LoadModule headers_module modules/mod_headers.so
+
+    # Enable Apache access logging.
+    LoadModule log_config_module modules/mod_log_config.so
+    # Enable MIME type handling.
+    LoadModule mime_module modules/mod_mime.so
+
+    # Enable Apache's reverse proxy feature.
+    LoadModule proxy_module modules/mod_proxy.so
+    # Enable proxying specifically for HTTP backends, which our Rust service uses.
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+
+    # Allow setting environment variables from request properties.
+    # mod_auth_mellon exposes authenticated user details through environment variables.
+    LoadModule setenvif_module modules/mod_setenvif.so
+    # Provide the shared-memory cache used by some auth/SSL features.
+    LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+    # Load Apache's SSL/TLS support.
+    # Even when TLS is terminated elsewhere, mod_auth_mellon expects the SSL stack to be present.
+    LoadModule ssl_module modules/mod_ssl.so
+    # Provide Unix-specific process management helpers used by Apache in Linux containers.
+    LoadModule unixd_module modules/mod_unixd.so
+    # Load the module that implements SAML 2.0 login for Apache.
+    LoadModule auth_mellon_module modules/mod_auth_mellon.so
+
+    {{- if $tlsEnabled }}
+    # The main server needs its own ErrorLog/CustomLog: Apache opens these before parsing the
+    # VirtualHost, and without them it falls back to logs/error_log, which the non-root container
+    # cannot write (startup fails with AH00091 "could not open error log file").
+    ErrorLog "/proc/self/fd/2"
+    CustomLog "/proc/self/fd/1" common
+    # Reuse the same tls.* certificate user has already configured for the license server.
+    # When SAML is enabled, Apache becomes the HTTPS endpoint and forwards plain HTTP to localhost.
+    <VirtualHost *:{{ .Values.dashboard.port }}>
+      # Send Apache error logs to stderr so they appear in Kubernetes container logs.
+      ErrorLog "/proc/self/fd/2"
+      # Send Apache access logs to stdout so they appear in Kubernetes container logs.
+      CustomLog "/proc/self/fd/1" common
+      SSLEngine on
+      SSLCertificateFile "/tls/tls.crt"
+      SSLCertificateKeyFile "/tls/tls.key"
+{{ include "mirrord-license-server.samlProxyServerConfig" . | indent 6 }}
+    </VirtualHost>
+    {{- else }}
+    # Send Apache error logs to stderr so they appear in Kubernetes container logs.
+    ErrorLog "/proc/self/fd/2"
+    # Send Apache access logs to stdout so they appear in Kubernetes container logs.
+    CustomLog "/proc/self/fd/1" common
+{{ include "mirrord-license-server.samlProxyServerConfig" . | indent 4 }}
+    {{- end }}
+
+{{- end }}

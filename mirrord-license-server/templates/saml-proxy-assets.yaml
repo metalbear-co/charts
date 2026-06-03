@@ -1,0 +1,12 @@
+{{- if and .Values.saml.enabled .Values.dashboard.enabled .Values.saml.proxy.assets.data }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "mirrord-license-server.samlProxyAssetsSecretName" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mirrord-license-server.labels" . | nindent 4 }}
+stringData:
+  {{- toYaml .Values.saml.proxy.assets.data | nindent 2 }}
+type: Opaque
+{{- end }}
