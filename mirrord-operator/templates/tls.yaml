@@ -1,4 +1,6 @@
-{{- if (index .Values.tls.data "tls.key") }}
+{{- if .Values.tls.useExistingSecret }}
+{{/* The secret named by `tls.secret` is provisioned externally (e.g. an ExternalSecret); the chart only mounts it. */}}
+{{- else if (index .Values.tls.data "tls.key") }}
 apiVersion: v1
 kind: Secret
 metadata:

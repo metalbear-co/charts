@@ -1795,6 +1795,11 @@ spec:
                 description: List of consumed splittable topics.
                 items:
                   description: Splittable Kafka topic consumed by some remote target.
+                  oneOf:
+                  - required:
+                    - groupIdSources
+                  - required:
+                    - applicationIdSources
                   properties:
                     applicationIdSources:
                       description: |-
@@ -1832,7 +1837,6 @@ spec:
                         This config will be used to manage ephemeral Kafka topics and consume/produce messages.
                       type: string
                     groupIdSources:
-                      default: []
                       description: |-
                         All occurrences of this topic's group id in the workload's pod template.
 
@@ -3691,7 +3695,15 @@ spec:
                     - unknown
                     type: string
                   name:
-                    description: Resource name (queue, topic, or subscription name).
+                    description: |-
+                      Identifies the resource the operator must clean up.
+
+                      For a queue or topic this is just the entity name. For a subscription or
+                      a subscription rule it is the full Service Bus entity path (for example
+                      `my-topic/subscriptions/mirrord-ingest-1a2b`), because deleting a
+                      subscription or editing its rules through the REST API needs the parent
+                      topic in the URL. Encoding the path here keeps the cleanup self-contained
+                      without adding more fields to the CRD.
                     type: string
                   propertiesListName:
                     description: Name of the `MirrordPropertyList` with connection_string for cleanup.

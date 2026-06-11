@@ -24,6 +24,7 @@ database:
   # auth:
   #   user: postgres
   #   password: postgres
+  #   awsIam: false
 
 server:
   image: ghcr.io/metalbear-co/operator
@@ -36,6 +37,9 @@ server:
   podAnnotations: {}
   podLabels: {}
   jsonLog: false
+
+  # Define additional environment variables for the license-server.
+  extraEnv: {}
 
   # Sets log level for the license server container.
   #

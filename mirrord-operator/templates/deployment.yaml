@@ -166,7 +166,7 @@ spec:
           value: /mirrord-config/preview-config.yaml
         - name: OPERATOR_MSSQL_BRANCH_CONFIG
           value: /mirrord-config/mssql-branch-config.yaml
-        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
         - name: OPERATOR_TLS_KEY_PATH
@@ -222,6 +222,10 @@ spec:
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         - name: OPERATOR_IMAGE_PULL_POLICY
           value: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
+        {{- if .Values.agent.extraEnv }}
+        - name: OPERATOR_AGENT_EXTRA_ENV
+          value: {{ .Values.agent.extraEnv | toJson | quote }}
+        {{- end }}
         {{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaSplittingSidecar.enabled }}
         - name: OPERATOR_KAFKA_SPLITTING_SIDECAR_PORT
           value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
@@ -301,7 +305,7 @@ spec:
             drop: ["ALL"]
           privileged: false
         volumeMounts:
-        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+        {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
         - mountPath: /tls
           name: tls-volume
         {{- end }}
@@ -348,7 +352,7 @@ spec:
       - name: mirrord-config-volume
         configMap:
           name: mirrord-configmap
-      {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled }}
+      {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
       - name: tls-volume
         secret:
           secretName: {{ .Values.tls.secret }}

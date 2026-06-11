@@ -23,3 +23,8 @@ clusterRole:
     labels:
       rbac.authorization.k8s.io/aggregate-to-admin: "true"
       rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  mirrord-operator-ci:
+    # add labels to the role, for i.e aggregate RBAC
+    labels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"

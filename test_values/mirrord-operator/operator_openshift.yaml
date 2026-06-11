@@ -1,0 +1,17 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+namespace: custom-operator-namespace
+
+sa:
+  name: custom-operator-sa
+
+openshift: true
+
+agent:
+  extraConfig:
+    namespace: custom-agent-namespace
+    service_account: custom-agent-sa

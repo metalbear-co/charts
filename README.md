@@ -137,6 +137,9 @@ clusterRole:
   mirrord-operator-user:
     labels:
       team: platform
+  mirrord-operator-ci:
+    labels:
+      team: ci
 ```
 
 > Learn more about [copy-target namespaces](https://metalbear.co/mirrord/docs/using-mirrord/copy-target/).

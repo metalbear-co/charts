@@ -26,6 +26,9 @@ clusterRole:
   mirrord-operator-user:
     # add labels to the role, for i.e aggregate RBAC
     labels: {}
+  mirrord-operator-ci:
+    # add labels to the role, for i.e aggregate RBAC
+    labels: {}
 
 operator:
   image: ghcr.io/metalbear-co/operator
@@ -538,6 +541,9 @@ agent:
   # you can set it here. If you don't set anything, each agent will be assigned with a random high port.
   # port: 9999
 
+  # Define additional environment variables for agent pods.
+  extraEnv: {}
+
   priorityClass:
     # Whether to create a PriorityClass for agent pods.
     create: true
@@ -619,6 +625,12 @@ sa:
 
 tls:
   secret: mirrord-operator-tls
+
+  # Set to `true` to mount the secret named by `tls.secret` without the chart
+  # creating it. Use this when the TLS secret is provisioned out-of-band (e.g. by
+  # an ExternalSecret or another controller). When `true`, `tls.data` and
+  # `tls.certManager` are ignored.
+  useExistingSecret: false
 
   # if you're using a verified certificate, set this value to false.
   apiService:

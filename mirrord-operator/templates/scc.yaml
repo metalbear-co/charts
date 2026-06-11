@@ -1,4 +1,14 @@
 {{- if .Values.openshift }}
+{{- $agentNamespace := .Values.namespace }}
+{{- $agentServiceAccount := "default" }}
+{{- if and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) }}
+{{- with get .Values.agent.extraConfig "namespace" }}
+{{- $agentNamespace = . }}
+{{- end }}
+{{- with get .Values.agent.extraConfig "service_account" }}
+{{- $agentServiceAccount = . }}
+{{- end }}
+{{- end }}
 kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
 metadata:
@@ -13,7 +23,8 @@ runAsUser:
   type: RunAsAny
 seLinuxContext:
   type: MustRunAs
+seccompProfiles: ["*"]
 users:
-- system:serviceaccount:mirrord:mirrord-operator
-- system:serviceaccount:mirrord:default
+- system:serviceaccount:{{ .Values.namespace }}:{{ .Values.sa.name }}
+- system:serviceaccount:{{ $agentNamespace }}:{{ $agentServiceAccount }}
 {{ end }}

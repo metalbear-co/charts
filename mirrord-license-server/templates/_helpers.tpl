@@ -75,8 +75,9 @@ ProxyPassReverse "/" "http://127.0.0.1:{{ add .Values.dashboard.port 1 }}/"
   MellonSecureCookie On
   MellonCookieSameSite None
   # Copy the authenticated username into a trusted header for downstream Rust services.
-  # The value comes from Apache's REMOTE_USER environment variable after SAML login succeeds.
-  RequestHeader set X-Remote-User "%{REMOTE_USER}e" env=REMOTE_USER
+  # mod_auth_mellon exports the SAML NameID as the MELLON_NAME_ID env var after login; it does
+  # not expose REMOTE_USER as a CGI env var, so the header must be sourced from MELLON_NAME_ID.
+  RequestHeader set X-Remote-User "%{MELLON_NAME_ID}e" env=MELLON_NAME_ID
   # Forward the SAML NameID in a generic "extra" header for downstream consumers that want it.
   RequestHeader set X-Remote-Extra-NameID "%{MELLON_NAME_ID}e" env=MELLON_NAME_ID
   # Forward the SAML SessionIndex in a generic "extra" header for downstream consumers.

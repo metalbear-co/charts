@@ -121,6 +121,8 @@ spec:
               {{- toYaml .Values.database.name.secretKeyRef | nindent 14 }}
         {{- end }}
         {{- if .Values.database.auth }}
+        - name: DATABASE_AWS_RDS_AUTH
+          value: {{ .Values.database.auth.awsIam | ternary "true" "false" | quote }}
         {{- if kindIs "string" .Values.database.auth.user }}
         - name: PGUSER
           value: {{ .Values.database.auth.user | quote }}
@@ -150,17 +152,13 @@ spec:
               {{- toYaml .Values.database.auth.password.secretKeyRef | nindent 14 }}
         {{- end }}
         {{- end }}
-        {{- if .Values.database.tls }}
+        {{- if or .Values.database.tls (and .Values.database.auth .Values.database.auth.awsIam) }}
         - name: PGSSLMODE
           value: "VerifyFull"
         {{- end }}
         {{- end }}
         - name: JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
-        {{- if .Values.dashboard.enabled }}
-        - name: DASHBOARD_ENABLED
-          value: "true"
-        {{- end }}
         {{- if .Values.dashboard.enabled }}
         - name: DASHBOARD_ADDRESS
         {{- if .Values.saml.enabled }}
@@ -185,6 +183,10 @@ spec:
           value: /tls/tls.crt
         - name: TLS_KEY_PATH
           value: /tls/tls.key
+        {{- end }}
+        {{- range $key, $val := .Values.server.extraEnv }}
+        - name: {{ $key }}
+          value: {{ $val | quote }}
         {{- end }}
         {{- if .Values.license.gsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF

@@ -524,6 +524,19 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: mirrord-operator-ci
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+    {{- if index .Values.clusterRole "mirrord-operator-ci" "labels" }}
+          {{- toYaml (index .Values.clusterRole "mirrord-operator-ci" "labels") | nindent 4 }}
+    {{- end }}
+rules:
+{{- include "mirrord-operator.rules" . | nindent 0 }}
+{{- include "mirrord-operator.clusterRules" . | nindent 0 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
   name: mirrord-operator-user-basic
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
