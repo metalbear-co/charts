@@ -11,6 +11,11 @@ spec:
   - name: https
     port: {{ .Values.operator.port }}
     targetPort: https
+  {{- if .Values.operator.temporalSplitting }}
+  - name: temporal
+    port: {{ .Values.operator.temporalProxy.port }}
+    targetPort: temporal
+  {{- end }}
   selector:
     app: mirrord-operator
     mirrord-operator-leader: "true"

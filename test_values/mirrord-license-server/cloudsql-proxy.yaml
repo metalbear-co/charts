@@ -1,0 +1,23 @@
+createNamespace: true
+
+database:
+  kind: postgres
+
+  host: 127.0.0.1
+
+  name: test
+
+  auth:
+    user: test-sa@test-project.iam
+
+  cloudSqlProxy:
+    enabled: true
+    instance: "test-project:us-central1:test-instance"
+    privateIp: true
+
+license:
+  key: "foobar"
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

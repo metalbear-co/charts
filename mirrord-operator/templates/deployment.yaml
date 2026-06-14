@@ -116,6 +116,12 @@ spec:
           value: {{ .Values.operator.gcpPubsubSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_AZURE_SERVICE_BUS_SPLITTING
           value: {{ .Values.operator.azureServiceBusSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_REDIS_PUBSUB_SPLITTING
+          value: {{ .Values.operator.redisPubsubSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_TEMPORAL_SPLITTING
+          value: {{ .Values.operator.temporalSplitting | ternary "true" "false" | quote }}
+        - name: OPERATOR_TEMPORAL_PROXY_PORT
+          value: {{ .Values.operator.temporalProxy.port | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
           value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PG_BRANCHING
@@ -124,6 +130,8 @@ spec:
           value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_MSSQL_BRANCHING
           value: {{ .Values.operator.mssqlBranching | ternary "true" "false" | quote }}
+        - name: OPERATOR_REDIS_BRANCHING
+          value: {{ .Values.operator.redisBranching | ternary "true" "false" | quote }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
@@ -166,6 +174,8 @@ spec:
           value: /mirrord-config/preview-config.yaml
         - name: OPERATOR_MSSQL_BRANCH_CONFIG
           value: /mirrord-config/mssql-branch-config.yaml
+        - name: OPERATOR_REDIS_BRANCH_CONFIG
+          value: /mirrord-config/redis-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt
@@ -280,6 +290,10 @@ spec:
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
+        {{- if .Values.operator.temporalSplitting }}
+        - containerPort: {{ .Values.operator.temporalProxy.port }}
+          name: temporal
+        {{- end }}
         {{- if .Values.operator.metrics }}
         - containerPort: 9000
           name: metrics

@@ -8,6 +8,12 @@
 {{- if and .Values.saml.enabled .Values.dashboard.enabled (not (or .Values.saml.proxy.assets.existingSecret .Values.saml.proxy.assets.data)) }}
   {{- fail "saml.proxy.assets.existingSecret or saml.proxy.assets.data is required when saml.enabled=true" }}
 {{- end }}
+{{- if and .Values.database.cloudSqlProxy.enabled (ne .Values.database.kind "postgres") }}
+  {{- fail "database.cloudSqlProxy.enabled=true requires database.kind=postgres" }}
+{{- end }}
+{{- if and .Values.database.cloudSqlProxy.enabled (not .Values.database.cloudSqlProxy.instance) }}
+  {{- fail "database.cloudSqlProxy.instance is required when database.cloudSqlProxy.enabled=true" }}
+{{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -122,7 +128,7 @@ spec:
         {{- end }}
         {{- if .Values.database.auth }}
         - name: DATABASE_AWS_RDS_AUTH
-          value: {{ .Values.database.auth.awsIam | ternary "true" "false" | quote }}
+          value: {{ (or .Values.database.auth.awsIam false) | ternary "true" "false" | quote }}
         {{- if kindIs "string" .Values.database.auth.user }}
         - name: PGUSER
           value: {{ .Values.database.auth.user | quote }}
@@ -292,6 +298,29 @@ spec:
         {{- end }}
         - mountPath: /tmp
           name: tmp
+      {{- end }}
+
+      {{- if .Values.database.cloudSqlProxy.enabled }}
+      # Cloud SQL Auth Proxy sidecar, see `database.cloudSqlProxy` in values.yaml.
+      - name: cloud-sql-proxy
+        image: {{ .Values.database.cloudSqlProxy.image }}
+        args:
+        - "--structured-logs"
+        - "--port={{ int .Values.database.cloudSqlProxy.port }}"
+        {{- if .Values.database.cloudSqlProxy.autoIamAuthn }}
+        - "--auto-iam-authn"
+        {{- end }}
+        {{- if .Values.database.cloudSqlProxy.privateIp }}
+        - "--private-ip"
+        {{- end }}
+        - {{ .Values.database.cloudSqlProxy.instance | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        resources:
+          {{- toYaml .Values.database.cloudSqlProxy.resources | nindent 10 }}
       {{- end }}
 
       serviceAccountName: {{ .Values.sa.name }}

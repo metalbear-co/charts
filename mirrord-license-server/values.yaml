@@ -26,6 +26,35 @@ database:
   #   password: postgres
   #   awsIam: false
 
+  ## Run a Cloud SQL Auth Proxy sidecar and connect to a GCP Cloud SQL instance through it.
+  ## Requires `kind=postgres`. Set `database.host` to 127.0.0.1 so the license server
+  ## connects via the sidecar.
+  cloudSqlProxy:
+    enabled: false
+
+    ## Cloud SQL instance connection name in the form <project>:<region>:<instance>
+    instance: ""
+
+    ## Authenticate to the database with the pod's IAM identity (Workload Identity,
+    ## see `sa.gcpSa`). `database.auth.user` should be the IAM user name (service
+    ## account email without the ".gserviceaccount.com" suffix), no password needed.
+    autoIamAuthn: true
+
+    ## Connect to the instance over its private IP.
+    privateIp: false
+
+    port: 5432
+
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
 server:
   image: ghcr.io/metalbear-co/operator
 

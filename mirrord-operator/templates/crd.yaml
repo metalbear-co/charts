@@ -1348,7 +1348,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1822,6 +1822,15 @@ spec:
                               container:
                                 description: Name of the container.
                                 type: string
+                              fallback:
+                                description: |-
+                                  Fallback value to use when the variable is not found in the pod template.
+
+                                  Only valid when `variable` is specified directly (not as a pattern).
+                                  When the variable is absent and this is set, the fallback is used as the property value.
+                                  The workload will still be patched to inject the variable with the split topic name.
+                                nullable: true
+                                type: string
                               variable:
                                 description: Name of the variable.
                                 type: string
@@ -1854,6 +1863,15 @@ spec:
                               container:
                                 description: Name of the container.
                                 type: string
+                              fallback:
+                                description: |-
+                                  Fallback value to use when the variable is not found in the pod template.
+
+                                  Only valid when `variable` is specified directly (not as a pattern).
+                                  When the variable is absent and this is set, the fallback is used as the property value.
+                                  The workload will still be patched to inject the variable with the split topic name.
+                                nullable: true
+                                type: string
                               variable:
                                 description: Name of the variable.
                                 type: string
@@ -1879,6 +1897,15 @@ spec:
                             properties:
                               container:
                                 description: Name of the container.
+                                type: string
+                              fallback:
+                                description: |-
+                                  Fallback value to use when the variable is not found in the pod template.
+
+                                  Only valid when `variable` is specified directly (not as a pattern).
+                                  When the variable is absent and this is set, the fallback is used as the property value.
+                                  The workload will still be patched to inject the variable with the split topic name.
+                                nullable: true
                                 type: string
                               variable:
                                 description: Name of the variable.
@@ -3859,6 +3886,11 @@ spec:
                     items:
                       type: string
                     type: array
+                  redisBranchNames:
+                    description: Redis branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
                 type: object
               env:
                 description: User-configured environment variable settings for this preview session.
@@ -3945,7 +3977,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
+                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -3969,7 +4001,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
+                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -3999,11 +4031,35 @@ spec:
 
                       Each value maps header names to regex patterns that messages must match.
                     type: object
+                  redisPubsubQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: Redis Pub/Sub queue splitting filters, keyed by queue ID.
+                    type: object
                   sqsQueueFilters:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, and Azure Service Bus.
+                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4022,6 +4078,30 @@ spec:
                           type: object
                       type: object
                     description: SQS queue splitting filters, keyed by queue ID.
+                    type: object
+                  temporalQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: Temporal queue splitting filters, keyed by task queue ID.
                     type: object
                 type: object
               replicas:
@@ -4118,7 +4198,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4324,6 +4404,28 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
+              redisOptions:
+                description: Redis-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                      patterns:
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                    required:
+                    - mode
+                    type: object
+                type: object
               target:
                 description: Target k8s resource to extract connection source info from.
                 properties:
@@ -4428,7 +4530,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4482,10 +4584,16 @@ spec:
                   kafka:
                     nullable: true
                     type: string
+                  redisPubSub:
+                    nullable: true
+                    type: string
                   rmq:
                     nullable: true
                     type: string
                   sqs:
+                    nullable: true
+                    type: string
+                  temporal:
                     nullable: true
                     type: string
                 type: object
@@ -4511,6 +4619,66 @@ spec:
                       properties:
                         appId:
                           description: Streams application ID (Kafka).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        channel:
+                          description: Exact Redis Pub/Sub channel name (`SUBSCRIBE`).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        channelPattern:
+                          description: Redis Pub/Sub glob pattern (`PSUBSCRIBE`).
                           items:
                             description: Reference to one or more environment variables in the target pod's template.
                             properties:
@@ -4659,8 +4827,128 @@ spec:
                             type: object
                           nullable: true
                           type: array
+                        shardChannel:
+                          description: Sharded pub/sub channel name (`SSUBSCRIBE` / `SPUBLISH`, Redis 7+).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
                         subscription:
                           description: Subscription name (GCP Pub/Sub, Azure Service Bus).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        taskQueue:
+                          description: Task queue name (Temporal).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        temporalAddress:
+                          description: Temporal frontend address (host:port).
+                          items:
+                            description: Reference to one or more environment variables in the target pod's template.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                            type: object
+                          nullable: true
+                          type: array
+                        temporalNamespace:
+                          description: Temporal namespace.
                           items:
                             description: Reference to one or more environment variables in the target pod's template.
                             properties:
@@ -4735,12 +5023,14 @@ spec:
                       - rmq
                       - googlePubSub
                       - azureServiceBus
+                      - redisPubSub
+                      - temporal
                       - unknown
                       type: string
                     queueConfig:
                       description: |-
-                        Name of a `MirrordPropertyList` with additional queue-specific configuration (e.g. labels
-                        on temporary resources, marker tags).
+                        Name of a `MirrordPropertyList` with additional queue-specific operator settings.
+                        For Temporal, supports `max_buffered_tasks` (`0` or omitted in the list means unlimited).
                       nullable: true
                       type: string
                   required:
@@ -4882,6 +5172,8 @@ spec:
                       - rmq
                       - googlePubSub
                       - azureServiceBus
+                      - redisPubSub
+                      - temporal
                       - unknown
                       type: string
                   required:
@@ -4956,6 +5248,13 @@ spec:
                         description: Temporary resources created for each queue, keyed by queue ID.
                         items:
                           properties:
+                            channel:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps original Redis channel name to temporary channel name.
+                                One entry per physical channel managed under this queue_id.
+                              type: object
                             queueId:
                               description: Queue ID from MirrordSplitConfig.
                               type: string
@@ -4965,6 +5264,11 @@ spec:
                               description: |-
                                 Maps original subscription name to temporary subscription name.
                                 One entry per physical subscription managed under this queue_id.
+                              type: object
+                            taskQueue:
+                              additionalProperties:
+                                type: string
+                              description: Maps original Temporal task queue name to virtual task queue name.
                               type: object
                             topic:
                               additionalProperties:
@@ -5020,6 +5324,13 @@ spec:
                     description: Temporary resources created for each queue, keyed by queue ID.
                     items:
                       properties:
+                        channel:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original Redis channel name to temporary channel name.
+                            One entry per physical channel managed under this queue_id.
+                          type: object
                         queueId:
                           description: Queue ID from MirrordSplitConfig.
                           type: string
@@ -5029,6 +5340,11 @@ spec:
                           description: |-
                             Maps original subscription name to temporary subscription name.
                             One entry per physical subscription managed under this queue_id.
+                          type: object
+                        taskQueue:
+                          additionalProperties:
+                            type: string
+                          description: Maps original Temporal task queue name to virtual task queue name.
                           type: object
                         topic:
                           additionalProperties:
@@ -5070,6 +5386,13 @@ spec:
                     description: Temporary resources created for each queue, keyed by queue ID.
                     items:
                       properties:
+                        channel:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original Redis channel name to temporary channel name.
+                            One entry per physical channel managed under this queue_id.
+                          type: object
                         queueId:
                           description: Queue ID from MirrordSplitConfig.
                           type: string
@@ -5079,6 +5402,11 @@ spec:
                           description: |-
                             Maps original subscription name to temporary subscription name.
                             One entry per physical subscription managed under this queue_id.
+                          type: object
+                        taskQueue:
+                          additionalProperties:
+                            type: string
+                          description: Maps original Temporal task queue name to virtual task queue name.
                           type: object
                         topic:
                           additionalProperties:

@@ -230,7 +230,7 @@ rules:
   - mirrordclusterworkloadpatchrequests
   verbs:
   - create
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
 # The primary operator creates credential Secrets on the default cluster
 # when the mirrord config contains literal connection values.
 - apiGroups:
@@ -261,7 +261,7 @@ rules:
   verbs:
   - get
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.redisPubsubSplitting }}
 # The envoy watches MirrordClusterSplitSession on the default cluster to
 # collect tmpResources before connecting to non-default clusters.
 - apiGroups:

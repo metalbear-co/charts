@@ -85,6 +85,14 @@ operator:
   gcpPubsubSplitting: false
   # Has to be set to `true` in order to use the Azure Service Bus queue splitting feature.
   azureServiceBusSplitting: false
+  # Has to be set to `true` in order to use the Redis Pub/Sub queue splitting feature.
+  redisPubsubSplitting: false
+  # Has to be set to `true` in order to use the Temporal queue splitting feature.
+  temporalSplitting: false
+  # Temporal queue splitting proxy settings.
+  temporalProxy:
+    # Port for the Temporal frontend proxy workers connect to via `TEMPORAL_ADDRESS`.
+    port: 7233
   # Has to be set to `true` in order to use the argocd application auto-sync pause feature.
   applicationPauseAutoSync: false
 
@@ -98,6 +106,8 @@ operator:
   mongodbBranching: false
   # Has to be set to `true` in order to use the MSSQL database branching feature.
   mssqlBranching: false
+  # Has to be set to `true` in order to use the Redis database branching feature.
+  redisBranching: false
   # Grants cluster-wide Secret permissions needed when users pass literal
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.
@@ -512,6 +522,29 @@ operator:
   ##       cpu: "1"
   ##       memory: "1Gi"
 
+  # redisBranchConfig:
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     registry: "docker.io/library/redis"
+  ##   imagePullSecrets:
+  ##     - name: "redis-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "redis-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
+
 agent:
   ## example
   ##
@@ -569,7 +602,6 @@ agent:
   #  tolerations:
   #    - operator: Exists
   #  privileged: true
-  #  passthrough_mirroring: false
 
 license:
   ## ID of a secret from the Google Secrets Manager.
