@@ -98,11 +98,24 @@ rules:
   - update
   - patch
 {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
-# Queue registry sync from primary cluster
+# Queue-splitting CRDs synced from primary cluster
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
   - mirrordworkloadqueueregistries
+  - mirrordsplitconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
   verbs:
   - get
   - list
@@ -260,8 +273,10 @@ rules:
   - mirrordsqssessions/status
   verbs:
   - get
+  - update
+  - patch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.redisPubsubSplitting }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.redisPubsubSplitting  .Values.operator.sqsSplitting}}
 # The envoy watches MirrordClusterSplitSession on the default cluster to
 # collect tmpResources before connecting to non-default clusters.
 - apiGroups:
@@ -269,9 +284,21 @@ rules:
   resources:
   - mirrordclustersplitsessions
   verbs:
+  - create
   - get
   - list
   - watch
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions/status
+  verbs:
+  - get
+  - update
+  - patch
 {{- end }}
 {{- if not (or .Values.operator.multiClusterMemberIamGroup .Values.operator.multiClusterMemberAzureGroup) }}
 ---

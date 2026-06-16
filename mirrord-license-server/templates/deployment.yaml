@@ -14,6 +14,9 @@
 {{- if and .Values.database.cloudSqlProxy.enabled (not .Values.database.cloudSqlProxy.instance) }}
   {{- fail "database.cloudSqlProxy.instance is required when database.cloudSqlProxy.enabled=true" }}
 {{- end }}
+{{- if and .Values.dashboard.adoptionEnabled (ne .Values.database.kind "postgres") }}
+  {{- fail "dashboard.adoptionEnabled=true requires database.kind=postgres" }}
+{{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -179,6 +182,10 @@ spec:
         {{- if .Values.saml.enabled }}
         # SAML proxy terminates TLS and injects verified headers.
         - name: DASHBOARD_AUTH_PROXY
+          value: "true"
+        {{- end }}
+        {{- if .Values.dashboard.adoptionEnabled }}
+        - name: DASHBOARD_ADOPTION_ENABLED
           value: "true"
         {{- end }}
         {{- end }}

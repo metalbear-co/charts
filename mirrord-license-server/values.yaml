@@ -183,6 +183,11 @@ dashboard:
   enabled: false
   port: 8050
 
+  ## Whether the adoption view is shown in the dashboard.
+  ## Off by default: the adoption view requires the Postgres backend
+  ## (`database.kind=postgres`) and is still maturing, so it is opt-in.
+  adoptionEnabled: false
+
 ## Optional SAML front-proxy sidecar for the dashboard.
 ##
 ## Requires dashboard.enabled=true.
@@ -196,8 +201,8 @@ saml:
   enabled: false
 
   proxy:
-    image: soarinferret/mod_auth_mellon
-    tag: debian
+    image: ghcr.io/metalbear-co/saml-proxy
+    tag: 1.0.0
 
     # Override the pull policy, useful for local development.
     imagePullPolicy: IfNotPresent

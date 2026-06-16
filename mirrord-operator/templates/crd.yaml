@@ -1348,7 +1348,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4530,7 +4530,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4640,6 +4640,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4668,6 +4680,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:
@@ -4700,6 +4724,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4728,6 +4764,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:
@@ -4760,6 +4808,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4788,6 +4848,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:
@@ -4820,6 +4892,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4848,6 +4932,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:
@@ -4880,6 +4976,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4908,6 +5016,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:
@@ -4940,6 +5060,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4970,6 +5102,18 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
                               valueSelector:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
@@ -4998,6 +5142,18 @@ spec:
                                 type: string
                               fallback:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
                                 nullable: true
                                 type: string
                               valueSelector:

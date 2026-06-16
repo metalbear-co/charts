@@ -146,7 +146,9 @@ rules:
   resources:
   - mirrordsqssessions/status
   verbs:
+  - get
   - update
+  - patch
 {{- end }}
 {{- if .Values.operator.rmqSplitting }}
 - apiGroups:
@@ -175,6 +177,8 @@ rules:
   - get
   - list
   - watch
+  - update
+  - patch
 {{- end }}
 # For deleting previously mutated pods
 - apiGroups:
@@ -236,15 +240,19 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting  .Values.operator.redisPubsubSplitting }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting  .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting}}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
   - mirrordsplitconfigs
   verbs:
+  - create
   - get
   - list
   - watch
+  - update
+  - patch
+  - delete
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -272,6 +280,8 @@ rules:
   - get
   - list
   - watch
+  - update
+  - patch
 {{- end }}
 {{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.redisPubsubSplitting }}
 - apiGroups:
