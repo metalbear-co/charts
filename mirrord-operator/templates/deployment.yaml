@@ -106,6 +106,10 @@ spec:
         - name: OPERATOR_MAX_SESSION_TIME_SECONDS
           value: {{ .Values.operator.maxSessionTimeSeconds | quote }}
         {{- end }}
+        {{- if .Values.operator.subscribeEventBufferSize }}
+        - name: OPERATOR_EVENT_BUFFER_SIZE
+          value: {{ .Values.operator.subscribeEventBufferSize | quote }}
+        {{- end }}
         - name: OPERATOR_SQS_SPLITTING
           value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
         - name: OPERATOR_RMQ_SPLITTING

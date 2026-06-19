@@ -1348,7 +1348,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3775,6 +3775,31 @@ spec:
                 - propertiesListName
                 - propertiesListNamespace
                 type: object
+              kafkaTopic:
+                description: Temporary Kafka topic created for queue splitting.
+                nullable: true
+                properties:
+                  clientConfig:
+                    description: |-
+                      Client config used to build the Kafka client for cleanup. This is either
+                      the name of a `MirrordPropertyList` in `client_config_namespace` (new
+                      path) or the name of a `MirrordKafkaClientConfig` in the operator
+                      namespace (legacy).
+                    type: string
+                  clientConfigNamespace:
+                    description: |-
+                      Namespace of the target workload, where the new-path `MirrordPropertyList`
+                      lives. Legacy `MirrordKafkaClientConfig` resolution ignores this and reads
+                      from the operator namespace.
+                    type: string
+                  name:
+                    description: Name of the Kafka topic to delete.
+                    type: string
+                required:
+                - clientConfig
+                - clientConfigNamespace
+                - name
+                type: object
               rmqResource:
                 description: Resource allocated in a RabbitMQ cluster for queue splitting.
                 nullable: true
@@ -3977,7 +4002,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4001,7 +4026,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4035,7 +4060,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4055,11 +4080,35 @@ spec:
                       type: object
                     description: Redis Pub/Sub queue splitting filters, keyed by queue ID.
                     type: object
+                  rmqQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: RabbitMQ queue splitting filters, keyed by queue ID.
+                    type: object
                   sqsQueueFilters:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4083,7 +4132,7 @@ spec:
                     additionalProperties:
                       description: |-
                         Per-queue filter configuration for preview sessions.
-                        Used by SQS, GCP Pub/Sub, Azure Service Bus, and Temporal.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
                       properties:
                         jqFilter:
                           description: |-
@@ -4290,6 +4339,14 @@ spec:
                     default:
                       mode: empty
                     properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -4322,6 +4379,14 @@ spec:
                     default:
                       mode: empty
                     properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -4367,6 +4432,14 @@ spec:
                     default:
                       mode: empty
                     properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -4530,7 +4603,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -5411,6 +5484,13 @@ spec:
                                 Maps original Redis channel name to temporary channel name.
                                 One entry per physical channel managed under this queue_id.
                               type: object
+                            queue:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps original queue name to temporary queue name (RabbitMQ). One entry
+                                per physical queue managed under this queue_id.
+                              type: object
                             queueId:
                               description: Queue ID from MirrordSplitConfig.
                               type: string
@@ -5487,6 +5567,13 @@ spec:
                             Maps original Redis channel name to temporary channel name.
                             One entry per physical channel managed under this queue_id.
                           type: object
+                        queue:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original queue name to temporary queue name (RabbitMQ). One entry
+                            per physical queue managed under this queue_id.
+                          type: object
                         queueId:
                           description: Queue ID from MirrordSplitConfig.
                           type: string
@@ -5548,6 +5635,13 @@ spec:
                           description: |-
                             Maps original Redis channel name to temporary channel name.
                             One entry per physical channel managed under this queue_id.
+                          type: object
+                        queue:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original queue name to temporary queue name (RabbitMQ). One entry
+                            per physical queue managed under this queue_id.
                           type: object
                         queueId:
                           description: Queue ID from MirrordSplitConfig.

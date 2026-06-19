@@ -188,6 +188,12 @@ dashboard:
   ## (`database.kind=postgres`) and is still maturing, so it is opt-in.
   adoptionEnabled: false
 
+  ## Optional regex whose matches are removed from user identifiers shown in the
+  ## dashboard, e.g. `^keycloak:` so `keycloak:jane.doe` renders as `jane.doe`.
+  ## Display-only: it does not affect how seats are counted or how usage joins to
+  ## directory users. Leave unset to show identifiers unchanged.
+  ## displayNameStrip: "^keycloak:"
+
 ## Optional SAML front-proxy sidecar for the dashboard.
 ##
 ## Requires dashboard.enabled=true.

@@ -154,6 +154,11 @@ operator:
   # responses to said requests, and SQS messages.
   injectSessionKeyHeader: true
 
+  # Depth of the single, global `mirrord subscribe` event buffer (shared across all sessions).
+  # If a subscriber lags by more than this many events, the oldest are dropped and it is sent a
+  # "lagged" notice. Raise for bursty, slow-consumer cases.
+  subscribeEventBufferSize: 2048
+
   # Multi-cluster configuration (Envoy)
   # Enable this on the PRIMARY cluster only
   #

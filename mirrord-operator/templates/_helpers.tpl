@@ -171,6 +171,15 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - mirrordoperators/certificate
   verbs:
   - create
+# `mirrord subscribe` streams interception events for a session over an SSE watch.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - profiles.mirrord.metalbear.co
   resources:

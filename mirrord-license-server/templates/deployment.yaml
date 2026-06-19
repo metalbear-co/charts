@@ -188,6 +188,10 @@ spec:
         - name: DASHBOARD_ADOPTION_ENABLED
           value: "true"
         {{- end }}
+        {{- if .Values.dashboard.displayNameStrip }}
+        - name: DASHBOARD_DISPLAY_NAME_STRIP
+          value: {{ .Values.dashboard.displayNameStrip | quote }}
+        {{- end }}
         {{- end }}
         - name: ERROR_EVENTS_RETENTION_DAYS
           value: {{ .Values.server.retention.operatorErrors | quote }}
