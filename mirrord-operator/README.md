@@ -6,6 +6,7 @@ You must have a license key or a license certificate (Enterprise).
 If you have a license key (usually obtained from https://app.metalbear.co) you can set it using:
 * `license.key` in `values.yaml`
 * Or you can create a secret with key `OPERATOR_LICENSE_KEY` and set the given key as value, then use `license.keyRef` to reference that secret.
+* Or you can store the key in Google Secret Manager and set `license.keyGsmRef` to the secret version reference.
 
 If you have a certificate license (usually part of Enterprise offering) you can:
 * Add the contents of your license file to `license.file.secret.data.license.pem` in `values.yaml`
@@ -20,6 +21,7 @@ If you have a certificate license (usually part of Enterprise offering) you can:
         license.pem: LICENSE_CONTENT
     ```
     then reference it using `license.pemRef` in `values.yaml`
+* Or you can store the license PEM in Google Secret Manager and set `license.pemGsmRef` to the secret version reference.
 
 
 ### Using an existing ServiceAccount

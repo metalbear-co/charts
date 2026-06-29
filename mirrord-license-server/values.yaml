@@ -111,7 +111,7 @@ server:
     operatorErrors: 30
 
 license:
-  ## ID of a secret from the Google Secrets Manager.
+  ## ID of a Google Secret Manager secret containing the license PEM file.
   ##
   ## If provided, the license server will fetch the license file from this secret.
   ##
@@ -119,8 +119,17 @@ license:
   ## The easiest way to provide credentials is by allowing the license server's
   ## Kubernetes ServiceAccount to impersonate a GCP service account.
   ## This can be done with `.sa.gcpSa` setting.
-  # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+  # pemGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+
+  ## ID of a Google Secret Manager secret containing the license key.
+  ##
+  ## If provided, the license server will fetch the license key from this secret.
+  ##
+  ## Uses the same authentication behavior described for `pemGsmRef` above.
+  # keyGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+
   key: ""
+
   file:
     secret: mirrord-operator-license-server-license
     # data:

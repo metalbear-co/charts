@@ -80,7 +80,14 @@ license:
   keyRef: "license-server-key"
 ```
 
-`license.key` and `license.keyRef` are mutually exclusive, but either one can be combined with another supported license source such as `license.file.data` or `license.pemRef`.
+Or use Google Secret Manager:
+
+```yaml
+license:
+  keyGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+```
+
+`license.key`, `license.keyRef`, and `license.keyGsmRef` are mutually exclusive, but one of them can be combined with another supported license source such as `license.file.data` or `license.pemRef`.
 
 #### 🧑‍💼 Enterprise License
 
@@ -106,7 +113,14 @@ license:
   pemRef: "mirrord-operator-license-pem"
 ```
 
-`license.file.data` and `license.pemRef` are mutually exclusive.
+Or use Google Secret Manager:
+
+```yaml
+license:
+  pemGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+```
+
+`license.file.data`, `license.pemRef`, and `license.pemGsmRef` are mutually exclusive.
 
 > NOTE: When using the license server, you may need to configure the license certificate and keys differently. See [the section below](#mirrord-license-server-chart) for more details.
 

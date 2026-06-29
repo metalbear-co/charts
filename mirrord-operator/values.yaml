@@ -385,12 +385,11 @@ operator:
       cpu: 200m
       memory: 200Mi
 
-  # Linger timeout for SQS splits.
-  # An active SQS split keeps the target consumer patched to read from temporary SQS queues created by the operator.
-  # Once all SQS sessions have finished, the SQS split still remains active (lingers)
-  # until the temporary queues have been emptied by that consumer.
-  # In case of misconfiguration or frequent failures, this can lead to the consumer being patched indefinitely.
-  # This setting allows for specifying a timeout on the linger time (in milliseconds).
+  # Linger timeout for legacy SQS splits (in milliseconds).
+  # Applies only to old MirrordWorkloadQueueRegistry objects: once their last SQS
+  # session ends, the split lingers, keeping the target patched to read from the
+  # temporary queue until that queue is empty. This caps how long it lingers.
+  # With MirrordSplitConfig, set spec.drainTimeout on the config instead.
   sqsSplittingLingerTimeout: 60000
 
   ## Control whether the operator waits for patched pods to become ready when starting Kafka/SQS splitting sessions.
@@ -609,7 +608,7 @@ agent:
   #  privileged: true
 
 license:
-  ## ID of a secret from the Google Secrets Manager.
+  ## ID of a Google Secret Manager secret containing the license PEM file.
   ##
   ## If provided, the operator will fetch the license file from this secret.
   ##
@@ -617,8 +616,17 @@ license:
   ## The easiest way to provide credentials is by allowing the operator's
   ## Kubernetes ServiceAccount to impersonate a GCP service account.
   ## This can be done with `.sa.gcpSa` setting.
-  # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+  # pemGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+
+  ## ID of a Google Secret Manager secret containing the license key.
+  ##
+  ## If provided, the operator will fetch the license key from this secret.
+  ##
+  ## Uses the same authentication behavior described for `pemGsmRef` above.
+  # keyGsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+
   key: ""
+
   file:
     secret: mirrord-operator-license
     # data:

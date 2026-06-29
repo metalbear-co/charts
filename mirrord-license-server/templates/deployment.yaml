@@ -1,7 +1,23 @@
 {{- if and (gt (int .Values.server.replicas) 1) (eq .Values.database.kind "sqlite") }}
   {{- fail "unable to set more than 1 replica when using sqlite, please switch to postgres database for multiple replicas" }}
 {{- end }}
+{{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef }}
 {{- $tlsEnabled := or (not (empty (index .Values.tls.data "tls.key"))) .Values.tls.certManager.enabled }}
+{{- if and .Values.license.pemGsmRef .Values.license.gsmRef }}
+  {{- fail "license.pemGsmRef conflicts with a legacy PEM GSM value; only one can be set." }}
+{{- end }}
+{{- if and .Values.license.key .Values.license.keyRef }}
+  {{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." }}
+{{- end }}
+{{- if and .Values.license.key .Values.license.keyGsmRef }}
+  {{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." }}
+{{- end }}
+{{- if and .Values.license.keyRef .Values.license.keyGsmRef }}
+  {{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." }}
+{{- end }}
+{{- if and $pemGsmRef .Values.license.file.data }}
+  {{- fail "Only one of license.pemGsmRef or license.file.data can be set." }}
+{{- end }}
 {{- if and .Values.saml.enabled (not .Values.dashboard.enabled) }}
   {{- fail "saml.enabled=true requires dashboard.enabled=true" }}
 {{- end }}
@@ -205,22 +221,25 @@ spec:
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- if .Values.license.gsmRef }}
+        {{- if $pemGsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF
-          value: {{ .Values.license.gsmRef }}
+          value: {{ $pemGsmRef | quote }}
         {{- else }}
         - name: LICENSE_PATH
           value: /license/license.pem
         {{- end }}
         {{- if .Values.license.key  }}
         - name: LICENSE_KEY
-          value: {{ .Values.license.key }}
+          value: {{ .Values.license.key | quote }}
+        {{- else if .Values.license.keyGsmRef }}
+        - name: OPERATOR_LICENSE_KEY_GSM_REF
+          value: {{ .Values.license.keyGsmRef | quote }}
         {{- else if .Values.license.keyRef }}
         envFrom:
         - secretRef:
             name: {{ .Values.license.keyRef }}
         {{- else }}
-          {{- fail "Either .license.keyRef or .license.key value is required" }}
+          {{- fail "Either .license.key, .license.keyRef, or .license.keyGsmRef value is required" }}
         {{- end }}
         image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.server.imagePullPolicy }}
@@ -260,7 +279,7 @@ spec:
         - mountPath: /tls
           name: tls-volume
         {{- end }}
-        {{- if not .Values.license.gsmRef }}
+        {{- if not $pemGsmRef }}
         # Only when we have the license in a k8s secret.
         - mountPath: /license
           name: license-volume
@@ -341,7 +360,7 @@ spec:
         secret:
           secretName: {{ .Values.tls.secret }}
       {{- end }}
-      {{- if not .Values.license.gsmRef }}
+      {{- if not $pemGsmRef }}
       # Only when we have the license in a k8s secret.
       - name: license-volume
         secret:

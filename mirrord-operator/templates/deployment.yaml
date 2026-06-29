@@ -1,4 +1,5 @@
 {{- include "mirrord-operator.validateLicense" . }}
+{{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -257,9 +258,13 @@ spec:
         - name: {{ $key }}
           value: {{ $val | quote }}
         {{- end }}
-        {{- if .Values.license.gsmRef }}
+        {{- if $pemGsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF
-          value: {{ .Values.license.gsmRef | quote }}
+          value: {{ $pemGsmRef | quote }}
+        {{- end }}
+        {{- if .Values.license.keyGsmRef }}
+        - name: OPERATOR_LICENSE_KEY_GSM_REF
+          value: {{ .Values.license.keyGsmRef | quote }}
         {{- end }}
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH

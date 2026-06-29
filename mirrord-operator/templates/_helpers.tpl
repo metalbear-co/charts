@@ -31,20 +31,30 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 
 {{/* Validate license source configuration before rendering the chart */}}
 {{- define "mirrord-operator.validateLicense" -}}
+{{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef -}}
+{{- if and .Values.license.pemGsmRef .Values.license.gsmRef -}}
+{{- fail "license.pemGsmRef conflicts with a legacy PEM GSM value; only one can be set." -}}
+{{- end -}}
 {{- if and .Values.license.key .Values.license.keyRef -}}
-{{- fail "Only one of license.key or license.keyRef can be set." -}}
+{{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." -}}
+{{- end -}}
+{{- if and .Values.license.key .Values.license.keyGsmRef -}}
+{{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." -}}
+{{- end -}}
+{{- if and .Values.license.keyRef .Values.license.keyGsmRef -}}
+{{- fail "Only one of license.key, license.keyRef, or license.keyGsmRef can be set." -}}
 {{- end -}}
 {{- if and .Values.license.file.data .Values.license.pemRef -}}
 {{- fail "Only one of license.file.data or license.pemRef can be set." -}}
 {{- end -}}
-{{- if and .Values.license.gsmRef .Values.license.file.data -}}
-{{- fail "Only one of license.gsmRef, license.file.data, or license.pemRef can be set." -}}
+{{- if and $pemGsmRef .Values.license.file.data -}}
+{{- fail "Only one of license.pemGsmRef, license.file.data, or license.pemRef can be set." -}}
 {{- end -}}
-{{- if and .Values.license.gsmRef .Values.license.pemRef -}}
-{{- fail "Only one of license.gsmRef, license.file.data, or license.pemRef can be set." -}}
+{{- if and $pemGsmRef .Values.license.pemRef -}}
+{{- fail "Only one of license.pemGsmRef, license.file.data, or license.pemRef can be set." -}}
 {{- end -}}
-{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.file.data .Values.license.pemRef .Values.license.gsmRef) -}}
-{{- fail "At least one license source must be set: license.key, license.keyRef, license.file.data, license.pemRef, or license.gsmRef." -}}
+{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef .Values.license.file.data .Values.license.pemRef $pemGsmRef) -}}
+{{- fail "At least one license source must be set: license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef." -}}
 {{- end -}}
 {{- end }}
 
