@@ -4428,6 +4428,13 @@ spec:
                 description: PostgreSQL-specific options.
                 nullable: true
                 properties:
+                  connectionSettings:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Postgres settings (GUCs) applied to every source connection during the branch copy,
+                      sent via `PGOPTIONS`. Used for things an RLS policy reads (a tenant variable) or `role`.
+                    type: object
                   copy:
                     default:
                       mode: empty

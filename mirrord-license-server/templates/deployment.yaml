@@ -33,6 +33,9 @@
 {{- if and .Values.dashboard.adoptionEnabled (ne .Values.database.kind "postgres") }}
   {{- fail "dashboard.adoptionEnabled=true requires database.kind=postgres" }}
 {{- end }}
+{{- if and .Values.dashboard.deploymentsEnabled (ne .Values.database.kind "postgres") }}
+  {{- fail "dashboard.deploymentsEnabled=true requires database.kind=postgres" }}
+{{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -202,6 +205,10 @@ spec:
         {{- end }}
         {{- if .Values.dashboard.adoptionEnabled }}
         - name: DASHBOARD_ADOPTION_ENABLED
+          value: "true"
+        {{- end }}
+        {{- if .Values.dashboard.deploymentsEnabled }}
+        - name: DASHBOARD_DEPLOYMENTS_ENABLED
           value: "true"
         {{- end }}
         {{- if .Values.dashboard.displayNameStrip }}

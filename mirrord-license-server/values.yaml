@@ -197,6 +197,11 @@ dashboard:
   ## (`database.kind=postgres`) and is still maturing, so it is opt-in.
   adoptionEnabled: false
 
+  ## Whether the deployments view is shown in the dashboard.
+  ## Off by default: the deployments view requires the Postgres backend
+  ## (`database.kind=postgres`) and is still maturing, so it is opt-in.
+  deploymentsEnabled: false
+
   ## Optional regex whose matches are removed from user identifiers shown in the
   ## dashboard, e.g. `^keycloak:` so `keycloak:jane.doe` renders as `jane.doe`.
   ## Display-only: it does not affect how seats are counted or how usage joins to
