@@ -1348,7 +1348,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.bullmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3891,6 +3891,11 @@ spec:
                 description: Database branching configuration for this preview session.
                 nullable: true
                 properties:
+                  dynamodbBranchNames:
+                    description: DynamoDB branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
                   mongodbBranchNames:
                     description: MongoDB branch database names to use for this session.
                     items:
@@ -4021,6 +4026,30 @@ spec:
                           type: object
                       type: object
                     description: Azure Service Bus queue splitting filters, keyed by queue ID.
+                    type: object
+                  bullmqQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: BullMQ queue splitting filters, keyed by queue ID.
                     type: object
                   gcpPubsubQueueFilters:
                     additionalProperties:
@@ -4247,7 +4276,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4298,6 +4327,52 @@ spec:
                 description: Database name.
                 nullable: true
                 type: string
+              dynamodbOptions:
+                description: DynamoDB-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                  iamAuth:
+                    description: |-
+                      IAM auth config used to read the source DynamoDB tables. DynamoDB has no
+                      password-based connection mode, so this is the only way to authenticate
+                      against the source for `all` copy mode.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - aws_rds
+                        - gcp_cloud_sql
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
               id:
                 description: ID derived by mirrord CLI.
                 type: string
@@ -4610,7 +4685,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4656,6 +4731,9 @@ spec:
                 nullable: true
                 properties:
                   azureServiceBus:
+                    nullable: true
+                    type: string
+                  bullMq:
                     nullable: true
                     type: string
                   googlePubSub:
@@ -5261,6 +5339,7 @@ spec:
                       - azureServiceBus
                       - redisPubSub
                       - temporal
+                      - bullMq
                       - unknown
                       type: string
                     queueConfig:
@@ -5410,6 +5489,7 @@ spec:
                       - azureServiceBus
                       - redisPubSub
                       - temporal
+                      - bullMq
                       - unknown
                       type: string
                   required:

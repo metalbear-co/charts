@@ -240,7 +240,7 @@ rules:
   - list
   - watch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting  .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting  .Values.operator.rmqSplitting}}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -283,7 +283,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.redisPubsubSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting }}
 - apiGroups:
   - ''
   resources:
@@ -406,7 +406,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
 # Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co

@@ -89,6 +89,8 @@ operator:
   redisPubsubSplitting: false
   # Has to be set to `true` in order to use the Temporal queue splitting feature.
   temporalSplitting: false
+  # Has to be set to `true` in order to use the BullMQ queue splitting feature.
+  bullmqSplitting: false
   # Temporal queue splitting proxy settings.
   temporalProxy:
     # Port for the Temporal frontend proxy workers connect to via `TEMPORAL_ADDRESS`.
@@ -104,6 +106,8 @@ operator:
   pgBranching: false
   # Has to be set to `true` in order to use the MongoDB database branching feature.
   mongodbBranching: false
+  # Has to be set to `true` in order to use the DynamoDB database branching feature.
+  dynamodbBranching: false
   # Has to be set to `true` in order to use the MSSQL database branching feature.
   mssqlBranching: false
   # Has to be set to `true` in order to use the Redis database branching feature.
@@ -332,7 +336,7 @@ operator:
   # Sets log level for the logs printed to `stdout` by the operator container.
   #
   # See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
-  logLevel: mirrord=info,operator=info
+  logLevel: mirrord=info,operator=info,kube_runtime=warn
 
   ## Sets log level for the OTel logs exported to `otelLogExportUrl` by the operator container.
   ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
@@ -644,6 +648,24 @@ license:
   #
   # Set this value to `false` to disable this allowance to go over the max seats count.
   allowSeatOverages: true
+
+# Cloud API key — the default credential the operator uses to authenticate to the mirrord cloud
+# (RFC 0008). The operator exchanges it (via app.metalbear.com) for a short-lived token and uses
+# that token to obtain its license and make its other cloud calls over the API. It is intended to
+# replace the standalone license key as the primary credential; existing installs that set only
+# `license.*` keep working via license-key authentication.
+#
+# Provide the key through exactly one of the following:
+cloud:
+  apiKey:
+    ## Direct value (simplest for dev/test; the value lands as plaintext in the pod spec).
+    key: ""
+    ## Reference to an existing Kubernetes secret holding the key under the `apiKey` data key.
+    keyRef: ""
+    ## ID of a secret in Google Secret Manager (used by us and by customers on GCP). Accessed
+    ## via Application Default Credentials, like `license.gsmRef` (see `.sa.gcpSa`).
+    # gsmRef: "projects/PROJECT_ID/secrets/SECRET_NAME/versions/SECRET_VERSION"
+    gsmRef: ""
 
 service:
   name: mirrord-operator

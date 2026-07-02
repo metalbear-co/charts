@@ -1,5 +1,7 @@
 {{- include "mirrord-operator.validateLicense" . }}
+{{- include "mirrord-operator.validateCloudApiKey" . }}
 {{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef }}
+{{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,33 +114,37 @@ spec:
           value: {{ .Values.operator.subscribeEventBufferSize | quote }}
         {{- end }}
         - name: OPERATOR_SQS_SPLITTING
-          value: {{ .Values.operator.sqsSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.sqsSplitting }}
         - name: OPERATOR_RMQ_SPLITTING
-          value: {{ .Values.operator.rmqSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.rmqSplitting }}
         - name: OPERATOR_KAFKA_SPLITTING
-          value: {{ .Values.operator.kafkaSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.kafkaSplitting }}
         - name: OPERATOR_GCP_PUBSUB_SPLITTING
-          value: {{ .Values.operator.gcpPubsubSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.gcpPubsubSplitting }}
         - name: OPERATOR_AZURE_SERVICE_BUS_SPLITTING
-          value: {{ .Values.operator.azureServiceBusSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.azureServiceBusSplitting }}
         - name: OPERATOR_REDIS_PUBSUB_SPLITTING
-          value: {{ .Values.operator.redisPubsubSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.redisPubsubSplitting }}
         - name: OPERATOR_TEMPORAL_SPLITTING
-          value: {{ .Values.operator.temporalSplitting | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.temporalSplitting }}
+        - name: OPERATOR_BULLMQ_SPLITTING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.bullmqSplitting }}
         - name: OPERATOR_TEMPORAL_PROXY_PORT
           value: {{ .Values.operator.temporalProxy.port | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
-          value: {{ .Values.operator.mysqlBranching | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.mysqlBranching }}
         - name: OPERATOR_PG_BRANCHING
-          value: {{ .Values.operator.pgBranching | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.pgBranching }}
         - name: OPERATOR_MONGODB_BRANCHING
-          value: {{ .Values.operator.mongodbBranching | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.mongodbBranching }}
+        - name: OPERATOR_DYNAMODB_BRANCHING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.dynamodbBranching }}
         - name: OPERATOR_MSSQL_BRANCHING
-          value: {{ .Values.operator.mssqlBranching | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.mssqlBranching }}
         - name: OPERATOR_REDIS_BRANCHING
-          value: {{ .Values.operator.redisBranching | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.redisBranching }}
         - name: OPERATOR_PREVIEW_ENV
-          value: {{ .Values.operator.previewEnv | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.previewEnv }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
@@ -156,7 +162,7 @@ spec:
           value: "true"
         {{- end }}
         - name: OPERATOR_METRICS_ENABLED
-          value: {{ .Values.operator.metrics | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.metrics }}
         {{- if .Values.operator.metrics }}
         - name: OPERATOR_METRICS_ADDR
           value: "[::]:9000"
@@ -164,9 +170,9 @@ spec:
           value: "0.0.0.0:9000"
         {{- end }}
         - name: OPERATOR_JSON_LOG
-          value: {{ .Values.operator.jsonLog | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.jsonLog }}
         - name: OPERATOR_REQUIRE_FRONT_PROXY_CLIENT_CERT
-          value: {{ .Values.operator.requireFrontProxyClientCert | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.requireFrontProxyClientCert }}
         - name: OPERATOR_AGENT_CONFIG
           value: /mirrord-config/agent-config.yaml
         - name: OPERATOR_MYSQL_BRANCH_CONFIG
@@ -175,6 +181,8 @@ spec:
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
           value: /mirrord-config/mongodb-branch-config.yaml
+        - name: OPERATOR_DYNAMODB_BRANCH_CONFIG
+          value: /mirrord-config/dynamodb-branch-config.yaml
         - name: OPERATOR_PREVIEW_CONFIG
           value: /mirrord-config/preview-config.yaml
         - name: OPERATOR_MSSQL_BRANCH_CONFIG
@@ -208,13 +216,13 @@ spec:
           value: {{ .Values.operator.kafkaSplittingTopicFormat | quote }}
         {{- end }}
         - name: OPERATOR_COPY_TARGET_USE_AGENT_IMAGE
-          value: {{ .Values.operator.copyTarget.useAgentImage | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.copyTarget.useAgentImage }}
         {{- if .Values.license.licenseServer }}
         - name: OPERATOR_LICENSE_SERVER
           value: {{ .Values.license.licenseServer | quote }}
         {{- end }}
         - name: OPERATOR_LICENSE_ALLOW_SEAT_OVERAGES
-          value: {{ .Values.license.allowSeatOverages | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.license.allowSeatOverages }}
         {{- if .Values.operator.jiraWebhookUrl }}
         - name: OPERATOR_JIRA_WEBHOOK_URL
           value: {{ .Values.operator.jiraWebhookUrl | quote }}
@@ -222,7 +230,7 @@ spec:
         - name: OPERATOR_MUTATING_WEBHOOKS
           value: "true"
         - name: OPERATOR_ISOLATE_PODS_RESTART
-          value: {{ .Values.operator.isolatePodsRestart | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.isolatePodsRestart }}
         {{- if .Values.operator.injectSessionKeyHeader }}
         - name: OPERATOR_INJECT_SESSION_KEY_HEADER
           value: "true"
@@ -232,7 +240,7 @@ spec:
           value: {{ .Values.operator.sqsSplittingLingerTimeout | quote }}
         {{- end }}
         - name: OPERATOR_QUEUE_SPLITTING_WAIT_FOR_READY_TARGET
-          value: {{ .Values.operator.queueSplittingWaitForReadyTarget | ternary "true" "false" | quote }}
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.queueSplittingWaitForReadyTarget }}
         - name: OPERATOR_IMAGE
           value: {{ .Values.operator.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         - name: OPERATOR_IMAGE_PULL_POLICY
@@ -269,6 +277,19 @@ spec:
         {{- if or .Values.license.file.data .Values.license.pemRef }}
         - name: OPERATOR_LICENSE_PATH
           value: /license/license.pem
+        {{- end }}
+        {{- if $cloudApiKey.key }}
+        - name: OPERATOR_CLOUD_API_KEY
+          value: {{ $cloudApiKey.key | quote }}
+        {{- else if $cloudApiKey.keyRef }}
+        - name: OPERATOR_CLOUD_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ $cloudApiKey.keyRef }}
+              key: apiKey
+        {{- else if $cloudApiKey.gsmRef }}
+        - name: OPERATOR_CLOUD_API_KEY_GSM_REF
+          value: {{ $cloudApiKey.gsmRef | quote }}
         {{- end }}
         {{- if .Values.license.key }}
         envFrom:

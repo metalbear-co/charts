@@ -58,6 +58,18 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end -}}
 {{- end }}
 
+{{/*
+Validate the cloud API key: at most one source may be set. It is the default cloud credential; if
+unset, the operator falls back to license-key authentication, so no source is strictly required.
+*/}}
+{{- define "mirrord-operator.validateCloudApiKey" -}}
+{{- $apiKey := (.Values.cloud | default dict).apiKey | default dict -}}
+{{- $sources := compact (list $apiKey.key $apiKey.keyRef $apiKey.gsmRef) -}}
+{{- if gt (len $sources) 1 -}}
+{{- fail "Only one of cloud.apiKey.key, cloud.apiKey.keyRef, or cloud.apiKey.gsmRef can be set." -}}
+{{- end -}}
+{{- end }}
+
 {{/* rules needed to use mirrord and can be namespaced*/}}
 {{- define "mirrord-operator.rules" -}}
 - apiGroups:
@@ -144,7 +156,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - watch
   - delete
 {{- end }}
-{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:
@@ -203,4 +215,13 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
   - mirrordclusteroperatorusercredentials
   verbs:
   - create
+{{- end }}
+
+{{/* Returns the effective agent priority class name */}}
+{{- define "mirrord-operator.checked-bool-ternary" -}}
+{{- if kindIs "string" . -}}
+  {{ . | quote }}
+{{- else -}}
+  {{ default false . | ternary "true" "false" | quote }}
+{{- end -}}
 {{- end }}

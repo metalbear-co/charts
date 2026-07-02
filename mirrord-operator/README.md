@@ -23,6 +23,23 @@ If you have a certificate license (usually part of Enterprise offering) you can:
     then reference it using `license.pemRef` in `values.yaml`
 * Or you can store the license PEM in Google Secret Manager and set `license.pemGsmRef` to the secret version reference.
 
+### Cloud API key
+
+The **cloud API key** is the default way the operator authenticates to the mirrord cloud. The
+operator exchanges it for a short-lived token, then uses that token to fetch its license and make
+its other cloud calls over the API. It replaces the standalone license key as the primary
+credential.
+
+Existing installs that set only `license.*` keep working (the operator falls back to license-key
+authentication), but new installs should set the cloud API key.
+
+Set the key through exactly one of:
+* `cloud.apiKey.key` in `values.yaml` (simplest for dev/test; the value lands in the pod spec).
+* A Kubernetes secret holding the key under the `apiKey` data key, referenced via
+  `cloud.apiKey.keyRef` (recommended for production).
+* `cloud.apiKey.gsmRef` to read it from Google Secret Manager (used by us and by customers on
+  GCP), accessed via Application Default Credentials like `license.gsmRef` (see `sa.gcpSa`).
+
 
 ### Using an existing ServiceAccount
 
