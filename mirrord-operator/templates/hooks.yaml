@@ -29,9 +29,19 @@ rules:
       - previewsessions.preview.mirrord.metalbear.co
       - branchdatabases.dbs.mirrord.metalbear.co
     verbs: [list, get, watch, delete]
-  - apiGroups: [operator.metalbear.co, mirrord.metalbear.co]
-    resources: [mirrordclusterworkloadpatches, mirrordclusterexternalresources]
-    verbs: [list]
+  - apiGroups:
+      - operator.metalbear.co
+      - mirrord.metalbear.co
+      - preview.mirrord.metalbear.co
+      - dbs.mirrord.metalbear.co
+    resources:
+      - mirrordclustersessions
+      - mirrordmulticlustersessions
+      - previewsessions
+      - branchdatabases
+      - mirrordclusterworkloadpatches
+      - mirrordclusterexternalresources
+    verbs: [list, get, watch, delete, patch]
   - apiGroups: [apps]
     resources: [deployments]
     resourceNames: [mirrord-operator]

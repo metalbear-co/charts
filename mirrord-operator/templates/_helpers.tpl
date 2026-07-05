@@ -53,8 +53,10 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- if and $pemGsmRef .Values.license.pemRef -}}
 {{- fail "Only one of license.pemGsmRef, license.file.data, or license.pemRef can be set." -}}
 {{- end -}}
-{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef .Values.license.file.data .Values.license.pemRef $pemGsmRef) -}}
-{{- fail "At least one license source must be set: license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef." -}}
+{{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict -}}
+{{- $hasCloudApiKey := or $cloudApiKey.key $cloudApiKey.keyRef $cloudApiKey.gsmRef -}}
+{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef .Values.license.file.data .Values.license.pemRef $pemGsmRef $hasCloudApiKey) -}}
+{{- fail "Set a credential: a cloud API key (cloud.apiKey.key, cloud.apiKey.keyRef, or cloud.apiKey.gsmRef) — the default, used to obtain the license over the API — or a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef)." -}}
 {{- end -}}
 {{- end }}
 
