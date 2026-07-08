@@ -56,6 +56,12 @@ operator:
   ##   team: platform
   labels: {}
 
+  ## Optional human-friendly name for this cluster.
+  ## When set, it is reported on the operator's startup telemetry events, so the cluster shows up
+  ## with a recognizable label (instead of only an opaque identifier) in the license server and in
+  ## the mirrord cloud. Leave unset to omit it.
+  # clusterName: "staging-us-east"
+
   jsonLog: false
   # Require Kubernetes front-proxy client certificates on operator API routes.
   # The operator validates the certificate chain using the front-proxy CA from the cluster's
@@ -112,6 +118,10 @@ operator:
   mssqlBranching: false
   # Has to be set to `true` in order to use the Redis database branching feature.
   redisBranching: false
+  # Has to be set to `true` in order to use the Google Cloud Spanner database branching feature.
+  spannerBranching: false
+  # Has to be set to `true` in order to use the ClickHouse database branching feature.
+  clickhouseBranching: false
   # Grants cluster-wide Secret permissions needed when users pass literal
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.
@@ -453,6 +463,13 @@ operator:
   ## dbPod:
   ##   image:
   ##     registry: "custom-mysql-registry"
+  ##   migrationImages:
+  ##     flyway:
+  ##       # Registry for the schema-migration image.
+  ##       # When unset, defaults to the upstream `flyway/flyway:12` image.
+  ##       # When set, this registry is used with the tag `12`.
+  ##       # The per-branch `migrations` config in mirrord.json can override the full image.
+  ##       registry: "custom-flyway-registry"
   ##   imagePullSecrets:
   ##     - name: "mysql-registry-secret"
   ##   imagePullPolicy: "IfNotPresent"
@@ -484,14 +501,22 @@ operator:
   ##     # Defaults to `docker.io/library/postgres`.
   ##     # Tag can be specified by the user when requesting a new branch, defaulting to `17`.
   ##     registry: "custom-postgres-registry"
+  ##   migrationImages:
+  ##     flyway:
+  ##       # Registry for the schema-migration image.
+  ##       # When unset, defaults to the upstream `flyway/flyway:12` image.
+  ##       # When set, this registry is used with the tag `12`.
+  ##       # The per-branch `migrations` config in mirrord.json can override the full image.
+  ##       registry: "custom-flyway-registry"
   ##   # Image pull secrets for the PostgreSQL branch pod.
   ##   # The pod will use following images:
   ##   # * .pgBranchConfig.dbPod.image
   ##   # * .pgBranchConfig.dbPod.initImage
+  ##   # * .pgBranchConfig.dbPod.migrationImages.flyway
   ##   # * .operator.image
   ##   imagePullSecrets:
   ##     - name: "postgres-registry-secret"
-  ##   # Image pull policy for .pgBranchConfig.dbPod.image and .pgBranchConfig.dbPod.initImage.
+  ##   # Image pull policy for all .pgBranchConfig.dbPod images (db, init, and migration).
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
@@ -543,6 +568,59 @@ operator:
   ##   annotations: { "db.branch/owner-team": "platform" }
   ##   volume:
   ##     name: "redis-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
+
+  # spannerBranchConfig:
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     registry: "gcr.io/cloud-spanner-emulator/emulator"
+  ##   imagePullSecrets:
+  ##     - name: "spanner-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "spanner-data"
+  ##     emptyDir:
+  ##       sizeLimit: "1Gi"
+  ##   resources:
+  ##     requests:
+  ##       cpu: "500m"
+  ##       memory: "512Mi"
+  ##     limits:
+  ##       cpu: "1"
+  ##       memory: "1Gi"
+
+  # clickhouseBranchConfig:
+  ## example
+  ##
+  ## dbPod:
+  ##   image:
+  ##     # Registry for the ClickHouse branch container.
+  ##     # Defaults to `docker.io/clickhouse/clickhouse-server`.
+  ##     # Tag can be specified by the user when requesting a new branch, defaulting to `24.8`.
+  ##     registry: "custom-clickhouse-registry"
+  ##   initImage:
+  ##     # Registry for the ClickHouse branch initContainer image.
+  ##     # Defaults to `docker.io/clickhouse/clickhouse-server`.
+  ##     registry: "custom-clickhouse-registry"
+  ##   imagePullSecrets:
+  ##     - name: "clickhouse-registry-secret"
+  ##   imagePullPolicy: "IfNotPresent"
+  ##   labels: { "role": "database" }
+  ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   volume:
+  ##     name: "clickhouse-data"
   ##     emptyDir:
   ##       sizeLimit: "1Gi"
   ##   resources:

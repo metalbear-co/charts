@@ -188,6 +188,16 @@ rules:
   verbs:
   - delete
   - deletecollection
+# For reading the `default` namespace UID, used as a stable per-cluster
+# identifier attached to telemetry events.
+- apiGroups:
+    - ''
+  resources:
+    - namespaces
+  resourceNames:
+    - default
+  verbs:
+    - get
 # For fetching the operator cluster role.
 # The role is used as an owner reference
 # for various native resources created by the operator.
@@ -406,7 +416,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching }}
 # Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co
@@ -428,6 +438,13 @@ rules:
   - get
   - update
   - patch
+# The operator creates ConfigMaps holding branch migration files mounted into the migration Job.
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
 {{- if .Values.operator.dbBranchingLiteralCredentials }}
 # The operator creates Secrets to store literal credential values from the
 # mirrord config and patches them to set owner references for cleanup.

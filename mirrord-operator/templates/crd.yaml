@@ -2601,6 +2601,15 @@ spec:
                     properties:
                       database:
                         x-kubernetes-preserve-unknown-fields: true
+                      extra:
+                        additionalProperties:
+                          x-kubernetes-preserve-unknown-fields: true
+                        description: |-
+                          Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                          Resolved through the same source machinery as the fixed slots; each entry becomes a
+                          `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                          the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                        type: object
                       host:
                         x-kubernetes-preserve-unknown-fields: true
                       password:
@@ -2728,6 +2737,29 @@ spec:
                 description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
+              migrations:
+                description: Outcome of the branch's schema migrations.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               phase:
                 enum:
                 - Init
@@ -2819,6 +2851,15 @@ spec:
                     properties:
                       database:
                         x-kubernetes-preserve-unknown-fields: true
+                      extra:
+                        additionalProperties:
+                          x-kubernetes-preserve-unknown-fields: true
+                        description: |-
+                          Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                          Resolved through the same source machinery as the fixed slots; each entry becomes a
+                          `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                          the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                        type: object
                       host:
                         x-kubernetes-preserve-unknown-fields: true
                       password:
@@ -2961,6 +3002,29 @@ spec:
                 description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
+              migrations:
+                description: Outcome of the branch's schema migrations.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               phase:
                 enum:
                 - Init
@@ -3052,6 +3116,15 @@ spec:
                     properties:
                       database:
                         x-kubernetes-preserve-unknown-fields: true
+                      extra:
+                        additionalProperties:
+                          x-kubernetes-preserve-unknown-fields: true
+                        description: |-
+                          Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                          Resolved through the same source machinery as the fixed slots; each entry becomes a
+                          `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                          the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                        type: object
                       host:
                         x-kubernetes-preserve-unknown-fields: true
                       password:
@@ -3178,6 +3251,29 @@ spec:
                 description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
+              migrations:
+                description: Outcome of the branch's schema migrations.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               phase:
                 enum:
                 - Init
@@ -3891,6 +3987,11 @@ spec:
                 description: Database branching configuration for this preview session.
                 nullable: true
                 properties:
+                  clickhouseBranchNames:
+                    description: ClickHouse branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
                   dynamodbBranchNames:
                     description: DynamoDB branch database names to use for this session.
                     items:
@@ -3918,6 +4019,11 @@ spec:
                     type: array
                   redisBranchNames:
                     description: Redis branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  spannerBranchNames:
+                    description: Spanner branch database names to use for this session.
                     items:
                       type: string
                     type: array
@@ -4276,7 +4382,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4297,6 +4403,46 @@ spec:
         properties:
           spec:
             properties:
+              clickhouseOptions:
+                description: ClickHouse-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
               connectionSource:
                 description: Database connection info from the workload.
                 oneOf:
@@ -4310,6 +4456,15 @@ spec:
                     properties:
                       database:
                         x-kubernetes-preserve-unknown-fields: true
+                      extra:
+                        additionalProperties:
+                          x-kubernetes-preserve-unknown-fields: true
+                        description: |-
+                          Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                          Resolved through the same source machinery as the fixed slots; each entry becomes a
+                          `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                          the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                        type: object
                       host:
                         x-kubernetes-preserve-unknown-fields: true
                       password:
@@ -4376,6 +4531,26 @@ spec:
               id:
                 description: ID derived by mirrord CLI.
                 type: string
+              migrations:
+                description: Schema migrations to run on the branch.
+                nullable: true
+                oneOf:
+                - required:
+                  - archive
+                  - flavor
+                properties:
+                  archive:
+                    description: A gzipped tar of the migration files.
+                    type: string
+                  flavor:
+                    enum:
+                    - flyway
+                    type: string
+                  image:
+                    description: Overrides the container image used to run the migrations.
+                    nullable: true
+                    type: string
+                type: object
               mongodbOptions:
                 description: MongoDB-specific options.
                 nullable: true
@@ -4581,6 +4756,52 @@ spec:
                     - mode
                     type: object
                 type: object
+              spannerOptions:
+                description: Google Cloud Spanner-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                  emulatorHostVar:
+                    description: |-
+                      Name of the env var the operator sets on the local process to point it at the branch
+                      emulator. Defaults to `SPANNER_EMULATOR_HOST` when unset.
+                    nullable: true
+                    type: string
+                type: object
               target:
                 description: Target k8s resource to extract connection source info from.
                 properties:
@@ -4628,6 +4849,29 @@ spec:
                 description: Time when the branch database should be deleted.
                 format: date-time
                 type: string
+              migrations:
+                description: Outcome of the branch's schema migrations.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               phase:
                 enum:
                 - Init

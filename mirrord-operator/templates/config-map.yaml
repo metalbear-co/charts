@@ -68,6 +68,14 @@ data:
     {{- if and .Values.operator.redisBranching .Values.operator.redisBranchConfig }}
     {{- toYaml .Values.operator.redisBranchConfig | nindent 4 }}
     {{- end }}
+  spanner-branch-config.yaml: |-
+    {{- if and .Values.operator.spannerBranching .Values.operator.spannerBranchConfig }}
+    {{- toYaml .Values.operator.spannerBranchConfig | nindent 4 }}
+    {{- end }}
+  clickhouse-branch-config.yaml: |-
+    {{- if and .Values.operator.clickhouseBranching .Values.operator.clickhouseBranchConfig }}
+    {{- toYaml .Values.operator.clickhouseBranchConfig | nindent 4 }}
+    {{- end }}
   {{- if .Values.operator.multiCluster.enabled }}
   multicluster-config.yaml: |-
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}
