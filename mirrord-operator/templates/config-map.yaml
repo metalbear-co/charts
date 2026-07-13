@@ -76,6 +76,10 @@ data:
     {{- if and .Values.operator.clickhouseBranching .Values.operator.clickhouseBranchConfig }}
     {{- toYaml .Values.operator.clickhouseBranchConfig | nindent 4 }}
     {{- end }}
+  generic-branch-config.yaml: |-
+    {{- if and .Values.operator.genericBranching .Values.operator.genericBranchConfig }}
+    {{- toYaml .Values.operator.genericBranchConfig | nindent 4 }}
+    {{- end }}
   {{- if .Values.operator.multiCluster.enabled }}
   multicluster-config.yaml: |-
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}

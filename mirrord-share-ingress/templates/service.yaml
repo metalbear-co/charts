@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mirrord-share-ingress
+    {{- include "mirrord-share-ingress.labels" . | nindent 4 }}
+  name: {{ .Values.service.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+  - name: http
+    port: {{ .Values.service.port }}
+    targetPort: http
+  selector:
+    app: mirrord-share-ingress
+  type: {{ .Values.service.type }}

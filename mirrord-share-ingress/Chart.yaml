@@ -1,6 +1,6 @@
 apiVersion: v2
-name: mirrord-operator-license-server
-description: Self-hosted, air-gapped license server for the mirrord Operator that manages Enterprise licenses with no external telemetry.
+name: mirrord-operator-share-ingress
+description: Serves mirrord preview environments over plain share links, replacing the browser extension for sharing.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -30,8 +30,8 @@ sources:
 keywords:
   - mirrord
   - kubernetes
-  - license-server
-  - air-gapped
+  - preview-environments
+  - share-ingress
   - enterprise
   - metalbear
 maintainers:

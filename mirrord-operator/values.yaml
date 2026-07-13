@@ -122,12 +122,25 @@ operator:
   spannerBranching: false
   # Has to be set to `true` in order to use the ClickHouse database branching feature.
   clickhouseBranching: false
+  # Has to be set to `true` in order to use the generic (user-supplied image) database
+  # branching feature. NOTE: enabling this lets users who can create branches run arbitrary
+  # container images as branch pods (under the namespace default service account). Restrict
+  # the images with `genericBranchConfig.dbPod.allowedImages` if needed; when that field is
+  # absent, all images are allowed.
+  genericBranching: false
   # Grants cluster-wide Secret permissions needed when users pass literal
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.
   dbBranchingLiteralCredentials: true
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
+
+  # Sharing preview environments via a plain link. Requires `previewEnv: true` and the
+  # `mirrord-share-ingress` chart deployed with a matching `shareDomain`.
+  shareIngress:
+    # Domain that preview share hosts are minted under, as `<slug>.<shareDomain>`, entered without
+    # a leading "*." wildcard. When empty, no share host is minted and previews are not shareable by link.
+    shareDomain: ""
 
   preview:
     # Annotations added to the pods created by preview environments.

@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: mirrord-share-ingress
+    {{- include "mirrord-share-ingress.labels" . | nindent 4 }}
+  name: mirrord-share-ingress
+rules:
+# Watches previews cluster-wide to map share hosts to targets.
+- apiGroups: [preview.mirrord.metalbear.co]
+  resources: [previewsessions]
+  verbs: [get, list, watch]

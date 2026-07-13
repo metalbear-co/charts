@@ -4191,6 +4191,34 @@ spec:
 
                       Each value maps header names to regex patterns that messages must match.
                     type: object
+                  kafkaQueueJqFilters:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Kafka queue splitting jq filters, keyed by topic ID.
+
+                      Kept separate from `kafka_queue_filters` because that field predates jq support for Kafka
+                      and stores bare header maps, so its value type can't grow a jq field without breaking
+                      stored resources.
+                    type: object
+                  queueModes:
+                    additionalProperties:
+                      description: |-
+                        Controls what happens to a message that matches this session's filter.
+
+                        - `steal` (default): the matched message is delivered only to this session, so the deployed
+                          application never sees it.
+                        - `mirror`: the matched message is delivered to this session **and** still delivered to the
+                          deployed application, so both process a copy.
+                      enum:
+                      - steal
+                      - mirror
+                      title: feature.split_queues.{}.queue_mode {#feature-split_queues-queue_id-queue_mode}
+                      type: string
+                    description: |-
+                      Per-queue split mode keyed by queue id. Broker-agnostic; a queue id absent here defaults to
+                      `steal`. Only non-default (`mirror`) entries are stored.
+                    type: object
                   redisPubsubQueueFilters:
                     additionalProperties:
                       description: |-
@@ -4293,6 +4321,34 @@ spec:
                 description: Number of replicas created by the deployment.
                 format: int32
                 type: integer
+              secretMounts:
+                description: |-
+                  File-based secret mount settings for this preview session.
+
+                  Unlike `config_mounts`, the file contents are never stored here. The CLI sends them to the
+                  operator, which creates a single Kubernetes `Secret` for the session; this spec carries
+                  only where each key mounts. The contents live solely in the `Secret`, so access can be
+                  controlled independently via RBAC. The `Secret`'s name is not stored either - both the
+                  operator's creating endpoint and the reconciler that mounts it derive it from the
+                  session name (see [`secret_mounts_secret_name`]), exactly like `config_mounts` names
+                  its `ConfigMap`.
+                items:
+                  description: |-
+                    One file to project from the session's secret mounts `Secret` into the preview pod. The `Secret`
+                    itself holds every file's contents under these keys; the CLI sends those contents to the
+                    operator (never on the CR), so access can be RBAC-controlled independently of the session.
+                  properties:
+                    path:
+                      description: Absolute path inside the preview pod's container where the file should appear.
+                      type: string
+                    secretKey:
+                      description: Key within the `Secret` whose value is this file's contents.
+                      type: string
+                  required:
+                  - path
+                  - secretKey
+                  type: object
+                type: array
               target:
                 description: |-
                   Target to copy pod configuration from (deployment, pod, statefulset, etc.).
@@ -4365,6 +4421,16 @@ spec:
                 - Failed
                 - Unknown
                 type: string
+              shareHost:
+                description: |-
+                  Public host at which this preview is reachable through `mirrord-share-ingress`.
+
+                  Minted by the operator as `<slug>.<shareDomain>` when the session uses the default
+                  key-derived baggage filter and the operator is configured with a share domain.
+                  `None` for sessions with a custom HTTP filter, when share-ingress is not configured,
+                  or when running against an older operator that does not set this field.
+                nullable: true
+                type: string
               startedAt:
                 description: Timestamp of when the operator started processing this session.
                 format: date-time
@@ -4382,7 +4448,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4527,6 +4593,74 @@ spec:
                     - type
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
+                type: object
+              genericOptions:
+                description: Generic (user-supplied image) branch options.
+                nullable: true
+                properties:
+                  args:
+                    description: Entrypoint args override for the branch container.
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  command:
+                    description: Entrypoint command override for the branch container.
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  env:
+                    additionalProperties:
+                      type: string
+                    description: Extra environment variables for the branch container.
+                    type: object
+                  image:
+                    description: Full image reference for the branch container, including the tag.
+                    type: string
+                  port:
+                    description: |-
+                      The port the branched service listens on. Used for the default readiness probe and as
+                      the port the app's connection is redirected to.
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    type: integer
+                  readiness:
+                    description: Readiness check for the branch container. Defaults to a TCP probe on `port`.
+                    nullable: true
+                    properties:
+                      exec:
+                        description: Command probe; ready when the command exits 0 inside the branch container.
+                        nullable: true
+                        properties:
+                          command:
+                            items:
+                              type: string
+                            type: array
+                        required:
+                        - command
+                        type: object
+                      httpGet:
+                        description: HTTP GET probe; ready on a 2xx/3xx response.
+                        nullable: true
+                        properties:
+                          path:
+                            type: string
+                          port:
+                            description: Defaults to the branch `port` when unset.
+                            format: uint16
+                            maximum: 65535.0
+                            minimum: 0.0
+                            nullable: true
+                            type: integer
+                        required:
+                        - path
+                        type: object
+                    type: object
+                required:
+                - image
+                - port
                 type: object
               id:
                 description: ID derived by mirrord CLI.
@@ -5735,6 +5869,14 @@ spec:
                       - temporal
                       - bullMq
                       - unknown
+                      type: string
+                    mode:
+                      description: |-
+                        Whether matched messages are stolen from the workload or mirrored to it. Absent means
+                        `steal`, so sessions created by older clients keep the original behavior.
+                      enum:
+                      - steal
+                      - mirror
                       type: string
                   required:
                   - id

@@ -416,7 +416,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
 # Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co

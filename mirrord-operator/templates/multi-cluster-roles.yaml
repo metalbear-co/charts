@@ -97,6 +97,15 @@ rules:
   - get
   - update
   - patch
+# The envoy reads the target operator's supported features before connecting
+# (to decide whether connect params go in a header). On the primary this is a
+# self-read of its own in-cluster operator.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordoperators
+  verbs:
+  - get
 {{- if and .Values.operator.multiClusterMember (not .Values.operator.multiCluster.enabled) }}
 # Queue-splitting CRDs synced from primary cluster
 - apiGroups:
@@ -124,13 +133,6 @@ rules:
   - update
   - patch
   - delete
-# MirrordOperator CRD for health checks
-- apiGroups:
-  - operator.metalbear.co
-  resources:
-  - mirrordoperators
-  verbs:
-  - get
 # Token refresh
 - apiGroups:
   - ""
@@ -189,6 +191,14 @@ metadata:
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
+# The primary reads the remote operator's supported features before connecting,
+# to decide whether connect params go in a header instead of the query string.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordoperators
+  verbs:
+  - get
 # Create and manage cluster sessions in remote clusters (reuses existing MirrordClusterSession CRD)
 - apiGroups:
   - mirrord.metalbear.co
@@ -244,7 +254,7 @@ rules:
   - mirrordclusterworkloadpatchrequests
   verbs:
   - create
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
 # The primary operator creates credential Secrets on the default cluster
 # when the mirrord config contains literal connection values.
 - apiGroups:

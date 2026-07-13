@@ -147,8 +147,14 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.spannerBranching }}
         - name: OPERATOR_CLICKHOUSE_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.clickhouseBranching }}
+        - name: OPERATOR_GENERIC_BRANCHING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.genericBranching }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.previewEnv }}
+        {{- if and .Values.operator.shareIngress .Values.operator.shareIngress.shareDomain }}
+        - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
+          value: {{ .Values.operator.shareIngress.shareDomain | quote }}
+        {{- end }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
@@ -197,6 +203,8 @@ spec:
           value: /mirrord-config/spanner-branch-config.yaml
         - name: OPERATOR_CLICKHOUSE_BRANCH_CONFIG
           value: /mirrord-config/clickhouse-branch-config.yaml
+        - name: OPERATOR_GENERIC_BRANCH_CONFIG
+          value: /mirrord-config/generic-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
         - name: OPERATOR_TLS_CERT_PATH
           value: /tls/tls.crt

@@ -1,0 +1,112 @@
+{{- if not .Values.shareIngress.shareDomain }}
+  {{- fail "shareIngress.shareDomain is required" }}
+{{- end }}
+{{- if not .Values.shareIngress.appDomain }}
+  {{- fail "shareIngress.appDomain is required" }}
+{{- end }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mirrord-share-ingress
+    component: share-ingress
+    app.kubernetes.io/component: share-ingress
+    {{- include "mirrord-share-ingress.labels" . | nindent 4 }}
+  name: mirrord-share-ingress
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: mirrord-share-ingress
+  replicas: {{ .Values.server.replicas }}
+  template:
+    metadata:
+      labels:
+        {{- include "mirrord-share-ingress.labels" . | nindent 8 }}
+        app: mirrord-share-ingress
+        component: share-ingress
+        app.kubernetes.io/component: share-ingress
+        {{- with .Values.server.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.server.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.server.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - {{ toYaml . }}
+        {{- end }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 2000
+        fsGroup: 2000
+        {{- if lt (int .Values.server.port) 1024 }}
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: {{ int .Values.server.port | quote }}
+        {{- end }}
+      {{- with .Values.server.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.affinity }}
+      affinity:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.sa.name }}
+      containers:
+      - args: ["share-ingress"]
+        env:
+        - name: RUST_LOG
+          value: {{ .Values.server.logLevel }}
+        - name: OPERATOR_SHARE_INGRESS_ADDRESS
+          value: {{ printf "0.0.0.0:%d" (int .Values.server.port) }}
+        - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
+          value: {{ .Values.shareIngress.shareDomain | quote }}
+        - name: OPERATOR_SHARE_INGRESS_APP_DOMAIN
+          value: {{ .Values.shareIngress.appDomain | quote }}
+        - name: OPERATOR_SHARE_INGRESS_JSON_LOG
+          value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
+        {{- range $key, $val := .Values.server.extraEnv }}
+        - name: {{ $key }}
+          value: {{ $val | quote }}
+        {{- end }}
+        image: {{ .Values.server.image }}:{{ or .Values.server.tag .Chart.AppVersion }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.server.imagePullPolicy }}
+        name: share-ingress
+        ports:
+        - containerPort: {{ .Values.server.port }}
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.server.port }}
+            scheme: HTTP
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.server.port }}
+            scheme: HTTP
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: {{ .Values.server.limits.cpu }}
+            memory: {{ .Values.server.limits.memory }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true

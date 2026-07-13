@@ -1,0 +1,42 @@
+# Namespace the share-ingress runs in. Install it before the first preview, since your ingress,
+# DNS, and TLS point at its Service.
+namespace: mirrord
+createNamespace: false
+
+shareIngress:
+  # Domain that share hosts live under, entered without a leading "*." wildcard.
+  # Must match `operator.shareIngress.shareDomain` on the operator, which mints hosts under it.
+  shareDomain: ""
+  # Where visitors are redirected when a share host no longer resolves to a live preview.
+  appDomain: ""
+
+server:
+  image: ghcr.io/metalbear-co/operator
+  # Image tag. Defaults to the chart's appVersion.
+  tag: ""
+  replicas: 1
+  # Port the share-ingress HTTP server listens on. TLS is terminated by your ingress in front of it.
+  port: 8080
+  logLevel: mirrord=info,warn
+  jsonLog: true
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  podLabels: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  extraEnv: {}
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+service:
+  name: mirrord-share-ingress
+  type: ClusterIP
+  # Service port your ingress routes to. Forwards to the container's `server.port`.
+  port: 80
+
+sa:
+  create: true
+  name: mirrord-share-ingress

@@ -1,3 +1,5 @@
-{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef) }}
+{{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict }}
+{{- $hasCloudApiKey := or $cloudApiKey.key $cloudApiKey.keyRef $cloudApiKey.gsmRef }}
+{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef $hasCloudApiKey) }}
 WARNING: Missing license key, some mirrord for CI features might not work
 {{- end }}
