@@ -7,6 +7,10 @@ namespace: mirrord
 ## Whether we should create the namespace or not
 createNamespace: false
 
+## Additional Kubernetes resources to create with the chart. Entries are rendered as templates,
+## so they can reference chart values and release information.
+extraObjects: []
+
 database:
   # If `kind=sqlite`, all other options are ignored,
   kind: sqlite
@@ -188,6 +192,12 @@ tls:
 ## The dashboard is bundled in the operator image and served directly by the
 ## license server (no separate deployment needed). The license key is
 ## auto-injected into API requests from the dashboard.
+##
+## Expose the dashboard only behind TLS: either the license server's own `tls.*`
+## settings above, or a TLS-terminating proxy or ingress in front (the SAML
+## sidecar below is one such setup). Session credentials and the embed share
+## token travel on this channel, so serving it as plain HTTP with nothing
+## terminating TLS in front is not a supported setup.
 dashboard:
   enabled: false
   port: 8050

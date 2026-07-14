@@ -1,0 +1,18 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+extraObjects:
+  - apiVersion: secrets-store.csi.x-k8s.io/v1
+    kind: SecretProviderClass
+    metadata:
+      name: "{{ .Release.Name }}-license"
+      namespace: "{{ .Values.namespace }}"
+    spec:
+      provider: gcp
+      parameters:
+        secrets: |
+          - resourceName: projects/example/secrets/mirrord-license/versions/latest
+            path: license

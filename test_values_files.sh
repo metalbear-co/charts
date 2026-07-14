@@ -10,6 +10,9 @@ for file in test_values/mirrord-operator/*.yaml; do
   if [ "$file" = "test_values/mirrord-operator/extra_volumes.yaml" ]; then
     echo "running with --dry-run"
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait --dry-run="client"
+  elif [ "$file" = "test_values/mirrord-operator/extra_objects.yaml" ]; then
+    echo "running with helm template"
+    helm template -f "$file" mirrord-operator ./mirrord-operator > /dev/null
   elif [ "$file" = "test_values/mirrord-operator/operator_openshift.yaml" ]; then
     echo "running with helm template"
     helm template -f "$file" mirrord-operator ./mirrord-operator > /dev/null

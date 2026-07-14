@@ -1,0 +1,17 @@
+createNamespace: true
+
+license:
+  key: "foobar"
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: "{{ .Release.Name }}-extra"
+      namespace: "{{ .Values.namespace }}"
+    data:
+      database: "{{ .Values.database.name }}"

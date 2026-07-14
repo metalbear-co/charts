@@ -4105,6 +4105,22 @@ spec:
               key:
                 description: Environment key used to group related preview pods and for traffic filtering.
                 type: string
+              labels:
+                description: Filters applied to labels inherited from the target pod template.
+                nullable: true
+                properties:
+                  exclude:
+                    description: Glob patterns selecting which target label keys to remove.
+                    items:
+                      type: string
+                    type: array
+                  include:
+                    description: Glob patterns selecting which target label keys to keep.
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                type: object
               queueSplitting:
                 description: Queue splitting configuration for this preview session.
                 nullable: true

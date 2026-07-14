@@ -199,6 +199,18 @@ rules:
   - mirrordoperators
   verbs:
   - get
+# `sessions` is the operator's aggregated API, not a stored CRD. When the primary
+# serves a cross-cluster session list/kill it fans out to each member's aggregated
+# API using that member's credential; without these verbs the member returns a
+# forbidden error and the primary silently drops it from the combined view.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - sessions
+  verbs:
+  - get
+  - list
+  - delete
 # Create and manage cluster sessions in remote clusters (reuses existing MirrordClusterSession CRD)
 - apiGroups:
   - mirrord.metalbear.co

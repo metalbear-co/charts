@@ -54,6 +54,30 @@ sa:
 The chart still binds its RBAC resources to `sa.name` and configures the operator Deployment to use it.
 
 
+### Additional Kubernetes resources
+
+Use `extraObjects` to create additional Kubernetes resources as part of the Helm release. Each
+object is rendered as a template, so it can reference chart values and release information. For
+example, a Secrets Store CSI `SecretProviderClass` can be created alongside the operator:
+
+```yaml
+extraObjects:
+  - apiVersion: secrets-store.csi.x-k8s.io/v1
+    kind: SecretProviderClass
+    metadata:
+      name: "{{ .Release.Name }}-license"
+      namespace: "{{ .Values.namespace }}"
+    spec:
+      provider: gcp
+      parameters:
+        secrets: |
+          - resourceName: projects/example/secrets/mirrord-license/versions/latest
+            path: license
+```
+
+These resources are owned by the Helm release and are removed when the release is uninstalled.
+
+
 ### SQS queue splitting
 
 #### IAM Role for the operator's service account

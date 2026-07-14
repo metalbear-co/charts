@@ -13,6 +13,10 @@ createNamespace: true
 ## and it can be bound via rolebinding (That you need to create yourself).
 roleNamespaces: []
 
+## Additional Kubernetes resources to create with the chart. Entries are rendered as templates,
+## so they can reference chart values and release information.
+extraObjects: []
+
 role:
   # Note there's a cluster role version of it below.
   mirrord-operator-user:
@@ -178,7 +182,11 @@ operator:
 
   # When enabled, operator will inject a `mirrord-key` header with the
   # value of the current session key into redirected HTTP requests,
-  # responses to said requests, and SQS messages.
+  # responses to said requests, and the queue-splitting messages routed to
+  # a session. For queues it uses a native metadata field where the broker
+  # has one (SQS, Google Pub/Sub, RabbitMQ, Kafka, Azure Service Bus, and
+  # Temporal activity tasks), otherwise the JSON payload (BullMQ, Redis
+  # Pub/Sub); non-JSON payloads are left untouched.
   injectSessionKeyHeader: true
 
   # Depth of the single, global `mirrord subscribe` event buffer (shared across all sessions).
@@ -590,6 +598,23 @@ operator:
   ##     limits:
   ##       cpu: "1"
   ##       memory: "1Gi"
+  ##
+  ## For a custom image with TLS baked in, keep the TLS listener on 6379 and
+  ## disable the plaintext one; `tls: true` makes the operator (seeding and the
+  ## connection URL handed to the app) use rediss://.
+  ##
+  ##   dbServerArgs:
+  ##     - "--tls-port"
+  ##     - "6379"
+  ##     - "--port"
+  ##     - "0"
+  ##     - "--tls-cert-file"
+  ##     - "/certs/tls.crt"
+  ##     - "--tls-key-file"
+  ##     - "/certs/tls.key"
+  ##     - "--tls-auth-clients"
+  ##     - "no"
+  ##   tls: true
 
   # spannerBranchConfig:
   ## example
