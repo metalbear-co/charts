@@ -166,6 +166,16 @@ operator:
     # restarts and the underlying Deployment, this configuration doesn't change that.
     cleanupAfterMins: 15
 
+    # Bounds on the traffic an idle or waking preview session buffers while its pods boot.
+    #
+    # Sessions with idle mode enabled hold incoming traffic instead of failing it while their pods scale up from zero.
+    # These cap that buffer (per session): when either limit is reached the buffer is flushed and the held requests
+    # fail with 502 instead. `idleHoldBufferMessages` counts mirrord protocol frames (a whole HTTP request, one body
+    # chunk of a streamed request, or one data segment of a plain TCP connection — not necessarily one HTTP request);
+    # `idleHoldBufferBytes` bounds the actual payload memory, since a single frame can carry a large body.
+    idleHoldBufferMessages: 512
+    idleHoldBufferBytes: 8388608
+
     # The pull policy to use for preview environment's images.
     # imagePullPolicy: "Always"
 

@@ -4053,6 +4053,38 @@ spec:
                       explicit `feature.env.override` values on top.
                     type: object
                 type: object
+              idle:
+                description: |-
+                  Idle-mode configuration for this preview session.
+
+                  When set, the operator may run the session with zero preview pods while keeping the
+                  traffic listener and queue splits alive; incoming traffic scales the pods back up.
+                  `None` disables both starting idle and automatic idle scale-down.
+                nullable: true
+                properties:
+                  sleepAfterSecs:
+                    description: |-
+                      Scale the preview pods to zero after this many seconds without stolen/mirrored traffic
+                      or routed queue messages. `None` means the session never idles automatically.
+                    format: uint64
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                  startIdle:
+                    default: false
+                    description: |-
+                      Start the session with zero preview pods. The first matching request or queue message
+                      boots them.
+                    type: boolean
+                  wakeTimeoutSecs:
+                    description: |-
+                      How long a waking session holds incoming requests while waiting for a preview pod to
+                      become ready, before letting them fail. `None` means the operator's default.
+                    format: uint64
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                type: object
               image:
                 description: User's container image to run in the preview pod.
                 type: string
@@ -4428,6 +4460,15 @@ spec:
                   Only set when `phase` is `Failed`.
                 nullable: true
                 type: string
+              idleSince:
+                description: |-
+                  Timestamp of when the session last entered the `Idle` phase.
+
+                  Set when the preview pods are scaled to zero due to inactivity (or the session started
+                  idle), and cleared when the session becomes `Ready` again.
+                format: date-time
+                nullable: true
+                type: string
               phase:
                 description: Current lifecycle phase of the session.
                 enum:
@@ -4435,6 +4476,7 @@ spec:
                 - Waiting
                 - Ready
                 - Failed
+                - Idle
                 - Unknown
                 type: string
               shareHost:

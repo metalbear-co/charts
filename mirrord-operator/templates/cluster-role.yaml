@@ -516,6 +516,7 @@ rules:
   verbs:
   - create
   - delete
+  - update
 - apiGroups:
   - preview.mirrord.metalbear.co
   resources:
@@ -533,6 +534,20 @@ rules:
 - apiGroups: [""]
   resources: [configmaps]
   verbs: [create]
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
+# The operator creates a per-PreviewSession Secret holding operator-computed env values
+# (e.g. pattern-based DB branching overrides built from the target's runtime env, which can
+# embed source credentials). Injected via secretKeyRef; owner references handle cleanup.
+# The operator never reads user-owned Secrets — `get` is what `entry()` needs to create or
+# reuse its own Secret idempotently across task respawns.
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+{{- end }}
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
