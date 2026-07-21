@@ -3992,8 +3992,18 @@ spec:
                     items:
                       type: string
                     type: array
+                  cockroachdbBranchNames:
+                    description: CockroachDB branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
                   dynamodbBranchNames:
                     description: DynamoDB branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  mariadbBranchNames:
+                    description: MariaDB branch database names to use for this session.
                     items:
                       type: string
                     type: array
@@ -4506,7 +4516,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4529,6 +4539,46 @@ spec:
             properties:
               clickhouseOptions:
                 description: ClickHouse-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
+              cockroachdbOptions:
+                description: CockroachDB-specific options.
                 nullable: true
                 properties:
                   copy:
@@ -4723,6 +4773,68 @@ spec:
               id:
                 description: ID derived by mirrord CLI.
                 type: string
+              image:
+                description: |-
+                  Full image reference for the branch database container, including the tag.
+                  Overrides the operator-configured registry and the built-in default entirely; the
+                  operator validates it against the admin's per-database `allowedImages` list. Mutually
+                  exclusive with `version`. Generic branches carry their image in `genericOptions`
+                  instead.
+                nullable: true
+                type: string
+              mariadbOptions:
+                description: MariaDB-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      dumpArgs:
+                        description: |-
+                          Arguments passed to the database dump tool. When this field is set,
+                          it replaces the operator's dump defaults. An empty list means no dump args.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      items:
+                        additionalProperties:
+                          properties:
+                            filter:
+                              description: |-
+                                Data that matches the filter will be copied.
+                                For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                              nullable: true
+                              type: string
+                          type: object
+                        description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                        nullable: true
+                        type: object
+                      mode:
+                        enum:
+                        - empty
+                        - schema
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                  iamAuth:
+                    description: IAM auth config for cloud-managed databases (RDS, Cloud SQL).
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - aws_rds
+                        - gcp_cloud_sql
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
               migrations:
                 description: Schema migrations to run on the branch.
                 nullable: true
@@ -5021,7 +5133,9 @@ spec:
                 minimum: 0.0
                 type: integer
               version:
-                description: Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
+                description: |-
+                  Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
+                  Mutually exclusive with `image`.
                 nullable: true
                 type: string
             required:

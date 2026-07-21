@@ -77,14 +77,6 @@ spec:
         - name: OTLP_RUST_LOG
           value: {{ .Values.operator.otelLogLevel }}
         {{- end }}
-        {{- if .Values.operator.otelLogExportUrl }}
-        - name: OTLP_LOGS_URL
-          value: {{ .Values.operator.otelLogExportUrl }}
-        {{- end }}
-        {{- if .Values.operator.otelTraceExportUrl }}
-        - name: OTLP_TRACES_URL
-          value: {{ .Values.operator.otelTraceExportUrl }}
-        {{- end }}
         - name: OPERATOR_ADDR
           value: {{ printf "[::]:%d" (int .Values.operator.port ) | quote }}
         - name: OPERATOR_FALLBACK_ADDR
@@ -133,6 +125,8 @@ spec:
           value: {{ .Values.operator.temporalProxy.port | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.mysqlBranching }}
+        - name: OPERATOR_MARIADB_BRANCHING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.mariadbBranching }}
         - name: OPERATOR_PG_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.pgBranching }}
         - name: OPERATOR_MONGODB_BRANCHING
@@ -147,6 +141,8 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.spannerBranching }}
         - name: OPERATOR_CLICKHOUSE_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.clickhouseBranching }}
+        - name: OPERATOR_COCKROACHDB_BRANCHING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.cockroachdbBranching }}
         - name: OPERATOR_GENERIC_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.genericBranching }}
         - name: OPERATOR_PREVIEW_ENV
@@ -187,6 +183,8 @@ spec:
           value: /mirrord-config/agent-config.yaml
         - name: OPERATOR_MYSQL_BRANCH_CONFIG
           value: /mirrord-config/mysql-branch-config.yaml
+        - name: OPERATOR_MARIADB_BRANCH_CONFIG
+          value: /mirrord-config/mariadb-branch-config.yaml
         - name: OPERATOR_PG_BRANCH_CONFIG
           value: /mirrord-config/pg-branch-config.yaml
         - name: OPERATOR_MONGODB_BRANCH_CONFIG
@@ -203,6 +201,8 @@ spec:
           value: /mirrord-config/spanner-branch-config.yaml
         - name: OPERATOR_CLICKHOUSE_BRANCH_CONFIG
           value: /mirrord-config/clickhouse-branch-config.yaml
+        - name: OPERATOR_COCKROACHDB_BRANCH_CONFIG
+          value: /mirrord-config/cockroachdb-branch-config.yaml
         - name: OPERATOR_GENERIC_BRANCH_CONFIG
           value: /mirrord-config/generic-branch-config.yaml
         {{- if or (index .Values.tls.data "tls.key") .Values.tls.certManager.enabled .Values.tls.useExistingSecret }}
@@ -284,7 +284,23 @@ spec:
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
         - name: {{ $key }}
+        {{- if kindIs "map" $val }}
+{{- toYaml $val | nindent 10 }}
+        {{- else }}
           value: {{ $val | quote }}
+        {{- end }}
+        {{- end }}
+        {{- /*
+        OTEL export URLs are set _after_ extraEnv, so that the urls can reference env vars, for
+        example: `otelLogExportUrl: "http://$(HOST_IP):$(OTLP_PORT)"`
+        */}}
+        {{- if .Values.operator.otelLogExportUrl }}
+        - name: OTLP_LOGS_URL
+          value: {{ .Values.operator.otelLogExportUrl }}
+        {{- end }}
+        {{- if .Values.operator.otelTraceExportUrl }}
+        - name: OTLP_TRACES_URL
+          value: {{ .Values.operator.otelTraceExportUrl }}
         {{- end }}
         {{- if $pemGsmRef }}
         - name: OPERATOR_LICENSE_GSM_REF

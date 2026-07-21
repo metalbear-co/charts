@@ -1,0 +1,12 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+operator:
+  extraEnv:
+    HOST_IP:
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP

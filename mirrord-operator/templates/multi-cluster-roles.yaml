@@ -266,7 +266,7 @@ rules:
   - mirrordclusterworkloadpatchrequests
   verbs:
   - create
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.genericBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
 # The primary operator creates credential Secrets on the default cluster
 # when the mirrord config contains literal connection values.
 - apiGroups:

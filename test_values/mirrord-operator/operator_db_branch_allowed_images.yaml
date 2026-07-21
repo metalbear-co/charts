@@ -1,0 +1,61 @@
+# Renders every engine's `<engine>BranchConfig.dbPod.allowedImages` block, so a chart
+# regression that drops or misnames one of them is caught here. The allowlist fails open
+# (an absent list allows every image), so a silently-lost value would disarm the
+# restriction for that engine without any runtime error.
+operator:
+  mysqlBranching: true
+  mysqlBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/mysql:*"
+  mariadbBranching: true
+  mariadbBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/mariadb:*"
+  pgBranching: true
+  pgBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/postgres:*"
+  mongodbBranching: true
+  mongodbBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/mongo:*"
+  mssqlBranching: true
+  mssqlBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/mssql:*"
+  redisBranching: true
+  redisBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/redis:*"
+  dynamodbBranching: true
+  dynamodbBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/dynamodb:*"
+  spannerBranching: true
+  spannerBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/spanner:*"
+  clickhouseBranching: true
+  clickhouseBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/clickhouse:*"
+  genericBranching: true
+  genericBranchConfig:
+    dbPod:
+      allowedImages:
+        - "registry.example.com/generic:*"
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
