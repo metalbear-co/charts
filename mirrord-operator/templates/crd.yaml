@@ -4838,23 +4838,16 @@ spec:
               migrations:
                 description: Schema migrations to run on the branch.
                 nullable: true
-                oneOf:
-                - required:
-                  - archive
-                  - flavor
                 properties:
-                  archive:
-                    description: A gzipped tar of the migration files.
-                    type: string
                   flavor:
                     enum:
                     - flyway
+                    - container
                     type: string
-                  image:
-                    description: Overrides the container image used to run the migrations.
-                    nullable: true
-                    type: string
+                required:
+                - flavor
                 type: object
+                x-kubernetes-preserve-unknown-fields: true
               mongodbOptions:
                 description: MongoDB-specific options.
                 nullable: true
