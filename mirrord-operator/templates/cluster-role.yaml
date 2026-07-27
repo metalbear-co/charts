@@ -445,6 +445,30 @@ rules:
   - configmaps
   verbs:
   - create
+# Source TLS settings for branch copies are read from a conventionally named
+# MirrordPropertyList in each branch's namespace (e.g. `cockroachdb-source-tls`).
+# Resolving it follows secretKeyRef/configMapKeyRef references, and the resolved
+# certificate files are written into a Secret owned by the branch CR.
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - patch
 {{- if .Values.operator.dbBranchingLiteralCredentials }}
 # The operator creates Secrets to store literal credential values from the
 # mirrord config and patches them to set owner references for cleanup.
@@ -538,8 +562,8 @@ rules:
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (e.g. pattern-based DB branching overrides built from the target's runtime env, which can
 # embed source credentials). Injected via secretKeyRef; owner references handle cleanup.
-# The operator never reads user-owned Secrets — `get` is what `entry()` needs to create or
-# reuse its own Secret idempotently across task respawns.
+# In this flow the operator does not read user-owned Secrets - `get` is what `entry()`
+# needs to create or reuse its own Secret idempotently across task respawns.
 - apiGroups:
   - ""
   resources:

@@ -43,6 +43,11 @@ operator:
   # ready to resume the work in case the leader exits (e.g. due to node failure).
   replicas: 1
 
+  # How long Kubernetes waits for an operator pod to exit after asking it to stop.
+  # The operator drains its tasks and then releases leadership, needing a little
+  # over 20 seconds.
+  terminationGracePeriodSeconds: 25
+
   # Override the pull policy, useful for local development.
   # imagePullPolicy: Always
 
@@ -764,6 +769,30 @@ operator:
   ##     limits:
   ##       cpu: "1"
   ##       memory: "1Gi"
+  ##
+  ## Sources behind certificate verification (sslmode=verify-ca/verify-full against a
+  ## private CA) or mTLS are supported via a `MirrordPropertyList` named
+  ## `cockroachdb-source-tls` in the target's namespace - not via chart values - so each
+  ## namespace can point at its own cert Secret. The object name can be overridden with
+  ## `dbPod.sourceTlsPropertyList: "my-name"`. tlsClientCert/tlsClientKey must be set
+  ## together and are omitted when the source only needs a trusted CA (tlsCaCert):
+  ##
+  ##   apiVersion: mirrord.metalbear.co/v1
+  ##   kind: MirrordPropertyList
+  ##   metadata:
+  ##     name: cockroachdb-source-tls
+  ##     namespace: my-app-namespace
+  ##   spec:
+  ##     properties:
+  ##       - name: tlsCaCert
+  ##         valueFrom:
+  ##           secretKeyRef: { name: my-db-certs, key: ca.crt }
+  ##       - name: tlsClientCert
+  ##         valueFrom:
+  ##           secretKeyRef: { name: my-db-certs, key: client.myservice.crt }
+  ##       - name: tlsClientKey
+  ##         valueFrom:
+  ##           secretKeyRef: { name: my-db-certs, key: client.myservice.key }
 
 agent:
   ## example

@@ -35,6 +35,11 @@ spec:
           {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
+      # Graceful shutdown drains background tasks (up to 15 seconds) and then releases
+      # the leadership lease, so it needs a little over 20 seconds; a bounded grace
+      # period also makes Kubernetes remove the pod object promptly, which frees the
+      # lease when the process cannot release it itself.
+      terminationGracePeriodSeconds: {{ .Values.operator.terminationGracePeriodSeconds | default 25 }}
       {{- if .Values.operator.imagePullSecrets }}
       imagePullSecrets:
         {{- range .Values.operator.imagePullSecrets }}
