@@ -623,6 +623,14 @@ operator:
   ##     limits:
   ##       cpu: "1"
   ##       memory: "1Gi"
+  ##   # How branch pods recreate the source database's roles.
+  ##   # `empty` (default): NOLOGIN shell roles, just enough for the schema restore.
+  ##   # `full`: real role attributes (LOGIN, ...) and role memberships, and the data copy
+  ##   # keeps table ownership and grants, so the branch enforces the same permissions as
+  ##   # the source. The user declared in the branch's connection config keeps its real
+  ##   # password on the branch (as a salted hash); PostgreSQL never exposes other roles'
+  ##   # passwords, so those restore without one.
+  ##   roles: "empty"
 
   # mongodbBranchConfig:
   ## example
