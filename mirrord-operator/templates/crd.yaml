@@ -5031,6 +5031,14 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
+              profile:
+                description: |-
+                  Name of an admin-defined branch-config profile from the operator's per-database
+                  config (e.g. `redisBranchConfig.profiles` in the Helm values). Selects the pod
+                  settings baseline (TLS, server args, pull secrets, allowed images) for this branch.
+                  When unset, the operator's default branch config applies.
+                nullable: true
+                type: string
               redisOptions:
                 description: Redis-specific options.
                 nullable: true

@@ -36,7 +36,7 @@ for file in test_values/mirrord-operator/*.yaml; do
   elif [ "$file" = "test_values/mirrord-operator/extra_env_from.yaml" ]; then
     echo "running with --dry-run"
     # check env was interpreted correctly - failure will not cause an error in helm install
-    if helm install -f "$file" mirrord-operator ./mirrord-operator --wait --dry-run | grep "valueFrom:map"; then
+    if helm install -f "$file" mirrord-operator ./mirrord-operator --wait --dry-run="client" | grep "valueFrom:map"; then
         echo "chart did not render 'valueFrom' correctly"
         exit 1
     fi

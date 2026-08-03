@@ -1,0 +1,31 @@
+operator:
+  redisBranching: true
+  redisBranchConfig:
+    dbPod:
+      image:
+        registry: "docker.io/library/redis"
+      allowedImages:
+        - "registry.example.com/plain/redis:*"
+    profiles:
+      tls-baseline:
+        dbPod:
+          imagePullSecrets:
+            - name: "tls-registry-secret"
+          allowedImages:
+            - "registry.example.com/tls/redis:*"
+          dbServerArgs:
+            - "--tls-port"
+            - "6379"
+            - "--port"
+            - "0"
+            - "--tls-cert-file"
+            - "/certs/tls.crt"
+            - "--tls-key-file"
+            - "/certs/tls.key"
+          tls: true
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
