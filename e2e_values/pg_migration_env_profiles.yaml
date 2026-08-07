@@ -1,0 +1,30 @@
+# Branch-config profiles for the pg migration-env e2e scenarios, loaded with `--values`
+# by the operator e2e workflow (test-e2e-with-operator.yaml) when pg branching is enabled.
+# Not a standalone install: it only carries the profiles, everything else comes from the
+# workflow's `--set` flags, which helm deep-merges on top.
+#
+# - e2e-migration-admin-env: admin migration env extras - a literal, an override of a var
+#   the target inherits, and an envFrom ConfigMap the test creates as
+#   `admin-migration-config`.
+# - e2e-migration-no-inherit: opts the migration Job out of target env inheritance.
+#
+# Profiles inherit the default dbPod allowedImages, so the postgres client image the
+# container scenarios run stays allowed.
+operator:
+  pgBranchConfig:
+    profiles:
+      e2e-migration-admin-env:
+        dbPod:
+          migrationEnv:
+            env:
+              - name: ADMIN_SETTING
+                value: from-admin
+              - name: APP_SETTING
+                value: admin-override
+            envFrom:
+              - configMapRef:
+                  name: admin-migration-config
+      e2e-migration-no-inherit:
+        dbPod:
+          migrationEnv:
+            inherit: false

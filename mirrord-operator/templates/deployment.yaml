@@ -106,6 +106,14 @@ spec:
         - name: OPERATOR_MAX_SESSION_TIME_SECONDS
           value: {{ .Values.operator.maxSessionTimeSeconds | quote }}
         {{- end }}
+        {{- if .Values.operator.sessionUnusedTtlSeconds }}
+        - name: OPERATOR_SESSION_UNUSED_TTL_SECONDS
+          value: {{ .Values.operator.sessionUnusedTtlSeconds | quote }}
+        {{- end }}
+        {{- if .Values.operator.sessionSetupDeadlineSeconds }}
+        - name: OPERATOR_SESSION_SETUP_DEADLINE_SECONDS
+          value: {{ .Values.operator.sessionSetupDeadlineSeconds | quote }}
+        {{- end }}
         {{- if .Values.operator.subscribeEventBufferSize }}
         - name: OPERATOR_EVENT_BUFFER_SIZE
           value: {{ .Values.operator.subscribeEventBufferSize | quote }}

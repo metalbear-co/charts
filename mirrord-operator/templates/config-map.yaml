@@ -93,8 +93,15 @@ data:
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}
     defaultCluster: {{ .Values.operator.multiCluster.defaultCluster | quote }}
     managementOnly: {{ .Values.operator.multiCluster.managementOnly | default false }}
-    remoteSessionTimeoutSecs: {{ .Values.operator.multiCluster.remoteSessionTimeoutSecs | default 120 }}
-    sessionTtlSecs: {{ .Values.operator.multiCluster.sessionTtlSecs | default 60 }}
+    {{- /*
+      The `Secs` names are what this chart shipped with, and are still honored so an existing
+      values file keeps working. This fallback only works because values.yaml ships no default
+      for the `Seconds` names: a chart default would always be set, and the old name would never
+      be reached. The defaults therefore live here.
+    */}}
+    remoteSessionTimeoutSeconds: {{ .Values.operator.multiCluster.remoteSessionTimeoutSeconds | default .Values.operator.multiCluster.remoteSessionTimeoutSecs | default 300 }}
+    sessionTtlSeconds: {{ .Values.operator.multiCluster.sessionTtlSeconds | default .Values.operator.multiCluster.sessionTtlSecs | default 60 }}
+    sessionSetupDeadlineSeconds: {{ .Values.operator.multiCluster.sessionSetupDeadlineSeconds | default 180 }}
   {{- if .Values.operator.multiCluster.clusters }}
   clusters-config.yaml: |-
     clusters:

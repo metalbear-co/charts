@@ -360,7 +360,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -712,7 +711,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -1487,7 +1485,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ end }}
 {{ if .Values.operator.kafkaSplitting }}
 ---
@@ -1611,7 +1608,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1665,7 +1661,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1934,7 +1929,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -2187,7 +2181,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2439,7 +2432,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2503,7 +2495,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2566,7 +2557,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ if .Values.operator.mysqlBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -3439,7 +3429,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3832,7 +3821,9 @@ spec:
                     description: Name of the `MirrordPropertyList` with connection_string for cleanup.
                     type: string
                   propertiesListNamespace:
-                    description: Namespace of the `MirrordPropertyList`.
+                    description: |-
+                      Namespace the `MirrordPropertyList` was resolved from (the target's namespace,
+                      or the operator's when the list was found there).
                     type: string
                 required:
                 - kind
@@ -3862,7 +3853,9 @@ spec:
                     description: Name of the `MirrordPropertyList` used to build the Pub/Sub client for cleanup.
                     type: string
                   propertiesListNamespace:
-                    description: Namespace of the `MirrordPropertyList`.
+                    description: |-
+                      Namespace the `MirrordPropertyList` was resolved from (the target's namespace,
+                      or the operator's when the list was found there).
                     type: string
                 required:
                 - kind
@@ -3884,9 +3877,10 @@ spec:
                     type: string
                   clientConfigNamespace:
                     description: |-
-                      Namespace of the target workload, where the new-path `MirrordPropertyList`
-                      lives. Legacy `MirrordKafkaClientConfig` resolution ignores this and reads
-                      from the operator namespace.
+                      Namespace the new-path `MirrordPropertyList` was resolved from (the target's
+                      namespace, or the operator's when the list was found there). A legacy
+                      `MirrordKafkaClientConfig` is looked up by name in the operator's namespace,
+                      so it resolves whatever namespace is recorded here.
                     type: string
                   name:
                     description: Name of the Kafka topic to delete.
@@ -3913,8 +3907,8 @@ spec:
                     type: string
                   propertiesListNamespace:
                     description: |-
-                      Namespace of the `MirrordPropertiesList` that should be used to resolve client
-                      configuration.
+                      Namespace the `MirrordPropertiesList` was resolved from (the target's namespace,
+                      or the operator's when the list was found there).
                     type: string
                 required:
                 - kind
@@ -3938,7 +3932,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 {{ if .Values.operator.previewEnv }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -5278,7 +5271,8 @@ spec:
               clientConfigs:
                 description: |-
                   Default broker client configuration per queue kind. Each field holds the name of a
-                  `MirrordPropertyList` in the same namespace.
+                  `MirrordPropertyList`, resolved in this resource's namespace first and, when not
+                  found there, in the operator's namespace.
                 nullable: true
                 properties:
                   azureServiceBus:
@@ -5874,7 +5868,10 @@ spec:
                           type: array
                       type: object
                     clientConfig:
-                      description: Override for the kind-level default in `clientConfigs`. Name of a `MirrordPropertyList`.
+                      description: |-
+                        Override for the kind-level default in `clientConfigs`. Name of a `MirrordPropertyList`,
+                        resolved in this resource's namespace first and, when not found there, in the
+                        operator's namespace.
                       nullable: true
                       type: string
                     id:
@@ -5895,7 +5892,8 @@ spec:
                       type: string
                     queueConfig:
                       description: |-
-                        Name of a `MirrordPropertyList` with additional queue-specific operator settings.
+                        Name of a `MirrordPropertyList` with additional queue-specific operator settings,
+                        resolved like `clientConfig`.
                         For Temporal, supports `max_buffered_tasks` (`0` or omitted in the list means unlimited).
                       nullable: true
                       type: string
@@ -5960,7 +5958,6 @@ spec:
         type: object
     served: true
     storage: true
-    subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
