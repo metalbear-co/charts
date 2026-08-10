@@ -2675,6 +2675,8 @@ spec:
                   - service
                 - required:
                   - replica_set
+                - required:
+                  - labels
                 properties:
                   container:
                     nullable: true
@@ -2688,6 +2690,11 @@ spec:
                     type: string
                   job:
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Exact-match labels used to select pods. All entries must match.
+                    type: object
                   pod:
                     description: |-
                       <!--${internal}-->
@@ -2940,6 +2947,8 @@ spec:
                   - service
                 - required:
                   - replica_set
+                - required:
+                  - labels
                 properties:
                   container:
                     nullable: true
@@ -2953,6 +2962,11 @@ spec:
                     type: string
                   job:
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Exact-match labels used to select pods. All entries must match.
+                    type: object
                   pod:
                     description: |-
                       <!--${internal}-->
@@ -3189,6 +3203,8 @@ spec:
                   - service
                 - required:
                   - replica_set
+                - required:
+                  - labels
                 properties:
                   container:
                     nullable: true
@@ -3202,6 +3218,11 @@ spec:
                     type: string
                   job:
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Exact-match labels used to select pods. All entries must match.
+                    type: object
                   pod:
                     description: |-
                       <!--${internal}-->
@@ -3677,6 +3698,15 @@ spec:
                 - username
                 type: object
               target:
+                anyOf:
+                - required:
+                  - apiVersion
+                  - container
+                  - kind
+                  - name
+                - required:
+                  - container
+                  - labelSelector
                 description: |-
                   Target of the session.
 
@@ -3692,14 +3722,57 @@ spec:
                   kind:
                     description: Kubernetes resource kind.
                     type: string
+                  labelSelector:
+                    description: Label selector for the targeted pods.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                                Exists and DoesNotExist.
+                              enum:
+                              - In
+                              - NotIn
+                              - Exists
+                              - DoesNotExist
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn, the values array must
+                                be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                                This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              nullable: true
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        nullable: true
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                          equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                          "In", and the values array contains only "value". The requirements are ANDed.
+                        nullable: true
+                        type: object
+                    type: object
                   name:
-                    description: Kubernetes resource name.
+                    description: Target name.
                     type: string
-                required:
-                - apiVersion
-                - container
-                - kind
-                - name
                 type: object
             required:
             - namespace
@@ -4415,7 +4488,7 @@ spec:
                     description: Kubernetes resource kind.
                     type: string
                   name:
-                    description: Kubernetes resource name.
+                    description: Target name.
                     type: string
                 required:
                 - apiVersion
@@ -5113,7 +5186,7 @@ spec:
                     description: Kubernetes resource kind.
                     type: string
                   name:
-                    description: Kubernetes resource name.
+                    description: Target name.
                     type: string
                 required:
                 - apiVersion
