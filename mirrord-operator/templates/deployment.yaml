@@ -286,6 +286,11 @@ spec:
         - name: OPERATOR_KAFKA_SPLITTING_SIDECAR_PORT
           value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
         {{- end }}
+        {{- /* `preview` is optional and can be entirely absent on `helm upgrade
+             --reuse-values` from a chart that predates it. Resolve it once here, defaulting
+             missing levels to an empty map, so the block below reads plain keys with no nil
+             deref aborting the upgrade. */}}
+        {{- $preview := (.Values.operator.multiCluster | default dict).preview | default dict }}
         {{- if .Values.operator.multiCluster.enabled }}
         # Multi-cluster configuration - read from mounted ConfigMap
         - name: MIRRORD_MULTICLUSTER_CONFIG
@@ -293,6 +298,14 @@ spec:
         {{- if .Values.operator.multiCluster.clusters }}
         - name: MIRRORD_CLUSTERS_CONFIG
           value: /mirrord-config/clusters-config.yaml
+        {{- end }}
+        {{- if $preview.mode }}
+        - name: OPERATOR_MC_PREVIEW_MODE
+          value: {{ $preview.mode | quote }}
+        {{- end }}
+        {{- if $preview.maxTunnelStreams }}
+        - name: OPERATOR_MC_TUNNEL_MAX_STREAMS
+          value: {{ $preview.maxTunnelStreams | quote }}
         {{- end }}
         {{- end }}
         {{- range $key, $val := .Values.operator.extraEnv }}
@@ -340,6 +353,10 @@ spec:
         - name: OPERATOR_CLOUD_API_KEY_GSM_REF
           value: {{ $cloudApiKey.gsmRef | quote }}
         {{- end }}
+        {{- if .Values.cloud.anonymizeData }}
+        - name: OPERATOR_TELEMETRY_ANONYMIZE_DATA
+          value: "true"
+        {{- end }}
         {{- if .Values.license.key }}
         envFrom:
         - secretRef:
@@ -369,6 +386,12 @@ spec:
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
+        {{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
+        {{- /* Fixed gateway port of the preview branch-DB tunnel (sidecars dial it on the
+             leader Service). Deliberately not a values knob. */}}
+        - containerPort: 4980
+          name: db-tunnel
+        {{- end }}
         {{- if .Values.operator.temporalSplitting }}
         - containerPort: {{ .Values.operator.temporalProxy.port }}
           name: temporal

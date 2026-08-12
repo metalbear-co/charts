@@ -18,3 +18,27 @@ spec:
     port: {{ .Values.operator.port }}
   version: v1
   versionPriority: 15
+---
+{{- /* The v1alpha1 group serves only the preview branch-tunnel WebSocket endpoint, which the
+     PRIMARY operator's envoy dials through this cluster's apiserver. Registered on every
+     install (same service either way) so a cluster can join a fleet without a re-install. */}}
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1alpha1.operator.metalbear.co
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+spec:
+  group: operator.metalbear.co
+  groupPriorityMinimum: 1000
+  {{- if .Values.tls.apiService.insecureSkipTLSVerify }}
+  {{- /* Omitted when false: the API default is false, and emitting `insecureSkipTLSVerify: false`
+       causes ArgoCD to show a perpetual diff because Kubernetes normalizes the field away. */}}
+  insecureSkipTLSVerify: true
+  {{- end }}
+  service:
+    name: {{ .Values.service.name }}
+    namespace: {{ .Values.namespace }}
+    port: {{ .Values.operator.port }}
+  version: v1alpha1
+  versionPriority: 10

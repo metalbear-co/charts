@@ -1,5 +1,6 @@
 mirrord('s)?
 mirrordclusterssessions
+[Aa]nonymized?
 towncrier
 fluxcd
 metalbear-co

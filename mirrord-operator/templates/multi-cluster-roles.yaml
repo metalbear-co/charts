@@ -211,6 +211,29 @@ rules:
   - get
   - list
   - delete
+# `branchtunnels` is the member operator's aggregated v1alpha1 WebSocket endpoint the
+# primary's envoy dials to carry preview branch-DB traffic. The WS upgrade is a GET on the
+# collection path, which the apiserver authorizes as `list`; `get` covers named paths.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - branchtunnels
+  verbs:
+  - get
+  - list
+# The envoy port-forwards to branch DB pods on the DEFAULT cluster to serve those tunnels.
+# Branch pod names are generated, so the grant cannot be pinned with resourceNames. This
+# credential is the ENVOY'S OWN and never leaves the primary operator's process - unlike the
+# retired branch-proxy design, no workload namespace ever holds it.
+# kube-rs does a WebSocket (GET-based) port-forward, which the apiserver authorizes with the
+# `get` verb on the subresource - `create` alone (the SPDY path) is not enough.
+- apiGroups:
+  - ""
+  resources:
+  - pods/portforward
+  verbs:
+  - get
+  - create
 # Create and manage cluster sessions in remote clusters (reuses existing MirrordClusterSession CRD)
 - apiGroups:
   - mirrord.metalbear.co
@@ -268,13 +291,16 @@ rules:
   - create
 {{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
 # The primary operator creates credential Secrets on the default cluster
-# when the mirrord config contains literal connection values.
+# when the mirrord config contains literal connection values and reads branch
+# credential Secrets when resolving branch env for preview replicas.
 - apiGroups:
   - ""
   resources:
   - secrets
   verbs:
   - create
+  - get
+  - patch
 {{- end }}
 {{- if .Values.operator.sqsSplitting }}
 # SQS session management for copy target + SQS splitting.
@@ -440,4 +466,5 @@ subjects:
     apiGroup: rbac.authorization.k8s.io
 {{- end }}
 {{- end }}
+
 

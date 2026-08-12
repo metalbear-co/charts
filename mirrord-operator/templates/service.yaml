@@ -16,6 +16,11 @@ spec:
     port: {{ .Values.operator.temporalProxy.port }}
     targetPort: temporal
   {{- end }}
+  {{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
+  - name: db-tunnel
+    port: 4980
+    targetPort: db-tunnel
+  {{- end }}
   selector:
     app: mirrord-operator
     mirrord-operator-leader: "true"

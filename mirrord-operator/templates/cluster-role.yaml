@@ -502,6 +502,21 @@ rules:
   - get
   - update
   - patch
+{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching) }}
+# When the primary is itself the default (workload) cluster, its envoy serves branch
+# tunnels by port-forwarding to branch DB pods with the operator's OWN ServiceAccount
+# (ConfigFileClusterProvider::get_cluster_client's local path) - the member-side
+# mirrord-operator-envoy-remote grant never applies here. Branch pod names are
+# generated, so the grant cannot be pinned with resourceNames. kube-rs port-forwards
+# over WebSocket, which the apiserver authorizes as `get`; `create` covers SPDY.
+- apiGroups:
+  - ""
+  resources:
+  - pods/portforward
+  verbs:
+  - get
+  - create
+{{- end }}
 {{- end }}
 - apiGroups:
   - mirrord.metalbear.co

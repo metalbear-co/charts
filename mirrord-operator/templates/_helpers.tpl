@@ -121,6 +121,15 @@ unset, the operator falls back to license-key authentication, so no source is st
   - get
   - list
   - watch
+# The previews API extension the CLI reads multicluster status from (RBAC is
+# version-agnostic, so this covers the alpha group-version it is served under).
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - previews
+  verbs:
+  - get
+  - list
 {{- end }}
 {{- if (default false .Values.operator.mysqlBranching) }}
 - apiGroups:

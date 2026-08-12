@@ -40,6 +40,9 @@ Set the key through exactly one of:
 * `cloud.apiKey.gsmRef` to read it from Google Secret Manager (used by us and by customers on
   GCP), accessed via Application Default Credentials like `license.gsmRef` (see `sa.gcpSa`).
 
+Set `cloud.anonymizeData: true` to keep the operator's cloud telemetry anonymized even when the
+API key carries identity consent (default `false`).
+
 
 ### Using an existing ServiceAccount
 
