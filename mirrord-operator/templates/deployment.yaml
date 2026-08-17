@@ -172,6 +172,14 @@ spec:
         - name: OPERATOR_BRANCH_DEFAULT_DB_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.databasePodVolumeLimit | quote }}
         {{- end }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.databasePvcSize }}
+        - name: OPERATOR_BRANCH_DEFAULT_DB_PVC_SIZE
+          value: {{ .Values.operator.dbBranching.databasePvcSize | quote }}
+        {{- end }}
+        {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPvcSize }}
+        - name: OPERATOR_BRANCH_DEFAULT_INIT_PVC_SIZE
+          value: {{ .Values.operator.dbBranching.initPvcSize | quote }}
+        {{- end }}
         {{- if .Values.operator.applicationPauseAutoSync }}
         - name: OPERATOR_APPLICATION_PAUSE_AUTO_SYNC
           value: "true"

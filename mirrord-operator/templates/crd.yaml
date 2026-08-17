@@ -5375,9 +5375,10 @@ spec:
                 type: object
               drainTimeout:
                 description: |-
-                  How long (in seconds) to wait for fallback queues to drain after the last session ends.
-                  `0` means skip drain entirely. If absent, wait indefinitely while fallback queues have
-                  unconsumed messages.
+                  How long (in seconds) at most the patched workload gets to finish consuming the split queue
+                  after `ttl` elapses, before the queue is deleted and the target unpatched. The
+                  window ends early once the queue is drained. `Some(0)` tears down immediately, `None` means
+                  no cap.
                 format: uint32
                 minimum: 0.0
                 nullable: true
@@ -6021,6 +6022,17 @@ spec:
                   Default: mirrord-tmp-RANDOM-FALLBACK-ORIGINAL (with double-brace wrapping).
                 nullable: true
                 type: string
+              ttl:
+                description: |-
+                  How long (in seconds) the split stays active after the last session ends while no new
+                  session is connected: the forwarder keeps reading the original queue into the split queue
+                  the patched workload consumes, so a reconnecting session resumes instantly instead of
+                  rebuilding the split. This runs *before* `drain_timeout`. `0` or absent means do not
+                  linger - move straight to draining.
+                format: uint32
+                minimum: 0.0
+                nullable: true
+                type: integer
             required:
             - queues
             - targetRef
@@ -6121,6 +6133,24 @@ spec:
                       - steal
                       - mirror
                       type: string
+                    protobufDecoding:
+                      description: |-
+                        Protobuf decoding of the message payload before `jq_filter` runs. Only meaningful for
+                        Kafka queues.
+                      nullable: true
+                      properties:
+                        descriptorBase64:
+                          description: |-
+                            Base64-encoded serialized protobuf `FileDescriptorSet`, optionally gzip-compressed
+                            (detected by the gzip magic bytes).
+                          type: string
+                        messageType:
+                          description: Fully-qualified name of the payload's message type, e.g. `com.example.cdc.Record`.
+                          type: string
+                      required:
+                      - descriptorBase64
+                      - messageType
+                      type: object
                   required:
                   - id
                   - kind

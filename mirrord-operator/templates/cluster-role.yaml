@@ -479,6 +479,27 @@ rules:
   - list
   - watch
   - delete
+# Branch DB pods store their data on per-branch PersistentVolumeClaims by default.
+# `get` lets the operator adopt an existing claim idempotently across restarts;
+# `delete` removes a stale claim left by a deleted branch that had the same name.
+# Owner references handle regular cleanup.
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - get
+  - delete
+# Choosing between a PVC and the emptyDir fallback requires knowing whether the
+# cluster has a default StorageClass (and whether an explicitly configured one exists).
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)

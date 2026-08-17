@@ -201,10 +201,21 @@ operator:
     # imagePullPolicy: "Always"
 
   # dbBranching:
-  #   # Volume limit for the init container that does the copy
+  #   # Size of the init volume that stages the copy. On emptyDir
+  #   # (`dbPod.storage.kind: emptyDir`, or the automatic fallback on clusters without a
+  #   # default StorageClass) this is the size limit; on the default PVC backing it sizes
+  #   # the claim, unless `initPvcSize` below is also set.
   #   initPodVolumeLimit: "100Mi"
-  #   # Volume limit for the actual ephemeral database.
+  #   # Size of the volume holding the actual branch database. Same scope as above
+  #   # (`databasePvcSize` wins on the PVC path).
   #   databasePodVolumeLimit: "1G"
+  #   # Requested size of the per-branch data PVC (the default storage backing).
+  #   # Provisioned per branch and deleted with it. Defaults to `databasePodVolumeLimit`
+  #   # if set, else 20Gi.
+  #   databasePvcSize: "20Gi"
+  #   # Requested size of the per-branch init (dump) PVC. The staged dump is roughly the
+  #   # size of the copied data. Defaults to `initPodVolumeLimit` if set, else 20Gi.
+  #   initPvcSize: "20Gi"
   # When set to `true`, the operator will use a custom strategy when restarting target workloads.
   # This strategy can be used if standard restart procedure is not working for the target workload.
   isolatePodsRestart: true
@@ -454,7 +465,8 @@ operator:
   # See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
   logLevel: mirrord=info,operator=info,kube_runtime=warn
 
-  ## Sets log level for the OTel logs exported to `otelLogExportUrl` by the operator container.
+  ## Sets the verbosity of everything the operator exports over OTel: the logs sent to
+  ## `otelLogExportUrl` and the traces sent to `otelTraceExportUrl`. Defaults to `info`.
   ## This is independent of the logs printed to `stdout` (controlled by `logLevel`).
   ##
   ## See reference: https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives.
@@ -596,6 +608,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "mysql-data"
   ##     emptyDir:
@@ -628,6 +642,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "mariadb-data"
   ##     emptyDir:
@@ -694,6 +710,24 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # How the branch pod's data and init (dump) volumes are backed. By default each
+  ##   # branch gets its own PersistentVolumeClaims on the cluster's default StorageClass,
+  ##   # deleted together with the branch; on clusters without a default StorageClass,
+  ##   # branches fall back to node-local emptyDir. Available on every `<db>BranchConfig`.
+  ##   storage:
+  ##     # `pvc` (default) or `emptyDir` (node-local scratch space, capped by
+  ##     # `operator.dbBranching.*PodVolumeLimit`).
+  ##     kind: "pvc"
+  ##     # StorageClass for the branch PVCs. Unset means the cluster's default.
+  ##     storageClassName: "fast-ssd"
+  ##     # Requested per-branch PVC sizes. Default to `operator.dbBranching.databasePvcSize`
+  ##     # / `initPvcSize` (20Gi each). The dump staged on the init volume is roughly the
+  ##     # size of the copied data.
+  ##     dataSize: "50Gi"
+  ##     initSize: "50Gi"
+  ##     # PVC access modes, defaulting to ReadWriteOnce.
+  ##     accessModes: ["ReadWriteOnce"]
+  ##   # An explicit volume overrides `storage` entirely and is used as given.
   ##   volume:
   ##     name: "pg-data"
   ##     emptyDir:
@@ -752,6 +786,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "mongo-data"
   ##     emptyDir:
@@ -775,6 +811,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "redis-data"
   ##     emptyDir:
@@ -841,6 +879,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "spanner-data"
   ##     emptyDir:
@@ -871,6 +911,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "clickhouse-data"
   ##     emptyDir:
@@ -901,6 +943,8 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
+  ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
   ##     name: "cockroachdb-data"
   ##     emptyDir:
