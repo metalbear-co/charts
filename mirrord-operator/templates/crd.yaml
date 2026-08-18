@@ -3937,6 +3937,30 @@ spec:
                 - propertiesListName
                 - propertiesListNamespace
                 type: object
+              kafkaConsumerGroup:
+                description: |-
+                  Temporary Kafka consumer group the target workload is repointed to when
+                  the split's `temporaryGroupId` option is on.
+                nullable: true
+                properties:
+                  clientConfig:
+                    description: |-
+                      Client config used to build the Kafka client for cleanup, resolved like
+                      `KafkaTopic::client_config`.
+                    type: string
+                  clientConfigNamespace:
+                    description: |-
+                      Namespace the client config was resolved from, recorded like
+                      `KafkaTopic::client_config_namespace`.
+                    type: string
+                  name:
+                    description: Name of the Kafka consumer group to delete.
+                    type: string
+                required:
+                - clientConfig
+                - clientConfigNamespace
+                - name
+                type: object
               kafkaTopic:
                 description: Temporary Kafka topic created for queue splitting.
                 nullable: true
