@@ -226,6 +226,16 @@ unset, the operator falls back to license-key authentication, so no source is st
   - mirrordclusteroperatorusercredentials
   verbs:
   - create
+{{- if .Values.operator.previewEnv }}
+# Preview secret mounts are created over the operator's aggregated API at cluster
+# scope, so the rule must live in a ClusterRole even for namespaced-Role users.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - previewsecretmounts
+  verbs:
+  - create
+{{- end }}
 {{- end }}
 
 {{/* Returns the effective agent priority class name */}}
