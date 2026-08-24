@@ -1,0 +1,27 @@
+# Unsets the chart's default requests and limits, both a whole block at a time and a single
+# quantity at a time, for clusters that set container resources themselves.
+operator:
+  requests:
+    # A zero quantity is a real request, not an unset one, so it has to survive to the pod spec.
+    cpu: 0
+    memory: null
+  limits: null
+
+  kafkaSplitting: true
+  kafkaSplittingSidecar:
+    enabled: true
+    requests: null
+    limits: null
+
+agent:
+  resources:
+    requests:
+      cpu: 1m
+      memory: null
+    limits: null
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "lol"

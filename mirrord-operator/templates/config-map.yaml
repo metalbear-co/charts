@@ -8,6 +8,7 @@ metadata:
 data:
   agent-config.yaml: |-
     {{- $extraHasInjectHeaders := and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) (hasKey .Values.agent.extraConfig "inject_headers") }}
+    {{- $extraHasResources := and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) (hasKey .Values.agent.extraConfig "resources") }}
     {{- $agentPriorityClassName := include "mirrord-operator.agentPriorityClassName" . | trim }}
     {{- $extraPriorityClassName := include "mirrord-operator.agentExtraConfigPriorityClassName" . | trim }}
     {{- if .Values.agent }}
@@ -30,6 +31,12 @@ data:
     {{- end }}
     {{- if and $agentPriorityClassName (not $extraPriorityClassName) }}
     priority_class: {{ $agentPriorityClassName | quote }}
+    {{- end }}
+    {{- /* A rendered `resources` replaces the agent's built-in default requests/limits wholesale,
+         so an all-null block comes out as `resources: {}` - agent pods with no constraints at
+         all - while `agent.resources: null` omits the key and keeps the built-in default. */}}
+    {{- if and (kindIs "map" .Values.agent.resources) (not $extraHasResources) }}
+    {{- include "mirrord-operator.resources" (dict "requests" .Values.agent.resources.requests "limits" .Values.agent.resources.limits) | nindent 4 }}
     {{- end }}
     {{- if .Values.operator.imagePullSecrets }}
     image_pull_secrets:

@@ -1,4 +1,12 @@
 operator:
+  pgBranching: true
+  pgBranchConfig:
+    dbPod: {}
+    profiles:
+      cloud-sql:
+        dbPod:
+          queryParams:
+            sslmode: "disable"
   redisBranching: true
   redisBranchConfig:
     dbPod:

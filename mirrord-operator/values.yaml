@@ -524,10 +524,12 @@ operator:
     # The operator communicates with the sidecar through a REST API served on localhost.
     port: 33000
     # CPU and memory requests for the sidecar.
+    # Set any of these, or the whole `requests` block, to `null` to leave it out of the pod spec.
     requests:
       cpu: 100m
       memory: 100Mi
     # CPU and memory limits for the sidecar.
+    # Set any of these, or the whole `limits` block, to `null` to leave it out of the pod spec.
     limits:
       cpu: 200m
       memory: 200Mi
@@ -544,7 +546,13 @@ operator:
   ## session start time in environments where pod readiness waiting is not necessary or causes delays due to cluster conditions.
   queueSplittingWaitForReadyTarget: true
 
-  ## This should be enough for around 200~ concurrent sessions.
+  ## CPU and memory requests and limits for the operator container.
+  ## These defaults should be enough for around 200~ concurrent sessions.
+  ##
+  ## Every quantity is optional. Set one to `null` (`operator.limits.cpu: null`), or a whole block to
+  ## `null` (`operator.limits: null`), and it is left out of the pod spec entirely - for clusters
+  ## that set container resources themselves through a LimitRange or a VPA, or that run the operator
+  ## without a CPU limit so it is never throttled.
   requests:
     cpu: 100m
     memory: 100Mi
@@ -621,6 +629,12 @@ operator:
   ##     limits:
   ##       cpu: "1"
   ##       memory: "1Gi"
+  ##   # Extra flags for the branch's mysqld, passed as the container's args. The official
+  ##   # image's entrypoint hands them to the server, so an image that replaces that entrypoint
+  ##   # may not pick them up. Keep the listener on 3306 - the seeding init container, schema
+  ##   # migrations, and the operator all connect there.
+  ##   dbServerArgs:
+  ##     - "--default-authentication-plugin=mysql_native_password"
 
   # mariadbBranchConfig:
   ## example
@@ -655,6 +669,13 @@ operator:
   ##     limits:
   ##       cpu: "1"
   ##       memory: "1Gi"
+  ##   # Extra flags for the branch's mariadbd, passed as the container's args. The official
+  ##   # image's entrypoint hands them to the server, so an image that replaces that entrypoint
+  ##   # may not pick them up. Keep the listener on 3306 - the seeding init container, schema
+  ##   # migrations, and the operator all connect there.
+  ##   dbServerArgs:
+  ##     - "--character-set-server=utf8mb4"
+  ##     - "--collation-server=utf8mb4_unicode_ci"
 
   # pgBranchConfig:
   ## example
@@ -1060,6 +1081,21 @@ agent:
   # If you want the agents to accept operator connections on some predefined port,
   # you can set it here. If you don't set anything, each agent will be assigned with a random high port.
   # port: 9999
+
+  ## CPU and memory requests and limits for agent pods (not applied to ephemeral agents).
+  ## These defaults match the agent's own built-in defaults; when this block is set it replaces
+  ## them entirely. If `agent.extraConfig.resources` is set, it takes precedence over this block.
+  ##
+  ## Every quantity is optional. Set one to `null` (`agent.resources.limits.cpu: null`), or a whole
+  ## block to `null` (`agent.resources.limits: null`), and it is left out of the agent pod spec
+  ## entirely - for example to run agents without a CPU limit so they are never throttled.
+  # resources:
+  #   requests:
+  #     cpu: 1m
+  #     memory: 1Mi
+  #   limits:
+  #     cpu: 300m
+  #     memory: 100Mi
 
   # Define additional environment variables for agent pods.
   extraEnv: {}

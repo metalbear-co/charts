@@ -238,6 +238,47 @@ unset, the operator falls back to license-key authentication, so no source is st
 {{- end }}
 {{- end }}
 
+{{/*
+Renders a container `resources:` block from a `requests` map and a `limits` map.
+
+Every quantity is optional: dropping one from the values (`operator.limits.cpu: null`), or dropping a
+whole map (`operator.limits: null`), leaves it out of the rendered pod spec instead of rendering an
+empty value. Clusters that manage container resources themselves - with a LimitRange, a VPA, or by
+deliberately running without a CPU limit to avoid throttling - need that, since Kubernetes has no
+quantity that means "no constraint". With nothing left to render this emits `resources: {}`.
+
+Used both for containers in the operator Deployment and for the agent config in the ConfigMap
+(where `resources: {}` replaces the agent's built-in default requests and limits with nothing).
+
+Takes a dict of the two maps, and renders unindented so the caller controls placement:
+
+  {{- include "mirrord-operator.resources" (dict "requests" .Values.operator.requests "limits" .Values.operator.limits) | nindent 8 }}
+*/}}
+{{- define "mirrord-operator.resources" -}}
+{{- $resources := dict -}}
+{{- range $section := list "requests" "limits" -}}
+  {{- $quantities := dict -}}
+  {{- range $name, $quantity := (get $ $section | default dict) -}}
+    {{- /* Only null and the empty string mean "unset". `empty` would also swallow a numeric 0,
+           which is a valid quantity and a deliberate one to request. */ -}}
+    {{- if not (kindIs "invalid" $quantity) -}}
+      {{- if ne (printf "%v" $quantity) "" -}}
+        {{- $_ := set $quantities $name $quantity -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $quantities -}}
+    {{- $_ := set $resources $section $quantities -}}
+  {{- end -}}
+{{- end -}}
+{{- if $resources -}}
+resources:
+{{ toYaml $resources | indent 2 -}}
+{{- else -}}
+resources: {}
+{{- end -}}
+{{- end }}
+
 {{/* Returns the effective agent priority class name */}}
 {{- define "mirrord-operator.checked-bool-ternary" -}}
 {{- if kindIs "string" . -}}

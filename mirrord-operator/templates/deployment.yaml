@@ -414,13 +414,7 @@ spec:
             port: {{ .Values.operator.port }}
             scheme: HTTPS
           periodSeconds: 5
-        resources:
-          requests:
-            cpu: {{ .Values.operator.requests.cpu }}
-            memory: {{ .Values.operator.requests.memory }}
-          limits:
-            cpu: {{ .Values.operator.limits.cpu }}
-            memory: {{ .Values.operator.limits.memory }}
+        {{- include "mirrord-operator.resources" (dict "requests" .Values.operator.requests "limits" .Values.operator.limits) | nindent 8 }}
         securityContext:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
@@ -454,13 +448,7 @@ spec:
             value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
         image: {{ .Values.operator.kafkaSplittingSidecar.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
-        resources:
-          requests:
-            cpu: {{ .Values.operator.kafkaSplittingSidecar.requests.cpu }}
-            memory: {{ .Values.operator.kafkaSplittingSidecar.requests.memory }}
-          limits:
-            cpu: {{ .Values.operator.kafkaSplittingSidecar.limits.cpu }}
-            memory: {{ .Values.operator.kafkaSplittingSidecar.limits.memory }}
+        {{- include "mirrord-operator.resources" (dict "requests" .Values.operator.kafkaSplittingSidecar.requests "limits" .Values.operator.kafkaSplittingSidecar.limits) | nindent 8 }}
         securityContext:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
