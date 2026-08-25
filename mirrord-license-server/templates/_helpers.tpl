@@ -7,6 +7,13 @@ app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end }}
 
+{{/* Common annotations */}}
+{{- define "mirrord-license-server.annotations" -}}
+{{- if .Values.server.annotations }}
+{{- toYaml .Values.server.annotations }}
+{{- end }}
+{{- end }}
+
 {{- define "mirrord-license-server.samlProxyConfigMapName" -}}
 mirrord-license-server-saml-proxy-config
 {{- end }}

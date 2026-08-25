@@ -69,6 +69,18 @@ server:
 
   podAnnotations: {}
   podLabels: {}
+
+  ## Custom annotations to be added to all Kubernetes resources created by this chart.
+  ## These annotations will be applied to higher-level resources like Deployments, Services, etc.
+  ## For pod-specific annotations, use server.podAnnotations instead; for PVC-only annotations, use
+  ## pvc.annotations, which is merged on top of these.
+  ## GitOps tools read annotations off the resources themselves, so this is where a sync-wave or a
+  ## similar ordering hint belongs; podAnnotations never leaves the pod template.
+  ## Example:
+  ## annotations:
+  ##   argocd.argoproj.io/sync-wave: "0"
+  annotations: {}
+
   jsonLog: false
 
   # Define additional environment variables for the license-server.

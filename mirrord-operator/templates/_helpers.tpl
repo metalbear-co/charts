@@ -10,6 +10,13 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end }}
 {{- end }}
 
+{{/* Common annotations */}}
+{{- define "mirrord-operator.annotations" -}}
+{{- if .Values.operator.annotations }}
+{{- toYaml .Values.operator.annotations }}
+{{- end }}
+{{- end }}
+
 {{/* Returns the effective agent priority class name */}}
 {{- define "mirrord-operator.agentExtraConfigPriorityClassName" -}}
 {{- if and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) (hasKey .Values.agent.extraConfig "priority_class_name") -}}
@@ -167,7 +174,7 @@ unset, the operator falls back to license-key authentication, so no source is st
   - watch
   - delete
 {{- end }}
-{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mariadbBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) (default false .Values.operator.spannerBranching) (default false .Values.operator.clickhouseBranching) (default false .Values.operator.cockroachdbBranching) }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mariadbBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) (default false .Values.operator.spannerBranching) (default false .Values.operator.clickhouseBranching) (default false .Values.operator.cockroachdbBranching) (default false .Values.operator.genericBranching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:
@@ -178,6 +185,9 @@ unset, the operator falls back to license-key authentication, so no source is st
   - create
   - watch
   - delete
+  # The CLI merges a session's migrations into `spec.migrations` on the branch it
+  # is about to use (fresh or reused), so branch migrations need `patch`.
+  - patch
 {{- end }}
 {{- if .Values.operator.dbBranchingLiteralCredentials }}
 - apiGroups:
@@ -235,6 +245,18 @@ unset, the operator falls back to license-key authentication, so no source is st
   - previewsecretmounts
   verbs:
   - create
+{{- end }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting }}
+# `mirrord queues status` reads split sessions over the aggregated API; its
+# --all-namespaces form lists at cluster scope, so the rule must live in a
+# ClusterRole even for namespaced-Role users.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - queuesplits
+  verbs:
+  - get
+  - list
 {{- end }}
 {{- end }}
 

@@ -1,0 +1,22 @@
+createNamespace: true
+
+license:
+  key: "foobar"
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+server:
+  # Chart-wide annotations, stamped on every resource this chart creates.
+  # GitOps tools order and filter resources by these, so they have to land on the resource
+  # itself and not only on the pod template (that is what `podAnnotations` is for).
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  podAnnotations:
+    example.metalbear.co/pod-only: "true"
+
+pvc:
+  # Merged on top of `server.annotations`, alongside the chart's own `helm.sh/resource-policy`.
+  annotations:
+    example.metalbear.co/pvc-only: "true"

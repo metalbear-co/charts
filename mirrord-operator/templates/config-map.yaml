@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: mirrord-configmap
   namespace: {{ .Values.namespace }}
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 data:

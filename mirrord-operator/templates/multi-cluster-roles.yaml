@@ -6,6 +6,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-envoy
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
@@ -188,6 +192,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-envoy-remote
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
@@ -358,6 +366,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:
@@ -380,6 +392,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy-remote
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:
@@ -401,6 +417,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy-iam
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:
@@ -418,6 +438,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy-remote-iam
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:
@@ -437,6 +461,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy-azure
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:
@@ -454,6 +482,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: mirrord-operator-envoy-remote-azure
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 roleRef:

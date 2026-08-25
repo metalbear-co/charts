@@ -1,0 +1,43 @@
+# Branch-config profile for the generic copy-Job e2e scenarios, loaded with `--values`
+# by the operator e2e workflow (test-e2e-with-operator.yaml) when generic branching is
+# enabled. Not a standalone install: it only carries the profile, everything else comes
+# from the workflow's `--set` flags, which helm deep-merges on top.
+#
+# `e2e-valkey-full` carries the whole engine setup - branch container defaults plus the
+# copy Job - so the profile scenario's mirrord.json holds only type/id/profile/connection.
+# The copy script is the same env contract a customer copy image gets: read the source via
+# MIRRORD_PARAM_*, write into the branch via MIRRORD_BRANCH_HOST/PORT.
+#
+# Shell command substitutions in the copy script are written `$$(...)`: Kubernetes expands
+# `$(VAR)` in command/args itself and turns `$$` into a literal `$`, so the shell sees `$(...)`.
+#
+# The profile sets no allowedImages, so it inherits the workflow's default list
+# (valkey/*, influxdb:*), which covers both images here.
+operator:
+  genericBranchConfig:
+    profiles:
+      e2e-valkey-full:
+        dbPod:
+          branch:
+            image: "valkey/valkey:8-alpine"
+            port: 6379
+            args:
+              - "valkey-server"
+              - "--requirepass"
+              - "$(MIRRORD_PARAM_PASSWORD)"
+          copy:
+            image: "valkey/valkey:8-alpine"
+            command:
+              - "sh"
+              - "-c"
+              - |
+                set -e
+                export REDISCLI_AUTH="$MIRRORD_PARAM_PASSWORD"
+                for key in $$(valkey-cli --no-auth-warning -h "$MIRRORD_PARAM_HOST" -p "$MIRRORD_PARAM_PORT" --scan); do
+                  valkey-cli --no-auth-warning -h "$MIRRORD_PARAM_HOST" -p "$MIRRORD_PARAM_PORT" \
+                    MIGRATE "$MIRRORD_BRANCH_HOST" "$MIRRORD_BRANCH_PORT" "$key" 0 5000 COPY AUTH "$MIRRORD_PARAM_PASSWORD"
+                done
+                src=$$(valkey-cli --no-auth-warning -h "$MIRRORD_PARAM_HOST" -p "$MIRRORD_PARAM_PORT" DBSIZE)
+                dst=$$(valkey-cli --no-auth-warning -h "$MIRRORD_BRANCH_HOST" -p "$MIRRORD_BRANCH_PORT" DBSIZE)
+                echo "copied $dst of $src keys"
+                test "$src" = "$dst"

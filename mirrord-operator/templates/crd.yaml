@@ -5,12 +5,32 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordPolicy
     plural: mirrordpolicies
     singular: mirrordpolicy
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether every rule in this policy is enforceable.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why part of this policy is not enforced.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Which rules are not enforced.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPolicySpec via `CustomResource`
@@ -354,12 +374,58 @@ spec:
             required:
             - block
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordPolicy
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -368,12 +434,32 @@ metadata:
 spec:
   group: policies.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterPolicy
     plural: mirrordclusterpolicies
     singular: mirrordclusterpolicy
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether every rule in this policy is enforceable.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why part of this policy is not enforced.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Which rules are not enforced.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterPolicySpec via `CustomResource`
@@ -705,12 +791,58 @@ spec:
             required:
             - block
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordClusterPolicy
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 {{ if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -720,6 +852,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordWorkloadQueueRegistry
     plural: mirrordworkloadqueueregistries
     shortNames:
@@ -727,7 +861,29 @@ spec:
     singular: mirrordworkloadqueueregistry
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Kind of the consumer workload.
+      jsonPath: .spec.consumer.workloadType
+      name: Target Kind
+      type: string
+    - description: Name of the consumer workload.
+      jsonPath: .spec.consumer.name
+      name: Target Name
+      type: string
+    - description: Whether the operator resolved this registry into a split configuration.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the registry could not be resolved.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordWorkloadQueueRegistrySpec via `CustomResource`
@@ -793,10 +949,49 @@ spec:
           status:
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: Observed generation of the spec.
+                format: int64
+                nullable: true
+                type: integer
               sqsDetails:
-                description: |-
-                  Optional even though it's currently the only field, because in the future there will be
-                  fields for other queue types.
+                description: Active SQS splits.
                 nullable: true
                 properties:
                   directEnvVars:
@@ -857,12 +1052,32 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordSQSSession
     plural: mirrordsqssessions
     singular: mirrordsqssession
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Kind of the target workload.
+      jsonPath: .spec.queueConsumer.workloadType
+      name: Target Kind
+      type: string
+    - description: Name of the target workload.
+      jsonPath: .spec.queueConsumer.name
+      name: Target Name
+      type: string
+    - description: mirrord session id that owns this split.
+      jsonPath: .spec.sessionId
+      name: Session
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordSqsSessionSpec via `CustomResource`
@@ -1109,12 +1324,36 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordRMQSession
     plural: mirrordrmqsessions
     singular: mirrordrmqsession
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Namespace of the target workload.
+      jsonPath: .spec.namespace
+      name: Namespace
+      type: string
+    - description: Kind of the target workload.
+      jsonPath: .spec.queueConsumer.workloadType
+      name: Target Kind
+      type: string
+    - description: Name of the target workload.
+      jsonPath: .spec.queueConsumer.name
+      name: Target Name
+      type: string
+    - description: mirrord session id that owns this split.
+      jsonPath: .spec.sessionId
+      name: Session
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordRmqSessionSpec via `CustomResource`
@@ -1355,6 +1594,8 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordPropertyList
     plural: mirrordpropertylists
     shortNames:
@@ -1362,7 +1603,25 @@ spec:
     singular: mirrordpropertylist
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - description: Whether every property resolves.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the properties do not resolve.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Detail of the resolution failure.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordPropertyListSpec via `CustomResource`
@@ -1479,12 +1738,58 @@ spec:
                   type: object
                 type: array
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordPropertyList
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 {{ end }}
 {{ if .Values.operator.kafkaSplitting }}
 ---
@@ -1495,6 +1800,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordKafkaClientConfig
     plural: mirrordkafkaclientconfigs
     singular: mirrordkafkaclientconfig
@@ -1503,20 +1810,36 @@ spec:
   - additionalPrinterColumns:
     - description: Name of parent configuration.
       jsonPath: .spec.parent
-      name: PARENT
+      name: Parent
+      priority: 1
       type: string
     - description: Name of Secret to load from.
       jsonPath: .spec.loadFromSecret
-      name: SECRET
+      name: Secret
+      priority: 1
       type: string
     - description: Implementation of Kafka client to use.
       jsonPath: .spec.clientImplementation
-      name: CLIENT
+      name: Client
       type: string
-    - description: Additional authentication config.
-      jsonPath: .spec.authenticationExtra
-      name: AUTHENTICATION_EXTRA
+    - description: Additional authentication kind.
+      jsonPath: .spec.authenticationExtra.kind
+      name: Auth Kind
+      priority: 1
       type: string
+    - description: Whether the operator can build a Kafka client from this configuration.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the operator cannot use this configuration.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -1602,12 +1925,58 @@ spec:
             required:
             - properties
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordKafkaClientConfig
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1616,6 +1985,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordKafkaEphemeralTopic
     plural: mirrordkafkaephemeraltopics
     singular: mirrordkafkaephemeraltopic
@@ -1624,12 +1995,16 @@ spec:
   - additionalPrinterColumns:
     - description: Name of the topic.
       jsonPath: .spec.name
-      name: NAME
+      name: Name
       type: string
     - description: Name of MirrordKafkaClientProperties to use when creating Kafka client.
       jsonPath: .spec.clientConfig
-      name: CLIENT-CONFIG
+      name: Client Config
       type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -1669,6 +2044,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordKafkaTopicsConsumer
     plural: mirrordkafkatopicsconsumers
     singular: mirrordkafkatopicsconsumer
@@ -1677,20 +2054,35 @@ spec:
   - additionalPrinterColumns:
     - description: Name of the topic consumer workload.
       jsonPath: .spec.consumerName
-      name: CONSUMER-NAME
+      name: Consumer Name
       type: string
     - description: Kind of the topic consumer workload.
       jsonPath: .spec.consumerKind
-      name: CONSUMER-KIND
+      name: Consumer Kind
       type: string
     - description: Api version of the topic consumer workload.
       jsonPath: .spec.consumerApiVersion
-      name: CONSUMER-API-VERSION
+      name: Consumer API Version
+      priority: 1
       type: string
     - description: Timeout for consumer workload restart.
       jsonPath: .spec.consumerRestartTimeout
-      name: CONSUMER-RESTART-TIMEOUT
+      name: Consumer Restart Timeout
+      priority: 1
       type: string
+    - description: Whether this legacy configuration is still what the operator reads.
+      jsonPath: .status.conditions[?(@.type=="Superseded")].status
+      name: In Use
+      type: string
+    - description: Which resource replaced this one.
+      jsonPath: .status.conditions[?(@.type=="Superseded")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -1923,12 +2315,58 @@ spec:
             - consumerName
             - topics
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordKafkaTopicsConsumer
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 {{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -1938,12 +2376,32 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordTlsStealConfig
     plural: mirrordtlsstealconfigs
     singular: mirrordtlsstealconfig
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether every port in this configuration takes effect.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why part of this configuration does not take effect.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Detail of the problem.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordTlsStealConfigSpec via `CustomResource`
@@ -2175,12 +2633,58 @@ spec:
             required:
             - ports
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordTlsStealConfig
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2189,12 +2693,32 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterTlsStealConfig
     plural: mirrordclustertlsstealconfigs
     singular: mirrordclustertlsstealconfig
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether every port in this configuration takes effect.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why part of this configuration does not take effect.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Detail of the problem.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterTlsStealConfigSpec via `CustomResource`
@@ -2426,12 +2950,58 @@ spec:
             required:
             - ports
             type: object
+          status:
+            description: Whether the operator has observed a resource and put it into effect.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordClusterTlsStealConfig
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2440,12 +3010,32 @@ metadata:
 spec:
   group: profiles.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordProfile
     plural: mirrordprofiles
     singular: mirrordprofile
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether the CLI can apply this profile.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the profile cannot be applied.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Which part of the profile the CLI rejects.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordProfileSpec via `CustomResource`
@@ -2489,12 +3079,64 @@ spec:
             required:
             - featureAdjustments
             type: object
+          status:
+            description: |-
+              Whether the operator has observed a profile and judged it usable.
+
+              A profile is applied by the *CLI*, not the operator, and the CLI hard-errors on an unknown field
+              or an unrecognised change. Until this status existed the author of a profile learned that only
+              when somebody selected it and their session failed.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: '`metadata.generation` of the spec the operator last reconciled.'
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordProfile
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2503,12 +3145,32 @@ metadata:
 spec:
   group: profiles.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterProfile
     plural: mirrordclusterprofiles
     singular: mirrordclusterprofile
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether the CLI can apply this profile.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the profile cannot be applied.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      type: string
+    - description: Which part of the profile the CLI rejects.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterProfileSpec via `CustomResource`
@@ -2551,12 +3213,64 @@ spec:
             required:
             - featureAdjustments
             type: object
+          status:
+            description: |-
+              Whether the operator has observed a profile and judged it usable.
+
+              A profile is applied by the *CLI*, not the operator, and the CLI hard-errors on an unknown field
+              or an unrecognised change. Until this status existed the author of a profile learned that only
+              when somebody selected it and their session failed.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: '`metadata.generation` of the spec the operator last reconciled.'
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordClusterProfile
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 {{ if .Values.operator.mysqlBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -2566,12 +3280,45 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MysqlBranchDatabase
     plural: mysqlbranchdatabases
     singular: mysqlbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Lifecycle phase of the branch database.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether the resource is ready to use.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Pod backing the branch database.
+      jsonPath: .status.podName
+      name: Pod
+      type: string
+    - description: When the branch database is scheduled to be deleted.
+      jsonPath: .status.expireTime
+      name: Expires
+      type: string
+    - description: Outcome of the branch's schema migrations.
+      jsonPath: .status.migrations.phase
+      name: Migrations
+      priority: 1
+      type: string
+    - description: Why the branch database failed.
+      jsonPath: .status.error
+      name: Error
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MysqlBranchDatabaseSpec via `CustomResource`
@@ -2726,6 +3473,68 @@ spec:
           status:
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              copy:
+                description: |-
+                  Outcome of a generic branch's copy Job. Unlike migrations, the copy runs at most once
+                  per branch (only while the branch is still Pending), so this never resets on
+                  generation bumps.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               error:
                 description: Error message when phase is Failed.
                 nullable: true
@@ -2823,12 +3632,45 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: PgBranchDatabase
     plural: pgbranchdatabases
     singular: pgbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Lifecycle phase of the branch database.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether the resource is ready to use.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Pod backing the branch database.
+      jsonPath: .status.podName
+      name: Pod
+      type: string
+    - description: When the branch database is scheduled to be deleted.
+      jsonPath: .status.expireTime
+      name: Expires
+      type: string
+    - description: Outcome of the branch's schema migrations.
+      jsonPath: .status.migrations.phase
+      name: Migrations
+      priority: 1
+      type: string
+    - description: Why the branch database failed.
+      jsonPath: .status.error
+      name: Error
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for PgBranchDatabaseSpec via `CustomResource`
@@ -2998,6 +3840,68 @@ spec:
           status:
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              copy:
+                description: |-
+                  Outcome of a generic branch's copy Job. Unlike migrations, the copy runs at most once
+                  per branch (only while the branch is still Pending), so this never resets on
+                  generation bumps.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               error:
                 description: Error message when phase is Failed.
                 nullable: true
@@ -3095,12 +3999,45 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MongodbBranchDatabase
     plural: mongodbbranchdatabases
     singular: mongodbbranchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Lifecycle phase of the branch database.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether the resource is ready to use.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Pod backing the branch database.
+      jsonPath: .status.podName
+      name: Pod
+      type: string
+    - description: When the branch database is scheduled to be deleted.
+      jsonPath: .status.expireTime
+      name: Expires
+      type: string
+    - description: Outcome of the branch's schema migrations.
+      jsonPath: .status.migrations.phase
+      name: Migrations
+      priority: 1
+      type: string
+    - description: Why the branch database failed.
+      jsonPath: .status.error
+      name: Error
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MongodbBranchDatabaseSpec via `CustomResource`
@@ -3254,6 +4191,68 @@ spec:
           status:
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              copy:
+                description: |-
+                  Outcome of a generic branch's copy Job. Unlike migrations, the copy runs at most once
+                  per branch (only while the branch is still Pending), so this never resets on
+                  generation bumps.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               error:
                 description: Error message when phase is Failed.
                 nullable: true
@@ -3350,6 +4349,8 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterWorkloadPatch
     plural: mirrordclusterworkloadpatches
     singular: mirrordclusterworkloadpatch
@@ -3358,20 +4359,39 @@ spec:
   - additionalPrinterColumns:
     - description: API version of the workload.
       jsonPath: .spec.workloadRef.apiVersion
-      name: WORKLOAD-API-VERSION
+      name: Workload API Version
+      priority: 1
       type: string
     - description: Kind of the workload.
       jsonPath: .spec.workloadRef.kind
-      name: WORKLOAD-KIND
+      name: Workload Kind
       type: string
     - description: Name of the workload.
       jsonPath: .spec.workloadRef.name
-      name: WORKLOAD-NAME
+      name: Workload Name
       type: string
     - description: Namespace of the workload.
       jsonPath: .spec.workloadRef.namespace
-      name: WORKLOAD-NAMESPACE
+      name: Workload Namespace
       type: string
+    - description: Whether the patch is in effect on the workload.
+      jsonPath: .status.conditions[?(@.type=="Applied")].status
+      name: Applied
+      type: string
+    - description: Why the patch is not in effect.
+      jsonPath: .status.conditions[?(@.type=="Applied")].reason
+      name: Reason
+      priority: 1
+      type: string
+    - description: Accepted patch requests enforced on the workload.
+      jsonPath: .status.acceptedRequests
+      name: Requests
+      priority: 1
+      type: integer
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -3391,6 +4411,33 @@ spec:
                 items:
                   description: An accepted [`MirrordClusterWorkloadPatchRequest`], part of [`MirrordClusterWorkloadPatch`].
                   properties:
+                    configMapVolumes:
+                      description: '`configMap` volumes to redirect to operator-owned ConfigMap copies.'
+                      items:
+                        description: |-
+                          Redirects one `configMap` volume of the workload's pods to an operator-owned
+                          copy of the ConfigMap.
+
+                          Queue splitting uses this to point the target application at config files in
+                          which queue names are replaced with temporary fallback names, without ever
+                          modifying the user's ConfigMap. The copy is created before the patch request
+                          and deleted by the request controller once no pod mounts it anymore.
+                        properties:
+                          copyConfigMap:
+                            description: Name of the operator-owned copy to mount instead.
+                            type: string
+                          originalConfigMap:
+                            description: Name of the ConfigMap the volume references in the workload's template.
+                            type: string
+                          volume:
+                            description: Name of the volume in the pod spec's `volumes` array.
+                            type: string
+                        required:
+                        - copyConfigMap
+                        - originalConfigMap
+                        - volume
+                        type: object
+                      type: array
                     envVars:
                       description: Environment variables to be set in the pod template.
                       items:
@@ -3444,12 +4491,63 @@ spec:
             - requests
             - workloadRef
             type: object
+          status:
+            description: What the operator has actually done to the workload this patch describes.
+            nullable: true
+            properties:
+              acceptedRequests:
+                default: 0
+                format: uint32
+                minimum: 0.0
+                type: integer
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordClusterWorkloadPatch
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3458,6 +4556,8 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterWorkloadPatchRequest
     plural: mirrordclusterworkloadpatchrequests
     singular: mirrordclusterworkloadpatchrequest
@@ -3466,20 +4566,25 @@ spec:
   - additionalPrinterColumns:
     - description: API version of the workload.
       jsonPath: .spec.workloadRef.apiVersion
-      name: WORKLOAD-API-VERSION
+      name: Workload API Version
+      priority: 1
       type: string
     - description: Kind of the workload.
       jsonPath: .spec.workloadRef.kind
-      name: WORKLOAD-KIND
+      name: Workload Kind
       type: string
     - description: Name of the workload.
       jsonPath: .spec.workloadRef.name
-      name: WORKLOAD-NAME
+      name: Workload Name
       type: string
     - description: Namespace of the workload.
       jsonPath: .spec.workloadRef.namespace
-      name: WORKLOAD-NAMESPACE
+      name: Workload Namespace
       type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -3488,6 +4593,33 @@ spec:
           spec:
             description: Internal resource, representing an operator request to patch some workload.
             properties:
+              configMapVolumes:
+                description: '`configMap` volumes to redirect to operator-owned ConfigMap copies.'
+                items:
+                  description: |-
+                    Redirects one `configMap` volume of the workload's pods to an operator-owned
+                    copy of the ConfigMap.
+
+                    Queue splitting uses this to point the target application at config files in
+                    which queue names are replaced with temporary fallback names, without ever
+                    modifying the user's ConfigMap. The copy is created before the patch request
+                    and deleted by the request controller once no pod mounts it anymore.
+                  properties:
+                    copyConfigMap:
+                      description: Name of the operator-owned copy to mount instead.
+                      type: string
+                    originalConfigMap:
+                      description: Name of the ConfigMap the volume references in the workload's template.
+                      type: string
+                    volume:
+                      description: Name of the volume in the pod spec's `volumes` array.
+                      type: string
+                  required:
+                  - copyConfigMap
+                  - originalConfigMap
+                  - volume
+                  type: object
+                type: array
               envVars:
                 description: Environment variables to be set in the pod template.
                 items:
@@ -3534,10 +4666,53 @@ spec:
             - workloadRef
             type: object
           status:
+            description: Whether the operator admitted a patch request, and why not when it did not.
             nullable: true
             properties:
               accepted:
                 type: boolean
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              conflictingRequest:
+                nullable: true
+                type: string
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
             required:
             - accepted
             type: object
@@ -3557,6 +4732,8 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterSession
     plural: mirrordclustersessions
     singular: mirrordclustersession
@@ -3565,40 +4742,54 @@ spec:
   - additionalPrinterColumns:
     - description: User unique ID..
       jsonPath: .spec.owner.userId
-      name: USER ID
+      name: User ID
+      priority: 1
       type: string
     - description: User local POSIX name.
       jsonPath: .spec.owner.username
-      name: USERNAME
+      name: Username
       type: string
     - description: User hostname.
       jsonPath: .spec.owner.hostname
-      name: HOSTNAME
+      name: Hostname
+      priority: 1
       type: string
     - description: User Kubernetes name.
       jsonPath: .spec.owner.k8sUsername
-      name: K8S USER
+      name: K8s User
+      priority: 1
       type: string
     - description: Namespace of the session.
       jsonPath: .spec.namespace
-      name: NAMESPACE
+      name: Namespace
       type: string
-    - description: Target of the session.
-      jsonPath: .spec.target
-      name: TARGET
+    - description: Kind of the targeted workload. Empty for label-targeted sessions.
+      jsonPath: .spec.target.kind
+      name: Target Kind
       type: string
-    - description: Time when the session was started.
-      jsonPath: .metadata.creationTimestamp
-      name: STARTED AT
-      type: date
-    - description: Time when the session was closed.
+    - description: Name of the targeted workload. Empty for label-targeted sessions.
+      jsonPath: .spec.target.name
+      name: Target Name
+      type: string
+    - description: When the session is closed for being unused.
+      jsonPath: .status.expiresAt
+      name: Expires
+      priority: 1
+      type: string
+    - description: Time since the session was closed.
       jsonPath: .metadata.deletionTimestamp
-      name: CLOSED AT
+      name: Closed
+      priority: 1
       type: date
     - description: Reason for which the session was closed.
       jsonPath: .status.closed.reason
-      name: CLOSE REASON
+      name: Close Reason
+      priority: 1
       type: string
+    - description: Time since the session was started.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha
     schema:
       openAPIV3Schema:
@@ -3796,6 +4987,42 @@ spec:
                 required:
                 - reason
                 type: object
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
               connectedTimestamp:
                 description: Last time when the session was observed to have an open user connection.
                 format: date-time
@@ -3832,6 +5059,11 @@ spec:
                 required:
                 - name
                 type: object
+              expiresAt:
+                description: When the session is closed for being unused, unless a client connects again first.
+                format: date-time
+                nullable: true
+                type: string
             type: object
         required:
         - spec
@@ -3849,12 +5081,32 @@ metadata:
 spec:
   group: mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterExternalResource
     plural: mirrordclusterexternalresources
     singular: mirrordclusterexternalresource
   scope: Cluster
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Whether the external resource is in its intended state.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Why the external resource is not in its intended state.
+      jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - description: Detail of the current state, such as how long cleanup has been retrying.
+      jsonPath: .status.conditions[?(@.type=="Ready")].message
+      name: Detail
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterExternalResourceSpec via `CustomResource`
@@ -4023,12 +5275,58 @@ spec:
                 - nameOrUrl
                 type: object
             type: object
+          status:
+            description: Whether the operator still has work to do on an external resource.
+            nullable: true
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+            type: object
         required:
         - spec
         title: MirrordClusterExternalResource
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 {{ if .Values.operator.previewEnv }}
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -4038,12 +5336,51 @@ metadata:
 spec:
   group: preview.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: PreviewSession
     plural: previewsessions
     singular: previewsession
   scope: Namespaced
   versions:
-  - name: v1alpha
+  - additionalPrinterColumns:
+    - description: Lifecycle phase of the preview session.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether the resource is ready to use.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: When the operator started processing this session.
+      jsonPath: .status.startedAt
+      name: Started
+      priority: 1
+      type: date
+    - description: When the session is scheduled to be cleaned up.
+      jsonPath: .status.expiresAt
+      name: Expires
+      priority: 1
+      type: string
+    - description: When the session was scaled to zero.
+      jsonPath: .status.idleSince
+      name: Idle
+      priority: 1
+      type: date
+    - description: Host the preview is shared on.
+      jsonPath: .status.shareHost
+      name: Share Host
+      type: string
+    - description: Why the session failed.
+      jsonPath: .status.failureMessage
+      name: Failure
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for PreviewSessionSpec via `CustomResource`
@@ -4537,6 +5874,42 @@ spec:
             description: Status of a preview session resource.
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
               expiresAt:
                 description: |-
                   Timestamp when the session's TTL expires.
@@ -4577,6 +5950,7 @@ spec:
                 - Ready
                 - Failed
                 - Idle
+                - Paused
                 - Unknown
                 type: string
               shareHost:
@@ -4615,12 +5989,50 @@ metadata:
 spec:
   group: dbs.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: BranchDatabase
     plural: branchdatabases
     singular: branchdatabase
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Lifecycle phase of the branch database.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether the resource is ready to use.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Pod backing the branch database.
+      jsonPath: .status.podName
+      name: Pod
+      type: string
+    - description: When the branch database is scheduled to be deleted.
+      jsonPath: .status.expireTime
+      name: Expires
+      type: string
+    - description: Outcome of the branch's schema migrations.
+      jsonPath: .status.migrations.phase
+      name: Migrations
+      priority: 1
+      type: string
+    - description: Outcome of a generic branch's copy Job.
+      jsonPath: .status.copy.phase
+      name: Copy
+      priority: 1
+      type: string
+    - description: Why the branch database failed.
+      jsonPath: .status.error
+      name: Error
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for BranchDatabaseSpec via `CustomResource`
@@ -4808,21 +6220,51 @@ spec:
                       type: string
                     nullable: true
                     type: array
+                  copy:
+                    description: |-
+                      One-shot Job that copies schema/data from the source into the branch after the branch
+                      container turns ready; the branch only turns Ready once the Job succeeds. Falls back to
+                      the profile's `dbPod.copy` when unset.
+                    nullable: true
+                    properties:
+                      args:
+                        description: Entrypoint args override for the copy Job container.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      command:
+                        description: Entrypoint command override for the copy Job container.
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                      image:
+                        description: Full image reference for the copy Job container, including the tag.
+                        type: string
+                    required:
+                    - image
+                    type: object
                   env:
                     additionalProperties:
                       type: string
                     description: Extra environment variables for the branch container.
                     type: object
                   image:
-                    description: Full image reference for the branch container, including the tag.
+                    description: |-
+                      Full image reference for the branch container, including the tag. Falls back to the
+                      profile's `dbPod.branch.image` when unset.
+                    nullable: true
                     type: string
                   port:
                     description: |-
                       The port the branched service listens on. Used for the default readiness probe and as
-                      the port the app's connection is redirected to.
+                      the port the app's connection is redirected to. Falls back to the profile's
+                      `dbPod.branch.port` when unset.
                     format: uint16
                     maximum: 65535.0
                     minimum: 0.0
+                    nullable: true
                     type: integer
                   readiness:
                     description: Readiness check for the branch container. Defaults to a TCP probe on `port`.
@@ -4856,9 +6298,6 @@ spec:
                         - path
                         type: object
                     type: object
-                required:
-                - image
-                - port
                 type: object
               id:
                 description: ID derived by mirrord CLI.
@@ -4967,6 +6406,21 @@ spec:
                     required:
                     - mode
                     type: object
+                  iamAuth:
+                    description: |-
+                      IAM auth config for the source connection (MONGODB-AWS mechanism, e.g.
+                      MongoDB Atlas with AWS IAM). Only the `aws_rds` type applies to MongoDB.
+                    nullable: true
+                    properties:
+                      type:
+                        enum:
+                        - aws_rds
+                        - gcp_cloud_sql
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
                 type: object
               mssqlOptions:
                 description: MSSQL-specific options.
@@ -5247,6 +6701,68 @@ spec:
           status:
             nullable: true
             properties:
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              copy:
+                description: |-
+                  Outcome of a generic branch's copy Job. Unlike migrations, the copy runs at most once
+                  per branch (only while the branch is still Pending), so this never resets on
+                  generation bumps.
+                nullable: true
+                properties:
+                  error:
+                    description: The migration tool's error output when `phase` is `Failed`.
+                    nullable: true
+                    type: string
+                  observedGeneration:
+                    description: The `metadata.generation` this run reconciled.
+                    format: int64
+                    type: integer
+                  phase:
+                    description: Phase of the migration run.
+                    enum:
+                    - Running
+                    - Succeeded
+                    - Failed
+                    type: string
+                required:
+                - observedGeneration
+                - phase
+                type: object
               error:
                 description: Error message when phase is Failed.
                 nullable: true
@@ -5344,6 +6860,8 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordSplitConfig
     plural: mirrordsplitconfigs
     singular: mirrordsplitconfig
@@ -5352,12 +6870,34 @@ spec:
   - additionalPrinterColumns:
     - description: Kind of the target workload.
       jsonPath: .spec.targetRef.kind
-      name: TARGET-KIND
+      name: Target Kind
       type: string
     - description: Name of the target workload.
       jsonPath: .spec.targetRef.name
-      name: TARGET-NAME
+      name: Target Name
       type: string
+    - description: Lifecycle phase of the split.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Split sessions currently attached.
+      jsonPath: .status.activeSessions
+      name: Sessions
+      priority: 1
+      type: integer
+    - description: Whether the operator admitted this configuration.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].status
+      name: Accepted
+      type: string
+    - description: Why the configuration was refused.
+      jsonPath: .status.conditions[?(@.type=="Accepted")].reason
+      name: Reason
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1
     schema:
       openAPIV3Schema:
@@ -5430,7 +6970,9 @@ spec:
                         appId:
                           description: Streams application ID (Kafka).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5466,13 +7008,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         channel:
                           description: Exact Redis Pub/Sub channel name (`SUBSCRIBE`).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5508,13 +7073,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         channelPattern:
                           description: Redis Pub/Sub glob pattern (`PSUBSCRIBE`).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5550,13 +7138,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         exchange:
                           description: Exchange name (RabbitMQ).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5592,13 +7203,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         groupId:
                           description: Consumer group ID (Kafka).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5634,13 +7268,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         projectId:
                           description: Cloud project ID (GCP Pub/Sub).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5676,13 +7333,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         queue:
                           description: Queue name (SQS, Azure Service Bus).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5718,13 +7398,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         shardChannel:
                           description: Sharded pub/sub channel name (`SSUBSCRIBE` / `SPUBLISH`, Redis 7+).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5760,13 +7463,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         subscription:
                           description: Subscription name (GCP Pub/Sub, Azure Service Bus).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5802,13 +7528,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         taskQueue:
                           description: Task queue name (Temporal).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5844,13 +7593,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         temporalAddress:
                           description: Temporal frontend address (host:port).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5886,13 +7658,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         temporalNamespace:
                           description: Temporal namespace.
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5928,13 +7723,36 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
                         topic:
                           description: Topic name (Kafka, Azure Service Bus, GCP Pub/Sub).
                           items:
-                            description: Reference to one or more environment variables in the target pod's template.
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
                             properties:
                               containers:
                                 description: Limit to specific containers. Defaults to all non-infra containers.
@@ -5970,6 +7788,27 @@ spec:
                                 description: JAQ selector to extract value(s) from the variable's value.
                                 nullable: true
                                 type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
                             type: object
                           nullable: true
                           type: array
@@ -6070,12 +7909,75 @@ spec:
             - queues
             - targetRef
             type: object
+          status:
+            description: Lifecycle and acceptance state of a workload's split configuration.
+            nullable: true
+            properties:
+              activeSessions:
+                default: 0
+                format: uint32
+                minimum: 0.0
+                type: integer
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                nullable: true
+                type: integer
+              phase:
+                default: inactive
+                description: Where the split for this workload is in its lifecycle.
+                enum:
+                - unknown
+                - inactive
+                - active
+                - warm
+                - draining
+                type: string
+            type: object
         required:
         - spec
         title: MirrordSplitConfig
         type: object
+    selectableFields:
+    - jsonPath: .status.phase
     served: true
     storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -6084,12 +7986,54 @@ metadata:
 spec:
   group: queues.mirrord.metalbear.co
   names:
+    categories:
+    - mirrord
     kind: MirrordClusterSplitSession
     plural: mirrordclustersplitsessions
     singular: mirrordclustersplitsession
   scope: Cluster
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - description: Current stage of the session.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Namespace of the target workload.
+      jsonPath: .spec.namespace
+      name: Namespace
+      type: string
+    - description: Kind of the target workload.
+      jsonPath: .spec.target.kind
+      name: Target Kind
+      type: string
+    - description: Name of the target workload.
+      jsonPath: .spec.target.name
+      name: Target Name
+      type: string
+    - description: Developer who started the session.
+      jsonPath: .spec.owner.username
+      name: User
+      priority: 1
+      type: string
+    - description: Whether the split is actually serving, not merely set up.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Operator instance whose forwarders serve this split.
+      jsonPath: .status.servingInstance
+      name: Serving
+      priority: 1
+      type: string
+    - description: Why the split is set up but not serving.
+      jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Ready Reason
+      priority: 1
+      type: string
+    - description: Time since the resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
         description: Auto-generated derived type for MirrordClusterSplitSessionSpec via `CustomResource`
@@ -6252,6 +8196,38 @@ spec:
                           Environment variable updates for each container. The workload patch applies these
                           so the application reads from temporary resources instead of originals.
                         type: object
+                      fileUpdates:
+                        description: |-
+                          Session-specific content for mounted config files holding queue names
+                          (`volume` sources). The operator proxy serves these to the local app in
+                          place of the files mounted in the target pod, which carry the fallback
+                          names. Nothing in the cluster is patched with this content.
+                        items:
+                          description: Session-specific content for one file mounted from a `configMap` volume.
+                          properties:
+                            content:
+                              description: The file's content with this session's output names swapped in.
+                              type: string
+                            file:
+                              description: File path within the volume.
+                              type: string
+                            mountDirs:
+                              description: |-
+                                Directories the volume is mounted at across the target's containers,
+                                resolved from the pod spec's volume mounts. The proxy matches reads of
+                                this file under any of them.
+                              items:
+                                type: string
+                              type: array
+                            volume:
+                              description: Volume name in the target's pod spec.
+                              type: string
+                          required:
+                          - content
+                          - file
+                          - volume
+                          type: object
+                        type: array
                       tmpResources:
                         description: Temporary resources created for each queue, keyed by queue ID.
                         items:
@@ -6316,6 +8292,53 @@ spec:
                 required:
                 - error
                 type: object
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              phase:
+                description: Addressable restatement of the [`SplitSessionState`] variant.
+                enum:
+                - Starting
+                - ResourcesReady
+                - Ready
+                - StartError
+                - CleanupError
+                - Unknown
+                - null
+                nullable: true
+                type: string
               ready:
                 properties:
                   envUpdates:
@@ -6335,6 +8358,38 @@ spec:
                       Environment variable updates for each container. The workload patch applies these
                       so the application reads from temporary resources instead of originals.
                     type: object
+                  fileUpdates:
+                    description: |-
+                      Session-specific content for mounted config files holding queue names
+                      (`volume` sources). The operator proxy serves these to the local app in
+                      place of the files mounted in the target pod, which carry the fallback
+                      names. Nothing in the cluster is patched with this content.
+                    items:
+                      description: Session-specific content for one file mounted from a `configMap` volume.
+                      properties:
+                        content:
+                          description: The file's content with this session's output names swapped in.
+                          type: string
+                        file:
+                          description: File path within the volume.
+                          type: string
+                        mountDirs:
+                          description: |-
+                            Directories the volume is mounted at across the target's containers,
+                            resolved from the pod spec's volume mounts. The proxy matches reads of
+                            this file under any of them.
+                          items:
+                            type: string
+                          type: array
+                        volume:
+                          description: Volume name in the target's pod spec.
+                          type: string
+                      required:
+                      - content
+                      - file
+                      - volume
+                      type: object
+                    type: array
                   tmpResources:
                     description: Temporary resources created for each queue, keyed by queue ID.
                     items:
@@ -6404,6 +8459,38 @@ spec:
                       Environment variable updates for each container. The workload patch applies these
                       so the application reads from temporary resources instead of originals.
                     type: object
+                  fileUpdates:
+                    description: |-
+                      Session-specific content for mounted config files holding queue names
+                      (`volume` sources). The operator proxy serves these to the local app in
+                      place of the files mounted in the target pod, which carry the fallback
+                      names. Nothing in the cluster is patched with this content.
+                    items:
+                      description: Session-specific content for one file mounted from a `configMap` volume.
+                      properties:
+                        content:
+                          description: The file's content with this session's output names swapped in.
+                          type: string
+                        file:
+                          description: File path within the volume.
+                          type: string
+                        mountDirs:
+                          description: |-
+                            Directories the volume is mounted at across the target's containers,
+                            resolved from the pod spec's volume mounts. The proxy matches reads of
+                            this file under any of them.
+                          items:
+                            type: string
+                          type: array
+                        volume:
+                          description: Volume name in the target's pod spec.
+                          type: string
+                      required:
+                      - content
+                      - file
+                      - volume
+                      type: object
+                    type: array
                   tmpResources:
                     description: Temporary resources created for each queue, keyed by queue ID.
                     items:
@@ -6449,6 +8536,9 @@ spec:
                       type: object
                     type: array
                 type: object
+              servingInstance:
+                nullable: true
+                type: string
               startError:
                 properties:
                   code:
@@ -6477,6 +8567,267 @@ spec:
         - spec
         title: MirrordClusterSplitSession
         type: object
+    selectableFields:
+    - jsonPath: .status.phase
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{ end }}
+{{ if .Values.operator.multiCluster.enabled }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mirrordmulticlustersessions.operator.metalbear.co
+spec:
+  group: operator.metalbear.co
+  names:
+    categories:
+    - mirrord
+    kind: MirrordMultiClusterSession
+    plural: mirrordmulticlustersessions
+    shortNames:
+    - mmcs
+    singular: mirrordmulticlustersession
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: Overall state of the multi-cluster session.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Whether every cluster reported its session ready.
+      jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - description: Namespace of the target workload in the workload clusters.
+      jsonPath: .spec.namespace
+      name: Namespace
+      priority: 1
+      type: string
+    - description: Target identifier from the developer's mirrord config.
+      jsonPath: .spec.targetAlias
+      name: Target
+      type: string
+    - description: Primary cluster coordinating the session.
+      jsonPath: .spec.primaryCluster
+      name: Primary
+      type: string
+    - description: Last time at least one cluster had an active connection.
+      jsonPath: .status.connectedTimestamp
+      name: Connected
+      priority: 1
+      type: date
+    - description: Why the session was closed.
+      jsonPath: .status.closed
+      name: Closed
+      priority: 1
+      type: string
+    - description: Time since the session was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha
+    schema:
+      openAPIV3Schema:
+        description: Auto-generated derived type for MirrordMultiClusterSessionSpec via `CustomResource`
+        properties:
+          spec:
+            description: Multi-cluster session coordinated by Envoy on Primary cluster.
+            properties:
+              clusters:
+                description: List of cluster names to create sessions in
+                items:
+                  type: string
+                type: array
+              copyTarget:
+                description: |-
+                  Copy target configuration. When set, a copy pod is created on the default
+                  cluster and the original workload is scaled down on all clusters.
+                nullable: true
+                properties:
+                  scaledown:
+                    description: Whether the original target should be scaled down.
+                    type: boolean
+                required:
+                - scaledown
+                type: object
+              defaultCluster:
+                description: |-
+                  Default cluster for stateful operations (db_branches, etc.)
+                  The primary cluster will be used as the default cluster when a default cluster is not
+                  specified.
+                nullable: true
+                type: string
+              namespace:
+                description: Kubernetes namespace for the session (in workload clusters)
+                type: string
+              owner:
+                description: Owner of this session
+                properties:
+                  hostname:
+                    description: Hostname of the machine where the CLI command was executed.
+                    type: string
+                  k8sUsername:
+                    description: Name of the Kubernetes user who's identity was assumed by the CLI.
+                    type: string
+                  userId:
+                    description: Unique ID.
+                    type: string
+                  username:
+                    description: Name of the POSIX user that executed the CLI command.
+                    type: string
+                required:
+                - hostname
+                - k8sUsername
+                - userId
+                - username
+                type: object
+              primaryCluster:
+                description: Primary cluster
+                type: string
+              target:
+                description: Target same for all workload clusters
+                properties:
+                  apiVersion:
+                    description: Kubernetes resource apiVersion.
+                    type: string
+                  container:
+                    description: Name of the container defined in the Pod spec.
+                    type: string
+                  kind:
+                    description: Kubernetes resource kind.
+                    type: string
+                  name:
+                    description: Target name.
+                    type: string
+                required:
+                - apiVersion
+                - container
+                - kind
+                - name
+                type: object
+              targetAlias:
+                description: |-
+                  Target identifier from user's mirrord config (e.g., "deployment.my-app")
+                  Format: "{kind}.{name}" where kind (deployment, pod, etc.)
+                type: string
+            required:
+            - clusters
+            - namespace
+            - owner
+            - primaryCluster
+            - target
+            - targetAlias
+            type: object
+          status:
+            description: Status of a multi-cluster session
+            nullable: true
+            properties:
+              closed:
+                description: If the session has been closed, describes the reason
+                nullable: true
+                type: string
+              clusterSessions:
+                additionalProperties:
+                  description: Status of a cluster session within a multi-cluster session
+                  properties:
+                    agentEndpoint:
+                      description: Agent endpoint for this cluster (WebSocket URL)
+                      nullable: true
+                      type: string
+                    error:
+                      description: Error message if session failed
+                      nullable: true
+                      type: string
+                    lastHeartbeat:
+                      description: Last heartbeat from agent
+                      format: date-time
+                      nullable: true
+                      type: string
+                    ready:
+                      description: Whether this cluster's session is ready
+                      type: boolean
+                    readyReported:
+                      description: Whether readiness was reported as opposed to assumed.
+                      type: boolean
+                    scaledownOnly:
+                      description: |-
+                        Scale-down-only session (no agent routing). Excluded from readiness checks
+                        but included in cleanup. Used for copy target downstream scale-down.
+                      type: boolean
+                    sessionName:
+                      description: Name of the MirrordClusterSession resource in this cluster
+                      type: string
+                  required:
+                  - ready
+                  - sessionName
+                  type: object
+                default: {}
+                description: |-
+                  Status of each cluster's private session
+                  Key: cluster name
+                  Value: status of private session in that cluster
+                type: object
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              connectedTimestamp:
+                description: Last time when at least one cluster had an active connection
+                format: date-time
+                nullable: true
+                type: string
+              phase:
+                default: Initializing
+                description: Overall session state
+                enum:
+                - Initializing
+                - Pending
+                - Ready
+                - Failed
+                - Terminating
+                type: string
+            type: object
+        required:
+        - spec
+        title: MirrordMultiClusterSession
+        type: object
+    selectableFields:
+    - jsonPath: .status.phase
     served: true
     storage: true
     subresources:

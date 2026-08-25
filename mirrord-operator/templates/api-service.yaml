@@ -2,6 +2,10 @@ apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
   name: v1.operator.metalbear.co
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 spec:
@@ -26,6 +30,10 @@ apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
   name: v1alpha1.operator.metalbear.co
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 spec:

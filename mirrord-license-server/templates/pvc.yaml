@@ -6,6 +6,9 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     helm.sh/resource-policy: keep
+    {{- if .Values.server.annotations }}
+    {{- include "mirrord-license-server.annotations" . | nindent 4 }}
+    {{- end }}
   {{- if .Values.pvc.annotations }}
     {{- toYaml .Values.pvc.annotations | nindent 4 }}
   {{- end }}

@@ -2,6 +2,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
 rules:
@@ -111,6 +115,44 @@ rules:
   - list
   - get
   - watch
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordpolicies/status
+  - mirrordclusterpolicies/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles
+  - mirrordclusterprofiles
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles/status
+  - mirrordclusterprofiles/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  - mirrordpropertylists/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
 {{- if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
 - apiGroups:
   - queues.mirrord.metalbear.co
@@ -126,7 +168,9 @@ rules:
   resources:
   - mirrordworkloadqueueregistries/status
   verbs:
+  - get
   - update
+  - patch
 {{- end }}
 {{- if .Values.operator.sqsSplitting }}
 - apiGroups:
@@ -249,6 +293,14 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkatopicsconsumers/status
+  verbs:
+  - get
+  - update
+  - patch
 {{- end }}
 {{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 - apiGroups:
@@ -263,6 +315,14 @@ rules:
   - update
   - patch
   - delete
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsplitconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -294,12 +354,27 @@ rules:
   - patch
 {{- end }}
 {{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting }}
+# create/update/delete cover the operator-owned ConfigMap copies queue
+# splitting mounts in place of a user ConfigMap when queue names are resolved
+# from mounted files (`volume` sources). User ConfigMaps are only ever read.
 - apiGroups:
   - ''
   resources:
   - configmaps
   verbs:
   - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+# Property lists and Kafka client configs resolve through Secrets, so their accepted verdict has to
+# be recomputed when one changes. The watch is metadata-only; contents are read per resolution.
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
   - list
   - watch
 {{- end }}
@@ -337,6 +412,16 @@ rules:
   verbs:
   - list
   - get
+  - watch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordtlsstealconfigs/status
+  - mirrordclustertlsstealconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
 - apiGroups:
   - ''
   resources:
@@ -543,11 +628,13 @@ rules:
   - mirrord.metalbear.co
   resources:
   - mirrordclusterworkloadpatches
+  - mirrordclusterworkloadpatches/status
   - mirrordclusterworkloadpatchrequests
   - mirrordclusterworkloadpatchrequests/status
   - mirrordclustersessions
   - mirrordclustersessions/status
   - mirrordclusterexternalresources
+  - mirrordclusterexternalresources/status
   verbs:
   - list
   - get
@@ -590,6 +677,13 @@ rules:
 - apiGroups: [""]
   resources: [configmaps]
   verbs: [create, get]
+# Preview `secret_mounts` file contents live in a per-session Secret the operator
+# creates on the CLI's behalf (the `previewsecretmounts` endpoint), so the
+# developer needs no Secret permissions. The endpoint only creates (a retried
+# request tolerates the 409), so `create` alone is enough.
+- apiGroups: [""]
+  resources: [secrets]
+  verbs: [create]
 {{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (e.g. pattern-based DB branching overrides built from the target's runtime env, which can
@@ -610,6 +704,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
     {{- if index .Values.clusterRole "mirrord-operator-user" "labels" }}
@@ -623,6 +721,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-ci
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
     {{- if index .Values.clusterRole "mirrord-operator-ci" "labels" }}
@@ -636,6 +738,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mirrord-operator-user-basic
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-operator.labels" . | nindent 4 }}
     {{- if index .Values.clusterRole "mirrord-operator-user-basic" "labels" }}

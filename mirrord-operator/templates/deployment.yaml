@@ -5,6 +5,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     app: mirrord-operator
     component: operator

@@ -1,0 +1,30 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+operator:
+  # Chart-wide annotations, stamped on every resource except the CRDs.
+  # GitOps tools order and filter resources by these, so they have to land on the resource
+  # itself and not only on the pod template (that is what `podAnnotations` is for).
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: Prune=false
+  podAnnotations:
+    example.metalbear.co/pod-only: "true"
+
+  # Multi-cluster is off by default, so its ClusterRole and its per-cluster credential
+  # Secrets only render with this set. Without it nothing here covers those resources.
+  multiCluster:
+    enabled: true
+    defaultCluster: remote
+    clusters:
+      remote:
+        authType: token
+        server: https://remote.example.com:443
+        bearerToken: "not-a-real-token"
+
+sa:
+  # Renders into a ServiceAccount that already carries annotations, so this covers the merge.
+  roleArn: arn:aws:iam::000000000000:role/mirrord-operator

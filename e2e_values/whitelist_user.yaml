@@ -1,0 +1,67 @@
+# The whitelist identity the e2e suites act through: a ServiceAccount granted only
+# what we tell customers to grant - the chart's own mirrord-operator-user
+# ClusterRole - plus read access on the workloads tests target. Keeping the
+# objects here, rendered through the chart's extraObjects hook, leaves a single
+# source of truth next to the chart RBAC they bind to.
+#
+# Applied by scripts/e2e_whitelist_user.sh, which also mints the identity's token
+# kubeconfig; CI exports that as MIRRORD_KUBECONFIG so the mirrord CLI and the
+# tests' user-side clients act as this identity while setup and asserts keep the
+# admin KUBECONFIG. An operator feature shipped without its customer RBAC rule
+# then fails e2e instead of failing at a customer.
+#
+# The ServiceAccount lives in `default`, not the release namespace: the chart
+# upgrade suite provisions the identity before any chart is installed (a
+# ClusterRoleBinding with a dangling roleRef grants nothing until the chart's
+# ClusterRole appears, which is exactly the wanted behavior).
+extraObjects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: mirrord-e2e-user
+      namespace: default
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: mirrord-e2e-user
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: mirrord-operator-user
+    subjects:
+      - kind: ServiceAccount
+        name: mirrord-e2e-user
+        namespace: default
+  # The "plus get/list on targets" half of the whitelist: what a customer needs
+  # anyway to run the workloads they point mirrord at. Deliberately read-only and
+  # without pods/log or secrets - anything else a test needs is either a chart
+  # rule (add it there) or an admin-side setup/assert (use the admin client).
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: mirrord-e2e-target-reader
+    rules:
+      - apiGroups: [""]
+        resources: [namespaces, pods, services]
+        verbs: [get, list]
+      - apiGroups: [apps]
+        resources: [deployments, replicasets, statefulsets]
+        verbs: [get, list]
+      - apiGroups: [batch]
+        resources: [jobs, cronjobs]
+        verbs: [get, list]
+      - apiGroups: [argoproj.io]
+        resources: [rollouts]
+        verbs: [get, list]
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: mirrord-e2e-target-reader
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: mirrord-e2e-target-reader
+    subjects:
+      - kind: ServiceAccount
+        name: mirrord-e2e-user
+        namespace: default

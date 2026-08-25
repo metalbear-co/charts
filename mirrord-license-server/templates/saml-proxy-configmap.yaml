@@ -7,6 +7,10 @@ kind: ConfigMap
 metadata:
   name: {{ include "mirrord-license-server.samlProxyConfigMapName" . }}
   namespace: {{ .Values.namespace }}
+  {{- if .Values.server.annotations }}
+  annotations:
+    {{- include "mirrord-license-server.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-license-server.labels" . | nindent 4 }}
 data:

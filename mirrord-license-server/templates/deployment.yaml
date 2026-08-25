@@ -40,6 +40,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if .Values.server.annotations }}
+  annotations:
+    {{- include "mirrord-license-server.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     app: mirrord-license-server
     component: license-server

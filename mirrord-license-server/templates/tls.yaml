@@ -4,6 +4,10 @@ kind: Secret
 metadata:
   name: {{ .Values.tls.secret }}
   namespace: {{ .Values.namespace }}
+  {{- if .Values.server.annotations }}
+  annotations:
+    {{- include "mirrord-license-server.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-license-server.labels" . | nindent 4 }}
 stringData:
@@ -15,6 +19,10 @@ kind: Certificate
 metadata:
   name: {{ .Values.tls.certManager.certificate }}
   namespace: {{ .Values.namespace }}
+  {{- if .Values.server.annotations }}
+  annotations:
+    {{- include "mirrord-license-server.annotations" . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "mirrord-license-server.labels" . | nindent 4 }}
 spec:

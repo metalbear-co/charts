@@ -3,6 +3,10 @@ kind: Role
 metadata:
   name: mirrord-operator-apiserver-authentication
   namespace: kube-system
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
 - apiGroups:
   - ""
@@ -20,6 +24,10 @@ kind: Role
 metadata:
   name: mirrord-operator
   namespace: {{ .Values.namespace }}
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
 - apiGroups:
   - ""
