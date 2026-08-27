@@ -2,6 +2,8 @@
 {{- include "mirrord-operator.validateCloudApiKey" . }}
 {{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef }}
 {{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict }}
+{{/* A license server deployment never authenticates to the cloud, so its API key is not passed to the operator. */}}
+{{- if .Values.license.licenseServer }}{{- $cloudApiKey = dict }}{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -190,6 +192,10 @@ spec:
         {{- end }}
         {{- if .Values.operator.suspendFluxControllers }}
         - name: OPERATOR_SUSPEND_FLUX_CONTROLLERS
+          value: "true"
+        {{- end }}
+        {{- if .Values.operator.pauseKedaScaleIn }}
+        - name: OPERATOR_PAUSE_KEDA_SCALE_IN
           value: "true"
         {{- end }}
         - name: OPERATOR_METRICS_ENABLED

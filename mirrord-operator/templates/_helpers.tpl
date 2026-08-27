@@ -61,8 +61,14 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- fail "Only one of license.pemGsmRef, license.file.data, or license.pemRef can be set." -}}
 {{- end -}}
 {{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict -}}
-{{- $hasCloudApiKey := or $cloudApiKey.key $cloudApiKey.keyRef $cloudApiKey.gsmRef -}}
-{{- if not (or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef .Values.license.file.data .Values.license.pemRef $pemGsmRef $hasCloudApiKey) -}}
+{{/* The operator authenticates to the cloud only when it talks to the cloud; with a license server
+it takes its license from that server and the API key is not a credential it can use. */}}
+{{- $hasCloudApiKey := and (not .Values.license.licenseServer) (or $cloudApiKey.key $cloudApiKey.keyRef $cloudApiKey.gsmRef) -}}
+{{- $hasLicenseSource := or .Values.license.key .Values.license.keyRef .Values.license.keyGsmRef .Values.license.file.data .Values.license.pemRef $pemGsmRef -}}
+{{- if not (or $hasLicenseSource $hasCloudApiKey) -}}
+{{- if .Values.license.licenseServer -}}
+{{- fail "Set a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef). With license.licenseServer set, the operator authenticates against that server and cannot use a cloud API key." -}}
+{{- end -}}
 {{- fail "Set a credential: a cloud API key (cloud.apiKey.key, cloud.apiKey.keyRef, or cloud.apiKey.gsmRef) — the default, used to obtain the license over the API — or a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef)." -}}
 {{- end -}}
 {{- end }}

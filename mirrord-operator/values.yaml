@@ -138,6 +138,8 @@ operator:
 
   # Has to be set to `true` in order to use the suspend flux controllers feature.
   suspendFluxControllers: false
+  # Has to be set to `true` in order to let the operator pause KEDA scale-in.
+  pauseKedaScaleIn: false
   # Has to be set to `true` in order to use the MySQL database branching feature.
   mysqlBranching: false
   # Has to be set to `true` in order to use the MariaDB database branching feature.
@@ -1211,6 +1213,9 @@ license:
 # that token to obtain its license and make its other cloud calls over the API. It is intended to
 # replace the standalone license key as the primary credential; existing installs that set only
 # `license.*` keep working via license-key authentication.
+#
+# Not used when `license.licenseServer` is set: such an operator authenticates only against that
+# license server, never against the cloud, so the key is ignored and a license source is required.
 #
 # Provide the key through exactly one of the following:
 cloud:

@@ -363,6 +363,107 @@ spec:
                     nullable: true
                     type: object
                 type: object
+              splitQueues:
+                default:
+                  requireFilter: false
+                description: |-
+                  Requirements for the queue splitting message filters used in a session,
+                  like requiring splitting with a filter for targets that have split queues configured.
+                properties:
+                  filters:
+                    description: |-
+                      Per-queue requirements for the message filters used in a session.
+
+                      Every requirement whose `queueId` and `queueType` match a split queue of the session is
+                      checked against that queue's message filter. Queues that the session splits without any
+                      filter are exempt - they deliver no messages to the session.
+                    items:
+                      description: A message filter requirement for split queues matched by id and broker kind.
+                      properties:
+                        queueId:
+                          description: |-
+                            Regex matched against the ids of the queues split in a session, as they appear in the
+                            target's split queues configuration and in the user's `feature.split_queues` mirrord
+                            config. Use `^exact-id$` to match a single queue.
+                          type: string
+                        queueType:
+                          description: Broker kind of the queues this requirement applies to.
+                          enum:
+                          - sqs
+                          - kafka
+                          - rmq
+                          - googlePubSub
+                          - azureServiceBus
+                          - redisPubSub
+                          - temporal
+                          - bullMq
+                          - unknown
+                          type: string
+                        rules:
+                          default: {}
+                          description: The message filter requirements for the matched queues.
+                          properties:
+                            allOf:
+                              description: The queue's message filter must satisfy every one of these rules.
+                              items:
+                                description: A requirement on a single entry of a queue's message filter.
+                                properties:
+                                  key:
+                                    description: Name of the message attribute/header the queue's message filter must contain.
+                                    type: string
+                                  pattern:
+                                    description: |-
+                                      Regex the filter pattern the user set for `key` must match.
+
+                                      The user's filter pattern is itself a regex, and this regex is applied to it as a plain
+                                      string. Use `^exact$` to demand one exact filter pattern. When unset, any filter pattern
+                                      for `key` is accepted.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                            anyOf:
+                              description: The queue's message filter must satisfy at least one of these rules.
+                              items:
+                                description: A requirement on a single entry of a queue's message filter.
+                                properties:
+                                  key:
+                                    description: Name of the message attribute/header the queue's message filter must contain.
+                                    type: string
+                                  pattern:
+                                    description: |-
+                                      Regex the filter pattern the user set for `key` must match.
+
+                                      The user's filter pattern is itself a regex, and this regex is applied to it as a plain
+                                      string. Use `^exact$` to demand one exact filter pattern. When unset, any filter pattern
+                                      for `key` is accepted.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                          type: object
+                      required:
+                      - queueId
+                      - queueType
+                      type: object
+                    type: array
+                  requireFilter:
+                    default: false
+                    description: |-
+                      Require the session to split the target's configured queues.
+
+                      When the target has split queues configured for some broker kind, the session must request
+                      queue splitting for that kind, otherwise it is rejected. A split queue with no filter at
+                      all is still accepted - such a queue delivers no messages to the session, so it does not
+                      disturb the deployed workload or other users.
+
+                      Defaults to `false`.
+                    type: boolean
+                type: object
               targetPath:
                 description: |-
                   Specify the targets for which this policy applies, in the pod/my-pod deploy/my-deploy
@@ -779,6 +880,107 @@ spec:
                       "In", and the values array contains only "value". The requirements are ANDed.
                     nullable: true
                     type: object
+                type: object
+              splitQueues:
+                default:
+                  requireFilter: false
+                description: |-
+                  Requirements for the queue splitting message filters used in a session,
+                  like requiring splitting with a filter for targets that have split queues configured.
+                properties:
+                  filters:
+                    description: |-
+                      Per-queue requirements for the message filters used in a session.
+
+                      Every requirement whose `queueId` and `queueType` match a split queue of the session is
+                      checked against that queue's message filter. Queues that the session splits without any
+                      filter are exempt - they deliver no messages to the session.
+                    items:
+                      description: A message filter requirement for split queues matched by id and broker kind.
+                      properties:
+                        queueId:
+                          description: |-
+                            Regex matched against the ids of the queues split in a session, as they appear in the
+                            target's split queues configuration and in the user's `feature.split_queues` mirrord
+                            config. Use `^exact-id$` to match a single queue.
+                          type: string
+                        queueType:
+                          description: Broker kind of the queues this requirement applies to.
+                          enum:
+                          - sqs
+                          - kafka
+                          - rmq
+                          - googlePubSub
+                          - azureServiceBus
+                          - redisPubSub
+                          - temporal
+                          - bullMq
+                          - unknown
+                          type: string
+                        rules:
+                          default: {}
+                          description: The message filter requirements for the matched queues.
+                          properties:
+                            allOf:
+                              description: The queue's message filter must satisfy every one of these rules.
+                              items:
+                                description: A requirement on a single entry of a queue's message filter.
+                                properties:
+                                  key:
+                                    description: Name of the message attribute/header the queue's message filter must contain.
+                                    type: string
+                                  pattern:
+                                    description: |-
+                                      Regex the filter pattern the user set for `key` must match.
+
+                                      The user's filter pattern is itself a regex, and this regex is applied to it as a plain
+                                      string. Use `^exact$` to demand one exact filter pattern. When unset, any filter pattern
+                                      for `key` is accepted.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                            anyOf:
+                              description: The queue's message filter must satisfy at least one of these rules.
+                              items:
+                                description: A requirement on a single entry of a queue's message filter.
+                                properties:
+                                  key:
+                                    description: Name of the message attribute/header the queue's message filter must contain.
+                                    type: string
+                                  pattern:
+                                    description: |-
+                                      Regex the filter pattern the user set for `key` must match.
+
+                                      The user's filter pattern is itself a regex, and this regex is applied to it as a plain
+                                      string. Use `^exact$` to demand one exact filter pattern. When unset, any filter pattern
+                                      for `key` is accepted.
+                                    nullable: true
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                              type: array
+                          type: object
+                      required:
+                      - queueId
+                      - queueType
+                      type: object
+                    type: array
+                  requireFilter:
+                    default: false
+                    description: |-
+                      Require the session to split the target's configured queues.
+
+                      When the target has split queues configured for some broker kind, the session must request
+                      queue splitting for that kind, otherwise it is rejected. A split queue with no filter at
+                      all is still accepted - such a queue delivers no messages to the session, so it does not
+                      disturb the deployed workload or other users.
+
+                      Defaults to `false`.
+                    type: boolean
                 type: object
               targetPath:
                 description: |-
@@ -4454,6 +4656,14 @@ spec:
                         - variable
                         type: object
                       type: array
+                    minReplicas:
+                      description: |-
+                        Lower bound on the workload's replica count for as long as the patch is applied.
+
+                        [`None`] means that no lower bound is imposed.
+                      format: int32
+                      nullable: true
+                      type: integer
                     replicas:
                       description: |-
                         Number of replicas to be set in the workload spec.
@@ -4636,6 +4846,14 @@ spec:
                   - variable
                   type: object
                 type: array
+              minReplicas:
+                description: |-
+                  Lower bound on the workload's replica count for as long as the patch is applied.
+
+                  [`None`] means that no lower bound is imposed.
+                format: int32
+                nullable: true
+                type: integer
               replicas:
                 description: |-
                   Number of replicas to be set in the workload spec.

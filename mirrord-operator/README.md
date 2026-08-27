@@ -33,6 +33,11 @@ credential.
 Existing installs that set only `license.*` keep working (the operator falls back to license-key
 authentication), but new installs should set the cloud API key.
 
+An operator configured with `license.licenseServer` never authenticates to the mirrord cloud: it
+takes its license from that server with its license key, and no identities leave the cluster. The
+cloud API key is ignored there, so those installs must set a license source. Product telemetry, if
+enabled, is still sent to our analytics server anonymized.
+
 Set the key through exactly one of:
 * `cloud.apiKey.key` in `values.yaml` (simplest for dev/test; the value lands in the pod spec).
 * A Kubernetes secret holding the key under the `apiKey` data key, referenced via

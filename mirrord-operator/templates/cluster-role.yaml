@@ -375,6 +375,7 @@ rules:
   resources:
   - secrets
   verbs:
+  - get
   - list
   - watch
 {{- end }}
@@ -402,6 +403,16 @@ rules:
   - helmreleases
   verbs:
   - get
+  - patch
+{{- end }}
+{{- if .Values.operator.pauseKedaScaleIn }}
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
+  verbs:
+  - get
+  - list
   - patch
 {{- end }}
 - apiGroups:
