@@ -781,6 +781,14 @@ operator:
   ##   # password on the branch (as a salted hash); PostgreSQL never exposes other roles'
   ##   # passwords, so those restore without one.
   ##   roles: "empty"
+  ##   # Client authentication on branches whose source uses IAM auth.
+  ##   # `trust` (default): the branch accepts any credentials - IAM apps present
+  ##   # cloud-minted tokens a plain postgres branch cannot verify, and trust is what
+  ##   # lets them connect unchanged.
+  ##   # `password`: regular password auth; IAM apps must then read the branch
+  ##   # password from an env var mirrord injects (the `password` connection param).
+  ##   # Branches without `iam_auth` always use password auth.
+  ##   iamBranchAuth: "trust"
   ##
   ## Named profiles: alternative complete baselines next to the default `dbPod` above,
   ## selected per branch with `"profile": "<name>"` in mirrord.json. A profile accepts

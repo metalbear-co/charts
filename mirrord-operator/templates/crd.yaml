@@ -5677,6 +5677,11 @@ spec:
                     items:
                       type: string
                     type: array
+                  s3BranchNames:
+                    description: S3 branch bucket names to use for this session.
+                    items:
+                      type: string
+                    type: array
                   spannerBranchNames:
                     description: Spanner branch database names to use for this session.
                     items:
@@ -6831,6 +6836,40 @@ spec:
                     required:
                     - mode
                     type: object
+                type: object
+              s3Options:
+                description: S3-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                      objects:
+                        description: |-
+                          Regular expressions matched against the source objects' keys.
+
+                          An object is copied when it matches any of them.
+                          Unset or empty copies every object.
+
+                          Only valid when [`Self::mode`] is [`S3BranchCopyMode::All`].
+                        items:
+                          type: string
+                        type: array
+                    required:
+                    - mode
+                    type: object
+                  provider:
+                    default: aws
+                    description: Cloud provider hosting the source bucket.
+                    enum:
+                    - aws
+                    type: string
                 type: object
               spannerOptions:
                 description: Google Cloud Spanner-specific options.

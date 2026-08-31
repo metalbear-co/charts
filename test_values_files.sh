@@ -2,6 +2,24 @@
 
 set -e
 
+# A namespace the chart created can still be Terminating after `helm uninstall --wait`
+# returns, and a terminating namespace rejects the next release's resources with a
+# `forbidden` error. Block until it is actually gone.
+wait_for_namespace_deletion() {
+  namespace=$(awk '$1 == "namespace:" { print $2 }' "$1")
+  namespace=${namespace:-mirrord}
+  waited=0
+  while kubectl get "namespace/$namespace" > /dev/null 2>&1; do
+    if [ "$waited" -ge 180 ]; then
+      echo "namespace $namespace was still present 180s after uninstalling the release"
+      kubectl get "namespace/$namespace" -o yaml
+      exit 1
+    fi
+    waited=$((waited + 1))
+    sleep 1
+  done
+}
+
 # For each file in the `test_values` directory
 # run helm install && helm uninstall.
 for file in test_values/mirrord-operator/*.yaml; do
@@ -48,6 +66,7 @@ for file in test_values/mirrord-operator/*.yaml; do
     fi
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait
     helm uninstall mirrord-operator --wait
+    wait_for_namespace_deletion "$file"
   elif [ "$file" = "test_values/mirrord-operator/operator_existing_service_account.yaml" ]; then
     kubectl create namespace existing-service-account
     kubectl create serviceaccount existing-mirrord-operator --namespace existing-service-account
@@ -64,6 +83,7 @@ for file in test_values/mirrord-operator/*.yaml; do
   else
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait
     helm uninstall mirrord-operator --wait
+    wait_for_namespace_deletion "$file"
   fi
   echo "::endgroup::"
 done
