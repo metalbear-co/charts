@@ -909,6 +909,16 @@ operator:
   ##         - "--tls-key-file"
   ##         - "/certs/tls.key"
   ##       tls: true
+  ##
+  ## Profile settings live under the profile's `dbPod` key. A key placed beside
+  ## `dbPod` (e.g. `profiles.tls-baseline.tls`) is not a valid setting, and a
+  ## branch selecting that profile fails with an error naming the misplaced key.
+  ##
+  ## For `copy.mode: all` against a source Redis that only accepts TLS, provide
+  ## the certificates via a `MirrordPropertyList` named `redis-source-tls` in the
+  ## target's namespace - not via chart values - with the same properties as
+  ## `cockroachdb-source-tls` under cockroachdbBranchConfig below. The object
+  ## name can be overridden with `dbPod.sourceTlsPropertyList: "my-name"`.
 
   # spannerBranchConfig:
   ## example

@@ -1609,6 +1609,17 @@ spec:
                   The queue_id for a queue is determined at the queue registry. It is not (necessarily)
                   the name of the queue.
                 type: object
+              queueJqFilters:
+                additionalProperties:
+                  type: string
+                description: |-
+                  Specify jq programs that will be used to filter messages from queues.
+                  For queues with a specified jq program, for every message the jq filter runs on a JSON
+                  representation of the message: an object with `headers`, `properties`, and `payload`
+                  fields.
+
+                  If the jq program outputs `true`, that message is considered as matching the filter.
+                type: object
               sessionId:
                 description: The id of the mirrord exec session, from the operator.
                 type: string
