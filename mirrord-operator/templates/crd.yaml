@@ -5027,7 +5027,12 @@ spec:
           spec:
             properties:
               ciInfo:
-                description: CI info when a session is started with `mirrord ci start`.
+                description: |-
+                  Set when this is a machine session, i.e. one that doesn't consume a license seat and counts
+                  against the license's concurrent machine session limit instead.
+
+                  Filled from `mirrord ci start`, or by the operator when the session's caller authenticated
+                  with a ServiceAccount (cloud agents and other headless runs).
                 nullable: true
                 properties:
                   environment:
@@ -8487,6 +8492,35 @@ spec:
                               items:
                                 type: string
                               type: array
+                            rewrite:
+                              description: |-
+                                Recipe for repeating the rewrite on a *different* base document than
+                                the target's original file. A preview session that overrides the same
+                                file through `config_mounts` applies it to the user-provided content,
+                                so the user's values survive and only the queue names change -
+                                [`Self::content`] cannot serve there because it is rendered from the
+                                original file. Absent when nothing in this file resolved to an output.
+                              nullable: true
+                              properties:
+                                outputs:
+                                  additionalProperties:
+                                    type: string
+                                  description: |-
+                                    Maps each original name read from this file to the name this session
+                                    should see (the session output, or the shared fallback for queues the
+                                    session does not override).
+                                  type: object
+                                selectors:
+                                  description: |-
+                                    `valueSelector` expressions bound to this file, from the split config.
+                                    Empty for pattern and whole-file bindings, whose names are swapped by
+                                    text search instead.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - outputs
+                              type: object
                             volume:
                               description: Volume name in the target's pod spec.
                               type: string
@@ -8649,6 +8683,35 @@ spec:
                           items:
                             type: string
                           type: array
+                        rewrite:
+                          description: |-
+                            Recipe for repeating the rewrite on a *different* base document than
+                            the target's original file. A preview session that overrides the same
+                            file through `config_mounts` applies it to the user-provided content,
+                            so the user's values survive and only the queue names change -
+                            [`Self::content`] cannot serve there because it is rendered from the
+                            original file. Absent when nothing in this file resolved to an output.
+                          nullable: true
+                          properties:
+                            outputs:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps each original name read from this file to the name this session
+                                should see (the session output, or the shared fallback for queues the
+                                session does not override).
+                              type: object
+                            selectors:
+                              description: |-
+                                `valueSelector` expressions bound to this file, from the split config.
+                                Empty for pattern and whole-file bindings, whose names are swapped by
+                                text search instead.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - outputs
+                          type: object
                         volume:
                           description: Volume name in the target's pod spec.
                           type: string
@@ -8750,6 +8813,35 @@ spec:
                           items:
                             type: string
                           type: array
+                        rewrite:
+                          description: |-
+                            Recipe for repeating the rewrite on a *different* base document than
+                            the target's original file. A preview session that overrides the same
+                            file through `config_mounts` applies it to the user-provided content,
+                            so the user's values survive and only the queue names change -
+                            [`Self::content`] cannot serve there because it is rendered from the
+                            original file. Absent when nothing in this file resolved to an output.
+                          nullable: true
+                          properties:
+                            outputs:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps each original name read from this file to the name this session
+                                should see (the session output, or the shared fallback for queues the
+                                session does not override).
+                              type: object
+                            selectors:
+                              description: |-
+                                `valueSelector` expressions bound to this file, from the split config.
+                                Empty for pattern and whole-file bindings, whose names are swapped by
+                                text search instead.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - outputs
+                          type: object
                         volume:
                           description: Volume name in the target's pod spec.
                           type: string

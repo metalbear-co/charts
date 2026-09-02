@@ -1,25 +1,25 @@
-# The whitelist identity the e2e suites act through: a ServiceAccount granted only
-# what we tell customers to grant - the chart's own mirrord-operator-user
+# The whitelist identity the e2e suites act through: a Kubernetes user granted
+# only what we tell customers to grant - the chart's own mirrord-operator-user
 # ClusterRole - plus read access on the workloads tests target. Keeping the
 # objects here, rendered through the chart's extraObjects hook, leaves a single
 # source of truth next to the chart RBAC they bind to.
 #
-# Applied by scripts/e2e_whitelist_user.sh, which also mints the identity's token
-# kubeconfig; CI exports that as MIRRORD_KUBECONFIG so the mirrord CLI and the
-# tests' user-side clients act as this identity while setup and asserts keep the
-# admin KUBECONFIG. An operator feature shipped without its customer RBAC rule
-# then fails e2e instead of failing at a customer.
+# Applied by scripts/e2e_whitelist_user.sh, which also issues the identity's
+# client certificate and kubeconfig; CI exports that as MIRRORD_KUBECONFIG so the
+# mirrord CLI and the tests' user-side clients act as this identity while setup
+# and asserts keep the admin KUBECONFIG. An operator feature shipped without its
+# customer RBAC rule then fails e2e instead of failing at a customer.
 #
-# The ServiceAccount lives in `default`, not the release namespace: the chart
-# upgrade suite provisions the identity before any chart is installed (a
+# A user rather than a ServiceAccount, deliberately: the operator reads a
+# `system:serviceaccount:` caller as a machine session - one that takes no
+# license seat and counts against the concurrent machine session limit instead -
+# so e2e running as one would exercise a path no developer running mirrord takes,
+# and would leave the ordinary seat-consuming path untested. A user is also not a
+# cluster object, so only the bindings below exist; nothing has to be created
+# before the chart is installed, which is what the chart upgrade suite needs (a
 # ClusterRoleBinding with a dangling roleRef grants nothing until the chart's
 # ClusterRole appears, which is exactly the wanted behavior).
 extraObjects:
-  - apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: mirrord-e2e-user
-      namespace: default
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
@@ -29,9 +29,9 @@ extraObjects:
       kind: ClusterRole
       name: mirrord-operator-user
     subjects:
-      - kind: ServiceAccount
+      - kind: User
         name: mirrord-e2e-user
-        namespace: default
+        apiGroup: rbac.authorization.k8s.io
   # The "plus get/list on targets" half of the whitelist: what a customer needs
   # anyway to run the workloads they point mirrord at. Deliberately read-only and
   # without pods/log or secrets - anything else a test needs is either a chart
@@ -62,6 +62,6 @@ extraObjects:
       kind: ClusterRole
       name: mirrord-e2e-target-reader
     subjects:
-      - kind: ServiceAccount
+      - kind: User
         name: mirrord-e2e-user
-        namespace: default
+        apiGroup: rbac.authorization.k8s.io
