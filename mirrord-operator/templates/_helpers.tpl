@@ -252,7 +252,7 @@ unset, the operator falls back to license-key authentication, so no source is st
   verbs:
   - create
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.redisPubsubSplitting }}
 # `mirrord queues status` reads split sessions over the aggregated API; its
 # --all-namespaces form lists at cluster scope, so the rule must live in a
 # ClusterRole even for namespaced-Role users.

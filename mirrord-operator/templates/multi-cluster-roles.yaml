@@ -333,7 +333,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 # The envoy watches MirrordClusterSplitSession on the default cluster to
 # collect tmpResources before connecting to non-default clusters.
 - apiGroups:

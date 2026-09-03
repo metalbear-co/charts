@@ -302,7 +302,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -353,7 +353,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.redisPubsubSplitting }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.redisPubsubSplitting }}
 # create/update/delete cover the operator-owned ConfigMap copies queue
 # splitting mounts in place of a user ConfigMap when queue names are resolved
 # from mounted files (`volume` sources). User ConfigMaps are only ever read.

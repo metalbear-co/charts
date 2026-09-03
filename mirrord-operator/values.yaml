@@ -129,6 +129,8 @@ operator:
   temporalSplitting: false
   # Has to be set to `true` in order to use the BullMQ queue splitting feature.
   bullmqSplitting: false
+  # Has to be set to `true` in order to use the NATS queue splitting feature.
+  natsSplitting: false
   # Temporal queue splitting proxy settings.
   temporalProxy:
     # Port for the Temporal frontend proxy workers connect to via `TEMPORAL_ADDRESS`.
@@ -239,8 +241,8 @@ operator:
   # value of the current session key into redirected HTTP requests,
   # responses to said requests, and the queue-splitting messages routed to
   # a session. For queues it uses a native metadata field where the broker
-  # has one (SQS, Google Pub/Sub, RabbitMQ, Kafka, Azure Service Bus, and
-  # Temporal activity tasks), otherwise the JSON payload (BullMQ, Redis
+  # has one (SQS, Google Pub/Sub, RabbitMQ, Kafka, Azure Service Bus, NATS,
+  # and Temporal activity tasks), otherwise the JSON payload (BullMQ, Redis
   # Pub/Sub); non-JSON payloads are left untouched.
   injectSessionKeyHeader: true
 

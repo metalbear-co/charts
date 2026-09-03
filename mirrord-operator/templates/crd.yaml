@@ -397,6 +397,7 @@ spec:
                           - redisPubSub
                           - temporal
                           - bullMq
+                          - nats
                           - unknown
                           type: string
                         rules:
@@ -915,6 +916,7 @@ spec:
                           - redisPubSub
                           - temporal
                           - bullMq
+                          - nats
                           - unknown
                           type: string
                         rules:
@@ -1798,7 +1800,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.bullmqSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -5473,6 +5475,41 @@ spec:
                 - clientConfigNamespace
                 - name
                 type: object
+              natsResource:
+                description: |-
+                  Temporary NATS JetStream resource (stream or consumer) created for queue
+                  splitting.
+                nullable: true
+                properties:
+                  kind:
+                    enum:
+                    - stream
+                    - consumer
+                    - unknown
+                    type: string
+                  name:
+                    description: Stream or consumer name.
+                    type: string
+                  propertiesListName:
+                    description: Name of the `MirrordPropertyList` used to build the NATS client for cleanup.
+                    type: string
+                  propertiesListNamespace:
+                    description: |-
+                      Namespace the `MirrordPropertyList` was resolved from (the target's namespace,
+                      or the operator's when the list was found there).
+                    type: string
+                  stream:
+                    description: |-
+                      Stream the consumer lives on. Only set for `Consumer` resources -
+                      deleting a JetStream consumer requires its parent stream.
+                    nullable: true
+                    type: string
+                required:
+                - kind
+                - name
+                - propertiesListName
+                - propertiesListNamespace
+                type: object
               rmqResource:
                 description: Resource allocated in a RabbitMQ cluster for queue splitting.
                 nullable: true
@@ -5924,6 +5961,30 @@ spec:
                       Kept separate from `kafka_queue_filters` because that field predates jq support for Kafka
                       and stores bare header maps, so its value type can't grow a jq field without breaking
                       stored resources.
+                    type: object
+                  natsQueueFilters:
+                    additionalProperties:
+                      description: |-
+                        Per-queue filter configuration for preview sessions.
+                        Used by SQS, RabbitMQ, GCP Pub/Sub, Azure Service Bus, Redis Pub/Sub, and Temporal.
+                      properties:
+                        jqFilter:
+                          description: |-
+                            A jq filter expression applied to message content.
+                            If the jq program outputs `true`, the message is considered as matching.
+                          nullable: true
+                          type: string
+                        messageFilter:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Message attribute/header filter: a mapping from attribute names to regex patterns.
+                            Only messages whose attributes match all patterns will be delivered
+                            to the preview environment.
+                          nullable: true
+                          type: object
+                      type: object
+                    description: NATS queue splitting filters, keyed by queue ID.
                     type: object
                   queueModes:
                     additionalProperties:
@@ -7124,7 +7185,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -7204,6 +7265,9 @@ spec:
                     nullable: true
                     type: string
                   kafka:
+                    nullable: true
+                    type: string
+                  nats:
                     nullable: true
                     type: string
                   redisPubSub:
@@ -7372,6 +7436,71 @@ spec:
                           type: array
                         channelPattern:
                           description: Redis Pub/Sub glob pattern (`PSUBSCRIBE`).
+                          items:
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
+                            type: object
+                          nullable: true
+                          type: array
+                        consumer:
+                          description: Durable JetStream consumer name the app reads through (NATS).
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
@@ -7697,6 +7826,71 @@ spec:
                           type: array
                         shardChannel:
                           description: Sharded pub/sub channel name (`SSUBSCRIBE` / `SPUBLISH`, Redis 7+).
+                          items:
+                            description: |-
+                              Reference to a value in the target pod's template: an environment variable,
+                              or a file mounted from a `configMap` volume.
+                            properties:
+                              containers:
+                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
+                              env:
+                                description: Exact environment variable name.
+                                nullable: true
+                                type: string
+                              envLike:
+                                description: Regex matching environment variable names (fancy-regex).
+                                nullable: true
+                                type: string
+                              fallback:
+                                description: Fallback value if the variable is not found. Only valid with `env`.
+                                nullable: true
+                                type: string
+                              valuePattern:
+                                description: |-
+                                  Regex applied to the variable's value when the entity identifier is
+                                  embedded inside a larger string (a URL, path, or connection string).
+                                  The capture group marks the part that is the identifier (a group named
+                                  `value`, otherwise the first group); only that part is swapped for the
+                                  temporary name and the surrounding text is kept as-is. Use this when the
+                                  app reads something like `gcppubsub://projects/p/subscriptions/<name>`
+                                  instead of a bare name. Mutually exclusive with `value_selector`, which
+                                  targets JSON values rather than opaque strings.
+                                nullable: true
+                                type: string
+                              valueSelector:
+                                description: JAQ selector to extract value(s) from the variable's value.
+                                nullable: true
+                                type: string
+                              volume:
+                                description: |-
+                                  File in a `configMap` volume of the pod spec. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to an
+                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                nullable: true
+                                properties:
+                                  file:
+                                    description: |-
+                                      Path of the file within the volume: the ConfigMap data key, or the
+                                      item `path` when the volume remaps keys via `items`.
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the entry in the pod spec's `volumes` array. The volume must be
+                                      of the `configMap` type.
+                                    type: string
+                                required:
+                                - file
+                                - name
+                                type: object
+                            type: object
+                          nullable: true
+                          type: array
+                        stream:
+                          description: JetStream stream name (NATS).
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
@@ -8107,6 +8301,7 @@ spec:
                       - redisPubSub
                       - temporal
                       - bullMq
+                      - nats
                       - unknown
                       type: string
                     queueConfig:
@@ -8373,6 +8568,7 @@ spec:
                       - redisPubSub
                       - temporal
                       - bullMq
+                      - nats
                       - unknown
                       type: string
                     mode:

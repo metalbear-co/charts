@@ -140,6 +140,8 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.temporalSplitting }}
         - name: OPERATOR_BULLMQ_SPLITTING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.bullmqSplitting }}
+        - name: OPERATOR_NATS_SPLITTING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.natsSplitting }}
         - name: OPERATOR_TEMPORAL_PROXY_PORT
           value: {{ .Values.operator.temporalProxy.port | quote }}
         - name: OPERATOR_MYSQL_BRANCHING
