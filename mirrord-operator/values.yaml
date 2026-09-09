@@ -131,6 +131,9 @@ operator:
   bullmqSplitting: false
   # Has to be set to `true` in order to use the NATS queue splitting feature.
   natsSplitting: false
+  # Has to be set to `true` in order to use the core NATS (non-JetStream) pub/sub
+  # queue splitting feature. Best-effort delivery: nothing is persisted.
+  natsPubsubSplitting: false
   # Temporal queue splitting proxy settings.
   temporalProxy:
     # Port for the Temporal frontend proxy workers connect to via `TEMPORAL_ADDRESS`.
