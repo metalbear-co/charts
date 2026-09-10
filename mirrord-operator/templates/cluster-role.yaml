@@ -378,6 +378,29 @@ rules:
   - get
   - list
   - watch
+# `podFile` sources (queue names injected into pods by e.g. vault-agent-injector,
+# with no API-backed object behind them) are read by exec-ing `cat` in a running
+# pod of the target. The operator's exec goes over a websocket, whose GET
+# handshake the API server authorizes as the `get` verb - `create` covers the
+# SPDY/POST form for completeness.
+- apiGroups:
+  - ''
+  resources:
+  - pods/exec
+  verbs:
+  - get
+  - create
+# create/update/delete cover the operator-owned Secret copies that queue
+# splitting shadow-mounts over `podFile` sources with the fallback names
+# swapped in. User Secrets are never modified.
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - create
+  - update
+  - delete
 {{- end }}
 {{- if .Values.operator.applicationPauseAutoSync }}
 - apiGroups:

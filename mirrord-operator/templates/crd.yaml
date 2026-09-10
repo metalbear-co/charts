@@ -1802,7 +1802,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting }}
+{{ if or .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -4679,6 +4679,45 @@ spec:
                       format: int32
                       nullable: true
                       type: integer
+                    podFileMounts:
+                      description: Files inside the pods to shadow with operator-owned Secret content.
+                      items:
+                        description: |-
+                          Shadows one file inside the workload's pods with content from an
+                          operator-owned Secret, by mounting the Secret key over the file's exact
+                          path via a `subPath` volume mount.
+
+                          Queue splitting uses this for `podFile` sources - files that exist only
+                          inside running pods (e.g. rendered by vault-agent-injector), where there is
+                          no API-backed object to copy and redirect. The bind mount pins the path in
+                          the container's view, so whatever the original injector keeps writing
+                          underneath stays hidden while the patch is applied. The Secret is created
+                          before the patch request and deleted by the request controller once no pod
+                          mounts it anymore.
+                        properties:
+                          containers:
+                            description: |-
+                              Containers to apply the mount to. Empty means every container except
+                              known infra sidecars (the vault agent, service meshes), which must keep
+                              seeing the original file.
+                            items:
+                              type: string
+                            type: array
+                          key:
+                            description: Key inside the Secret holding this file's content.
+                            type: string
+                          path:
+                            description: Absolute path of the file to shadow inside the containers.
+                            type: string
+                          secret:
+                            description: Name of the operator-owned Secret holding the content.
+                            type: string
+                        required:
+                        - key
+                        - path
+                        - secret
+                        type: object
+                      type: array
                     replicas:
                       description: |-
                         Number of replicas to be set in the workload spec.
@@ -4869,6 +4908,45 @@ spec:
                 format: int32
                 nullable: true
                 type: integer
+              podFileMounts:
+                description: Files inside the pods to shadow with operator-owned Secret content.
+                items:
+                  description: |-
+                    Shadows one file inside the workload's pods with content from an
+                    operator-owned Secret, by mounting the Secret key over the file's exact
+                    path via a `subPath` volume mount.
+
+                    Queue splitting uses this for `podFile` sources - files that exist only
+                    inside running pods (e.g. rendered by vault-agent-injector), where there is
+                    no API-backed object to copy and redirect. The bind mount pins the path in
+                    the container's view, so whatever the original injector keeps writing
+                    underneath stays hidden while the patch is applied. The Secret is created
+                    before the patch request and deleted by the request controller once no pod
+                    mounts it anymore.
+                  properties:
+                    containers:
+                      description: |-
+                        Containers to apply the mount to. Empty means every container except
+                        known infra sidecars (the vault agent, service meshes), which must keep
+                        seeing the original file.
+                      items:
+                        type: string
+                      type: array
+                    key:
+                      description: Key inside the Secret holding this file's content.
+                      type: string
+                    path:
+                      description: Absolute path of the file to shadow inside the containers.
+                      type: string
+                    secret:
+                      description: Name of the operator-owned Secret holding the content.
+                      type: string
+                  required:
+                  - key
+                  - path
+                  - secret
+                  type: object
+                type: array
               replicas:
                 description: |-
                   Number of replicas to be set in the workload spec.
@@ -6449,6 +6527,42 @@ spec:
                 format: date-time
                 nullable: true
                 type: string
+              failureLogs:
+                description: |-
+                  What the preview's pods printed before the session failed.
+
+                  Captured by the operator at the moment it gives up on the pods, because failing a
+                  session scales its deployment to zero and the pods - and their logs - go with it.
+                  Empty when the pods produced nothing, when they could not be read, or when the
+                  session failed before any pod existed.
+                items:
+                  description: |-
+                    The tail of one preview container's output.
+
+                    A preview may run several replicas, and a failing one is often the only pod with anything
+                    to say, so pods are reported separately rather than concatenated into a single blob.
+                  properties:
+                    cluster:
+                      description: |-
+                        Which workload cluster the pod ran in. `None` on single-cluster operators, where there
+                        is only one place it could have been.
+                      nullable: true
+                      type: string
+                    container:
+                      type: string
+                    logs:
+                      description: |-
+                        Oldest line first. Whole lines are dropped from the front when the tail exceeds the
+                        operator's size cap, so the end - where a crash lands - always survives.
+                      type: string
+                    pod:
+                      type: string
+                  required:
+                  - container
+                  - logs
+                  - pod
+                  type: object
+                type: array
               failureMessage:
                 description: |-
                   Human-readable description of why the session failed.
@@ -7552,6 +7666,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7617,6 +7761,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7682,6 +7856,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7747,6 +7951,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7812,6 +8046,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7877,6 +8141,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -7942,6 +8236,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8007,6 +8331,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8072,6 +8426,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8137,6 +8521,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8205,6 +8619,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8270,6 +8714,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8335,6 +8809,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8400,6 +8904,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8465,6 +8999,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8530,6 +9094,36 @@ spec:
                                 description: Fallback value if the variable is not found. Only valid with `env`.
                                 nullable: true
                                 type: string
+                              podFile:
+                                description: |-
+                                  File that exists only inside the target's running pods, e.g. rendered
+                                  by vault-agent-injector under `/vault/secrets/` or projected by a
+                                  secrets-store CSI driver. The operator reads it by exec-ing into a
+                                  running pod of the target, so the target must have at least one running
+                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
+                                  `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. Mutually exclusive with `env`, `envLike` and
+                                  `volume`.
+                                nullable: true
+                                properties:
+                                  container:
+                                    description: |-
+                                      Container the operator exec-s into to read the file. Defaults to the
+                                      `vault-agent` sidecar when the pod has one (it always mounts the
+                                      rendered secrets and ships a shell), otherwise the pod's first
+                                      application container. Set this when the file is only mounted in a
+                                      specific container, or when the default container has no `cat` binary
+                                      (e.g. a distroless image).
+                                    nullable: true
+                                    type: string
+                                  path:
+                                    description: |-
+                                      Absolute path of the file inside the container, e.g.
+                                      `/vault/secrets/kafka-config`.
+                                    type: string
+                                required:
+                                - path
+                                type: object
                               valuePattern:
                                 description: |-
                                   Regex applied to the variable's value when the entity identifier is
@@ -8965,13 +9559,18 @@ spec:
                           place of the files mounted in the target pod, which carry the fallback
                           names. Nothing in the cluster is patched with this content.
                         items:
-                          description: Session-specific content for one file mounted from a `configMap` volume.
+                          description: |-
+                            Session-specific content for one file mounted from a `configMap` volume or
+                            resolved from a `podFile` source.
                           properties:
                             content:
                               description: The file's content with this session's output names swapped in.
                               type: string
                             file:
-                              description: File path within the volume.
+                              description: |-
+                                File path within the volume, or the absolute path of a `podFile`
+                                source. The proxy matches reads by the base file name under
+                                `mount_dirs`.
                               type: string
                             mountDirs:
                               description: |-
@@ -9011,7 +9610,9 @@ spec:
                               - outputs
                               type: object
                             volume:
-                              description: Volume name in the target's pod spec.
+                              description: |-
+                                Volume name in the target's pod spec. Empty for `podFile` sources,
+                                which are identified by path alone.
                               type: string
                           required:
                           - content
@@ -9156,13 +9757,18 @@ spec:
                       place of the files mounted in the target pod, which carry the fallback
                       names. Nothing in the cluster is patched with this content.
                     items:
-                      description: Session-specific content for one file mounted from a `configMap` volume.
+                      description: |-
+                        Session-specific content for one file mounted from a `configMap` volume or
+                        resolved from a `podFile` source.
                       properties:
                         content:
                           description: The file's content with this session's output names swapped in.
                           type: string
                         file:
-                          description: File path within the volume.
+                          description: |-
+                            File path within the volume, or the absolute path of a `podFile`
+                            source. The proxy matches reads by the base file name under
+                            `mount_dirs`.
                           type: string
                         mountDirs:
                           description: |-
@@ -9202,7 +9808,9 @@ spec:
                           - outputs
                           type: object
                         volume:
-                          description: Volume name in the target's pod spec.
+                          description: |-
+                            Volume name in the target's pod spec. Empty for `podFile` sources,
+                            which are identified by path alone.
                           type: string
                       required:
                       - content
@@ -9286,13 +9894,18 @@ spec:
                       place of the files mounted in the target pod, which carry the fallback
                       names. Nothing in the cluster is patched with this content.
                     items:
-                      description: Session-specific content for one file mounted from a `configMap` volume.
+                      description: |-
+                        Session-specific content for one file mounted from a `configMap` volume or
+                        resolved from a `podFile` source.
                       properties:
                         content:
                           description: The file's content with this session's output names swapped in.
                           type: string
                         file:
-                          description: File path within the volume.
+                          description: |-
+                            File path within the volume, or the absolute path of a `podFile`
+                            source. The proxy matches reads by the base file name under
+                            `mount_dirs`.
                           type: string
                         mountDirs:
                           description: |-
@@ -9332,7 +9945,9 @@ spec:
                           - outputs
                           type: object
                         volume:
-                          description: Volume name in the target's pod spec.
+                          description: |-
+                            Volume name in the target's pod spec. Empty for `podFile` sources,
+                            which are identified by path alone.
                           type: string
                       required:
                       - content

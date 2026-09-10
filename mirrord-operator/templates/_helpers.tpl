@@ -136,10 +136,13 @@ unset, the operator falls back to license-key authentication, so no source is st
   - watch
 # The previews API extension the CLI reads multicluster status from (RBAC is
 # version-agnostic, so this covers the alpha group-version it is served under).
+# `previews/logs` is a subresource, which Kubernetes authorizes separately from its
+# parent - without it the CLI cannot read why a preview failed.
 - apiGroups:
   - operator.metalbear.co
   resources:
   - previews
+  - previews/logs
   verbs:
   - get
   - list

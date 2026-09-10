@@ -153,6 +153,16 @@ rules:
   - get
   - list
   - watch
+# The primary answers `previews/{name}/logs` by tailing each workload cluster's own preview
+# pods. `pods/log` is authorized separately from `pods`, so listing them is not enough - without
+# this the tail 403s and the preview reports no output at all, which reads exactly like an
+# application that printed nothing.
+- apiGroups:
+  - ""
+  resources:
+  - pods/log
+  verbs:
+  - get
 # Read deployments/statefulsets for targeting
 - apiGroups:
   - apps
