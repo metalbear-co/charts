@@ -623,12 +623,16 @@ operator:
   ##   image:
   ##     registry: "custom-mysql-registry"
   ##   migrationImages:
+  ##     # Registry per schema-migration tool, used by the matching `migrations.flavor`.
+  ##     # When unset, each defaults to its upstream image; when set, the registry is used
+  ##     # with that tool's pinned tag. The per-branch `migrations` config in mirrord.json
+  ##     # can override the full image.
   ##     flyway:
-  ##       # Registry for the schema-migration image.
-  ##       # When unset, defaults to the upstream `flyway/flyway:12` image.
-  ##       # When set, this registry is used with the tag `12`.
-  ##       # The per-branch `migrations` config in mirrord.json can override the full image.
+  ##       # Defaults to `flyway/flyway:12`; a registry here is used with the tag `12`.
   ##       registry: "custom-flyway-registry"
+  ##     liquibase:
+  ##       # Defaults to `liquibase/liquibase:4.33`; a registry here is used with the tag `4.33`.
+  ##       registry: "custom-liquibase-registry"
   ##   imagePullSecrets:
   ##     - name: "mysql-registry-secret"
   ##   imagePullPolicy: "IfNotPresent"
@@ -663,12 +667,16 @@ operator:
   ##     # Defaults to `docker.io/library/mariadb` with tag `12`.
   ##     registry: "custom-mariadb-registry"
   ##   migrationImages:
+  ##     # Registry per schema-migration tool, used by the matching `migrations.flavor`.
+  ##     # When unset, each defaults to its upstream image; when set, the registry is used
+  ##     # with that tool's pinned tag. The per-branch `migrations` config in mirrord.json
+  ##     # can override the full image.
   ##     flyway:
-  ##       # Registry for the schema-migration image.
-  ##       # When unset, defaults to the upstream `flyway/flyway:12` image.
-  ##       # When set, this registry is used with the tag `12`.
-  ##       # The per-branch `migrations` config in mirrord.json can override the full image.
+  ##       # Defaults to `flyway/flyway:12`; a registry here is used with the tag `12`.
   ##       registry: "custom-flyway-registry"
+  ##     liquibase:
+  ##       # Defaults to `liquibase/liquibase:4.33`; a registry here is used with the tag `4.33`.
+  ##       registry: "custom-liquibase-registry"
   ##   imagePullSecrets:
   ##     - name: "mariadb-registry-secret"
   ##   imagePullPolicy: "IfNotPresent"
@@ -710,12 +718,16 @@ operator:
   ##     # Tag can be specified by the user when requesting a new branch, defaulting to `17`.
   ##     registry: "custom-postgres-registry"
   ##   migrationImages:
+  ##     # Registry per schema-migration tool, used by the matching `migrations.flavor`.
+  ##     # When unset, each defaults to its upstream image; when set, the registry is used
+  ##     # with that tool's pinned tag. The per-branch `migrations` config in mirrord.json
+  ##     # can override the full image.
   ##     flyway:
-  ##       # Registry for the schema-migration image.
-  ##       # When unset, defaults to the upstream `flyway/flyway:12` image.
-  ##       # When set, this registry is used with the tag `12`.
-  ##       # The per-branch `migrations` config in mirrord.json can override the full image.
+  ##       # Defaults to `flyway/flyway:12`; a registry here is used with the tag `12`.
   ##       registry: "custom-flyway-registry"
+  ##     liquibase:
+  ##       # Defaults to `liquibase/liquibase:4.33`; a registry here is used with the tag `4.33`.
+  ##       registry: "custom-liquibase-registry"
   ##   # Environment for container-flavor migration Jobs. `inherit` (default true) hands the
   ##   # Job the target container's env and envFrom, so an app image boots the same way its
   ##   # real pods do; `env`/`envFrom` are admin extras in plain Kubernetes shapes, so
@@ -742,6 +754,7 @@ operator:
   ##   # * .pgBranchConfig.dbPod.image
   ##   # * .pgBranchConfig.dbPod.initImage
   ##   # * .pgBranchConfig.dbPod.migrationImages.flyway
+  ##   # * .pgBranchConfig.dbPod.migrationImages.liquibase
   ##   # * .operator.image
   ##   imagePullSecrets:
   ##     - name: "postgres-registry-secret"
@@ -831,6 +844,8 @@ operator:
   ##       migrationImages:
   ##         flyway:
   ##           registry: "custom-flyway-registry"
+  ##         liquibase:
+  ##           registry: "custom-liquibase-registry"
   ##       allowedImages: ["pgvector/*"]
   ##       imagePullSecrets:
   ##         - name: "analytics-registry-secret"
@@ -937,6 +952,16 @@ operator:
   ## target's namespace - not via chart values - with the same properties as
   ## `cockroachdb-source-tls` under cockroachdbBranchConfig below. The object
   ## name can be overridden with `dbPod.sourceTlsPropertyList: "my-name"`.
+  ##
+  ## `dbPod.sourceSslmode` sets how strictly the copy verifies the source's certificate:
+  ## `verify-full` (chain and hostname, the default) or `verify-ca` (chain only). Use
+  ## `verify-ca` when the source certificate has no subjectAltName covering the host the
+  ## branch dials, where `verify-full` can never pass and `#insecure` in the URL would skip
+  ## the chain check too. It only applies to TLS connections (the property list or a
+  ## `rediss://` URL decide that) and `#insecure` still wins over it:
+  ##
+  ##   dbPod:
+  ##     sourceSslmode: "verify-ca"
 
   # spannerBranchConfig:
   ## example

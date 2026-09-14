@@ -7008,6 +7008,7 @@ spec:
                   flavor:
                     enum:
                     - flyway
+                    - liquibase
                     - container
                     type: string
                 required:
