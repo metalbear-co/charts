@@ -183,7 +183,7 @@ unset, the operator falls back to license-key authentication, so no source is st
   - watch
   - delete
 {{- end }}
-{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mariadbBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) (default false .Values.operator.spannerBranching) (default false .Values.operator.clickhouseBranching) (default false .Values.operator.cockroachdbBranching) (default false .Values.operator.genericBranching) }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mariadbBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) (default false .Values.operator.spannerBranching) (default false .Values.operator.clickhouseBranching) (default false .Values.operator.cockroachdbBranching) (default false .Values.operator.genericBranching) (default false .Values.operator.s3Branching) }}
 - apiGroups:
   - dbs.mirrord.metalbear.co
   resources:

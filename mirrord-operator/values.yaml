@@ -171,6 +171,10 @@ operator:
   # the images with `genericBranchConfig.dbPod.allowedImages` if needed; when that field is
   # absent, all images are allowed.
   genericBranching: false
+  # Has to be set to `true` in order to use the S3 bucket branching feature. The operator
+  # clones buckets in the customer's cloud account with its own AWS credentials (from the
+  # service account's IAM role annotation); there is no branch pod and no `s3BranchConfig`.
+  s3Branching: false
   # Grants cluster-wide Secret permissions needed when users pass literal
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.

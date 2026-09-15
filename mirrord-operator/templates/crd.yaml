@@ -5776,6 +5776,23 @@ spec:
                       - propertiesListName
                       - propertiesListNamespace
                       type: object
+                    s3Bucket:
+                      description: Bucket created in the customer's object storage for an S3 branch.
+                      nullable: true
+                      properties:
+                        name:
+                          description: Name of the bucket to empty and delete.
+                          type: string
+                        region:
+                          description: |-
+                            Region the bucket lives in. S3 rejects bucket operations sent to another region's
+                            endpoint, and the branch bucket follows its source's region rather than the
+                            operator's default one.
+                          nullable: true
+                          type: string
+                      required:
+                      - name
+                      type: object
                     sqsQueue:
                       description: Temporary SQS queue created for queue splitting.
                       nullable: true
@@ -5812,6 +5829,23 @@ spec:
                 - name
                 - propertiesListName
                 - propertiesListNamespace
+                type: object
+              s3Bucket:
+                description: Bucket created in the customer's object storage for an S3 branch.
+                nullable: true
+                properties:
+                  name:
+                    description: Name of the bucket to empty and delete.
+                    type: string
+                  region:
+                    description: |-
+                      Region the bucket lives in. S3 rejects bucket operations sent to another region's
+                      endpoint, and the branch bucket follows its source's region rather than the
+                      operator's default one.
+                    nullable: true
+                    type: string
+                required:
+                - name
                 type: object
               sqsQueue:
                 description: Temporary SQS queue created for queue splitting.
@@ -5958,6 +5992,27 @@ spec:
                   - type
                   type: object
                 type: array
+              cronjob:
+                description: |-
+                  CronJob-target settings, only meaningful when `target` is a CronJob.
+
+                  `None` (also what older CLIs send) inherits everything from the source CronJob.
+                nullable: true
+                properties:
+                  schedule:
+                    description: |-
+                      Cron schedule for the preview CronJob, in Kubernetes CronJob syntax. `None` inherits
+                      the source CronJob's `spec.schedule`.
+                    nullable: true
+                    type: string
+                  triggerOnStart:
+                    description: |-
+                      Whether the operator runs the preview CronJob once right after creating it, regardless
+                      of the schedule. `None` (also what older CLIs send) means yes; `Some(false)` leaves the
+                      preview to its schedule alone, for jobs whose run window matters.
+                    nullable: true
+                    type: boolean
+                type: object
               dbBranching:
                 description: Database branching configuration for this preview session.
                 nullable: true
@@ -6617,7 +6672,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition

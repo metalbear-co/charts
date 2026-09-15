@@ -288,6 +288,14 @@ rules:
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
+  - mirrordkafkaclientconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
   - mirrordkafkatopicsconsumers
   verbs:
   - get
@@ -535,7 +543,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
 # Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co
@@ -642,7 +650,7 @@ rules:
   - get
   - update
   - patch
-{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching) }}
+{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching) }}
 # When the primary is itself the default (workload) cluster, its envoy serves branch
 # tunnels by port-forwarding to branch DB pods with the operator's OWN ServiceAccount
 # (ConfigFileClusterProvider::get_cluster_client's local path) - the member-side
@@ -694,6 +702,25 @@ rules:
   - create
   - delete
   - update
+# A preview of a `cronjob/<name>` target is an isolated CronJob the operator creates
+# (`create`), suspends/resumes on failure or pause (`patch`), and deletes with the
+# session (`delete`, owner references). The operator also creates one Job right after
+# the CronJob to run it once regardless of its schedule; `get` on both is granted above
+# and is what `entry()` needs to create them idempotently across task respawns.
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - patch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
 - apiGroups:
   - preview.mirrord.metalbear.co
   resources:
@@ -718,7 +745,7 @@ rules:
 - apiGroups: [""]
   resources: [secrets]
   verbs: [create]
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (e.g. pattern-based DB branching overrides built from the target's runtime env, which can
 # embed source credentials). Injected via secretKeyRef; owner references handle cleanup.
