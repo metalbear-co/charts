@@ -176,6 +176,10 @@ spec:
         - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
           value: {{ .Values.operator.shareIngress.shareDomain | quote }}
         {{- end }}
+        {{- if and .Values.operator.shareIngress .Values.operator.shareIngress.stableSlugs }}
+        - name: OPERATOR_SHARE_INGRESS_STABLE_SLUGS
+          value: "true"
+        {{- end }}
         {{- if and .Values.operator.dbBranching .Values.operator.dbBranching.initPodVolumeLimit }}
         - name: OPERATOR_BRANCH_DEFAULT_INIT_VOLUME_SIZE_LIMIT
           value: {{ .Values.operator.dbBranching.initPodVolumeLimit | quote }}
