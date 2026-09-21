@@ -120,6 +120,10 @@ spec:
         - name: OPERATOR_SESSION_SETUP_DEADLINE_SECONDS
           value: {{ .Values.operator.sessionSetupDeadlineSeconds | quote }}
         {{- end }}
+        {{- if .Values.operator.communicationTimeoutMillis }}
+        - name: OPERATOR_COMMUNICATION_TIMEOUT_MILLIS
+          value: {{ .Values.operator.communicationTimeoutMillis | quote }}
+        {{- end }}
         {{- if .Values.operator.subscribeEventBufferSize }}
         - name: OPERATOR_EVENT_BUFFER_SIZE
           value: {{ .Values.operator.subscribeEventBufferSize | quote }}

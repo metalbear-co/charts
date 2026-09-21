@@ -2678,6 +2678,18 @@ spec:
 
                                 Optional. Defaults to `false`.
                               type: boolean
+                            serverName:
+                              description: |-
+                                Name the server's certificate is verified against, and sent in the SNI extension, when
+                                the original client sent no SNI.
+
+                                Use it when the certificate is issued for a DNS name and the original clients do not
+                                send SNI, in which case the agent would otherwise verify against the destination IP.
+
+                                Optional. The agent uses the SNI from the original client, then this name, then the
+                                request's host, then the original destination IP.
+                              nullable: true
+                              type: string
                             trustRoots:
                               description: |-
                                 Paths to PEM files and directories with PEM files containing allowed root certificates.
@@ -2995,6 +3007,18 @@ spec:
 
                                 Optional. Defaults to `false`.
                               type: boolean
+                            serverName:
+                              description: |-
+                                Name the server's certificate is verified against, and sent in the SNI extension, when
+                                the original client sent no SNI.
+
+                                Use it when the certificate is issued for a DNS name and the original clients do not
+                                send SNI, in which case the agent would otherwise verify against the destination IP.
+
+                                Optional. The agent uses the SNI from the original client, then this name, then the
+                                request's host, then the original destination IP.
+                              nullable: true
+                              type: string
                             trustRoots:
                               description: |-
                                 Paths to PEM files and directories with PEM files containing allowed root certificates.

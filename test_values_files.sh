@@ -45,6 +45,15 @@ for file in test_values/mirrord-operator/*.yaml; do
       echo "expected 10 rendered allowedImages blocks (one per engine), got $rendered_allowlists"
       exit 1
     fi
+  elif [ "$file" = "test_values/mirrord-operator/operator_communication_timeout.yaml" ]; then
+    # Helm ignores a value no template consumes, so a misspelled key installs cleanly and leaves
+    # the operator on its built-in default. Assert the variable renders with the configured value.
+    echo "running with helm template and asserting the rendered communication timeout"
+    rendered=$(helm template -s templates/deployment.yaml -f "$file" mirrord-operator ./mirrord-operator)
+    if ! echo "$rendered" | grep -A1 "OPERATOR_COMMUNICATION_TIMEOUT_MILLIS" | grep -q '"90000"'; then
+      echo "chart did not render the configured communication timeout"
+      exit 1
+    fi
   elif [ "$file" = "test_values/mirrord-operator/operator_no_resources.yaml" ]; then
     # Unset quantities have to disappear from the pod specs (operator, sidecar, and agent config)
     # and the ones left alone have to survive - dropping either would still install cleanly here,
