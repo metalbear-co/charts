@@ -181,6 +181,10 @@ operator:
   dbBranchingLiteralCredentials: true
   # Has to be set to `true` in order to use the preview environments feature.
   previewEnv: false
+  # Records which Services mirrord sessions talk to, for the cluster topology view in the
+  # dashboard. Makes the operator watch every Service and EndpointSlice in the cluster, and
+  # grants it read access to EndpointSlices.
+  topology: false
 
   # Sharing preview environments via a plain link. Requires `previewEnv: true` and the
   # `mirrord-share-ingress` chart deployed with a matching `shareDomain`.

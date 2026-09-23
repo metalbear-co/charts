@@ -245,6 +245,18 @@ unset, the operator falls back to license-key authentication, so no source is st
   - mirrordclusteroperatorusercredentials
   verbs:
   - create
+{{- if .Values.operator.topology }}
+# The service-topology snapshot is a read-only singleton served over the operator's
+# aggregated API at cluster scope, so the rule must live in a ClusterRole even for
+# namespaced-Role users.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordclusterservicegraphs
+  verbs:
+  - get
+  - list
+{{- end }}
 {{- if .Values.operator.previewEnv }}
 # Preview secret mounts are created over the operator's aggregated API at cluster
 # scope, so the rule must live in a ClusterRole even for namespaced-Role users.

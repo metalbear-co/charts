@@ -36,10 +36,10 @@ spec:
         {{- if .Values.operator.podLabels }}
           {{- toYaml .Values.operator.podLabels | nindent 8 }}
         {{- end }}
+      {{- with .Values.operator.podAnnotations }}
       annotations:
-        {{- if .Values.operator.podAnnotations }}
-          {{- toYaml .Values.operator.podAnnotations | nindent 8 }}
-        {{- end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       # Graceful shutdown drains background tasks (up to 15 seconds) and then releases
       # the leadership lease, so it needs a little over 20 seconds; a bounded grace
@@ -176,6 +176,8 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.s3Branching }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.previewEnv }}
+        - name: OPERATOR_TOPOLOGY
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.topology }}
         {{- if and .Values.operator.shareIngress .Values.operator.shareIngress.shareDomain }}
         - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
           value: {{ .Values.operator.shareIngress.shareDomain | quote }}

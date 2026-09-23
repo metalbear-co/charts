@@ -7750,22 +7750,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -7845,22 +7843,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -7940,22 +7936,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8035,22 +8029,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8130,22 +8122,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8225,22 +8215,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8320,22 +8308,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8415,22 +8401,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8510,22 +8494,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8605,22 +8587,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8703,22 +8683,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8798,22 +8776,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8893,22 +8869,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -8988,22 +8962,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -9083,22 +9055,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -9178,22 +9148,20 @@ spec:
                                 description: |-
                                   File that exists only inside the target's running pods, e.g. rendered
                                   by vault-agent-injector under `/vault/secrets/` or projected by a
-                                  secrets-store CSI driver. The operator reads it by exec-ing into a
-                                  running pod of the target, so the target must have at least one running
-                                  pod and the operator needs `get` and `create` on `pods/exec`. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to
-                                  an env var's value. Mutually exclusive with `env`, `envLike` and
-                                  `volume`.
+                                  secrets-store CSI driver. The operator reads it through a mirrord agent
+                                  for a running pod of the target, so the target must have at least one
+                                  running pod whose container is ready. `valueSelector` / `valuePattern`
+                                  apply to the file's content the same way they apply to an env var's
+                                  value. Mutually exclusive with `env`, `envLike` and `volume`.
                                 nullable: true
                                 properties:
                                   container:
                                     description: |-
-                                      Container the operator exec-s into to read the file. Defaults to the
-                                      `vault-agent` sidecar when the pod has one (it always mounts the
-                                      rendered secrets and ships a shell), otherwise the pod's first
-                                      application container. Set this when the file is only mounted in a
-                                      specific container, or when the default container has no `cat` binary
-                                      (e.g. a distroless image).
+                                      Container whose filesystem the operator reads the file from, through a
+                                      mirrord agent for one of the target's running pods. Defaults to the
+                                      first container this ref's `containers` list names, otherwise the pod's
+                                      first application container. Set this when the file is only mounted in
+                                      a specific container.
                                     nullable: true
                                     type: string
                                   path:
@@ -10180,6 +10148,34 @@ spec:
           spec:
             description: Multi-cluster session coordinated by Envoy on Primary cluster.
             properties:
+              ciInfo:
+                description: |-
+                  CI info when the session was started with `mirrord ci start`.
+
+                  This is the only place a multi-cluster CI session is recorded as CI. The per-cluster
+                  MirrordClusterSessions underneath it deliberately carry no `ciInfo`, so the workload
+                  clusters never report the session to the license server. There is exactly one of these
+                  resources per session, on the primary, which is what makes a session spanning any number of
+                  clusters count as one against the concurrent CI session limit.
+                nullable: true
+                properties:
+                  environment:
+                    description: Staging, production, test, nightly, ...
+                    nullable: true
+                    type: string
+                  pipeline:
+                    description: Pipeline/job name, e.g. "e2e-tests".
+                    nullable: true
+                    type: string
+                  provider:
+                    description: CI provider, e.g. "github", "gitlab", ...
+                    nullable: true
+                    type: string
+                  triggeredBy:
+                    description: PR, manual, push, ...
+                    nullable: true
+                    type: string
+                type: object
               clusters:
                 description: List of cluster names to create sessions in
                 items:
