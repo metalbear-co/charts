@@ -740,10 +740,13 @@ rules:
 # Preview `secret_mounts` file contents live in a per-session Secret the operator
 # creates on the CLI's behalf (the `previewsecretmounts` endpoint), so the
 # developer needs no Secret permissions. The endpoint only creates (a retried
-# request tolerates the 409), so `create` alone is enough.
+# request tolerates the 409). `get` is for the preview task reading the TLS
+# client certificate the CLI stores in that same Secret
+# (`tls_delivery.client_cert`), so it can present it to preview pods that
+# require one. User-owned Secrets are never read.
 - apiGroups: [""]
   resources: [secrets]
-  verbs: [create]
+  verbs: [create, get]
 {{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (e.g. pattern-based DB branching overrides built from the target's runtime env, which can

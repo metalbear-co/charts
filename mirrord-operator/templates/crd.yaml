@@ -3594,6 +3594,8 @@ spec:
                         x-kubernetes-preserve-unknown-fields: true
                       port:
                         x-kubernetes-preserve-unknown-fields: true
+                      url:
+                        x-kubernetes-preserve-unknown-fields: true
                       user:
                         x-kubernetes-preserve-unknown-fields: true
                     type: object
@@ -3945,6 +3947,8 @@ spec:
                       password:
                         x-kubernetes-preserve-unknown-fields: true
                       port:
+                        x-kubernetes-preserve-unknown-fields: true
+                      url:
                         x-kubernetes-preserve-unknown-fields: true
                       user:
                         x-kubernetes-preserve-unknown-fields: true
@@ -4312,6 +4316,8 @@ spec:
                       password:
                         x-kubernetes-preserve-unknown-fields: true
                       port:
+                        x-kubernetes-preserve-unknown-fields: true
+                      url:
                         x-kubernetes-preserve-unknown-fields: true
                       user:
                         x-kubernetes-preserve-unknown-fields: true
@@ -6200,6 +6206,40 @@ spec:
                   steal:
                     description: Whether to steal (`true`) or mirror (`false`) traffic from the target.
                     type: boolean
+                  tlsDelivery:
+                    description: |-
+                      How the operator delivers stolen TLS traffic to the preview pod.
+
+                      `None` is the default: TLS, no verification of the pod's certificate, no client
+                      certificate. Only ever `Some` for TLS-stolen ports; plain HTTP delivery ignores it.
+                    nullable: true
+                    properties:
+                      clientAuth:
+                        description: |-
+                          Client certificate the operator presents to the preview pod, for applications that
+                          require one (mutual TLS). Without it the preview pod's TLS server rejects every stolen
+                          request with a `BadCertificate` alert, which surfaces as a 502.
+                        nullable: true
+                        properties:
+                          certSecretKey:
+                            description: Key whose value is the PEM certificate chain.
+                            type: string
+                          keySecretKey:
+                            description: Key whose value is the PEM private key.
+                            type: string
+                        required:
+                        - certSecretKey
+                        - keySecretKey
+                        type: object
+                      serverName:
+                        description: |-
+                          Server name (SNI) to send to the preview pod's TLS server.
+
+                          When unset, the original client's SNI is used, then the request URL's host, then
+                          `localhost`.
+                        nullable: true
+                        type: string
+                    type: object
                 required:
                 - steal
                 type: object
@@ -6384,6 +6424,58 @@ spec:
                       Per-queue split mode keyed by queue id. Broker-agnostic; a queue id absent here defaults to
                       `steal`. Only non-default (`mirror`) entries are stored.
                     type: object
+                  queues:
+                    description: |-
+                      Queues requested with the composable `filter` shape, for every broker.
+
+                      Wire invariant: an operator that predates this field reads only the per-broker
+                      `<broker>QueueFilters` maps (and `kafkaQueueJqFilters`), which can carry nothing but the
+                      `message_filter` map and collapse duplicate ids. So a legacy entry lives in its broker's
+                      map and nowhere else, and a composed entry lives in this list and nowhere else. The CLI
+                      refuses to create a session with this field against an operator that does not advertise
+                      `QueueSplittingWithComposedFilters`.
+                    items:
+                      description: One queue of a preview session requested with the composable `filter` shape.
+                      properties:
+                        filter:
+                          description: The composed filter tree.
+                          nullable: true
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        jqFilter:
+                          description: A jq filter the message must also pass.
+                          nullable: true
+                          type: string
+                        mode:
+                          description: Steal (default) or mirror matched messages.
+                          enum:
+                          - steal
+                          - mirror
+                          title: feature.split_queues.{}.queue_mode {#feature-split_queues-queue_id-queue_mode}
+                          type: string
+                        queueId:
+                          description: Queue id from the user's config, `*` for every queue of the broker.
+                          type: string
+                        queueType:
+                          description: The broker, in the wire's own enum (the config's `queue_type` names).
+                          enum:
+                          - SQS
+                          - Kafka
+                          - RMQ
+                          - GCPPubSub
+                          - RedisPubSub
+                          - AzureServiceBus
+                          - Temporal
+                          - BullMQ
+                          - NATS
+                          - NATSPubSub
+                          type: string
+                      required:
+                      - filter
+                      - queueId
+                      - queueType
+                      type: object
+                    type: array
                   redisPubsubQueueFilters:
                     additionalProperties:
                       description: |-
@@ -6862,6 +6954,8 @@ spec:
                       password:
                         x-kubernetes-preserve-unknown-fields: true
                       port:
+                        x-kubernetes-preserve-unknown-fields: true
+                      url:
                         x-kubernetes-preserve-unknown-fields: true
                       user:
                         x-kubernetes-preserve-unknown-fields: true
@@ -9478,10 +9572,24 @@ spec:
                 description: Queues to split in this session. Each entry references a queue ID from MirrordSplitConfig.
                 items:
                   properties:
+                    filter:
+                      description: |-
+                        The composable filter tree, written when the session was requested with the `filter`
+                        shape. Stored opaquely because the tree is recursive; an operator that cannot read a node
+                        matches nothing for it.
+                      nullable: true
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
                     headersFilter:
                       additionalProperties:
                         type: string
-                      description: Regex-based header/attribute filters. Keys are attribute names, values are regex patterns.
+                      description: |-
+                        Regex-based header/attribute filters. Keys are attribute names, values are regex patterns.
+
+                        Written when the session was requested with the legacy `message_filter` map, so an older
+                        operator taking over this session still reads the filter. Exactly one of this and
+                        `filter` is set when the queue has an attribute filter; read them through
+                        [`Self::message_filter`].
                       nullable: true
                       type: object
                     id:

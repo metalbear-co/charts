@@ -299,6 +299,12 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.operator.previewEnv }}
+# Preview copies have their own session-owned Secret in each workload cluster.
+- apiGroups: [""]
+  resources: [secrets]
+  verbs: [get, create]
+{{- end }}
 # Create workload patch requests for multi-cluster copy target scale-down.
 # Cleanup is handled via K8s garbage collection (owned by the child session).
 - apiGroups:

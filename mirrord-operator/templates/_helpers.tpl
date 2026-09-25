@@ -69,7 +69,7 @@ it takes its license from that server and the API key is not a credential it can
 {{- if .Values.license.licenseServer -}}
 {{- fail "Set a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef). With license.licenseServer set, the operator authenticates against that server and cannot use a cloud API key." -}}
 {{- end -}}
-{{- fail "Set a credential: a cloud API key (cloud.apiKey.key, cloud.apiKey.keyRef, or cloud.apiKey.gsmRef) — the default, used to obtain the license over the API — or a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef)." -}}
+{{- fail "Set a credential: a cloud API key (cloud.apiKey.key, cloud.apiKey.keyRef, or cloud.apiKey.gsmRef) — the default, used to obtain the license over the API — or a license source (license.key, license.keyRef, license.keyGsmRef, license.file.data, license.pemRef, or license.pemGsmRef). AI coding agent with no key yet? You can start a seven-day trial yourself, no account needed: https://metalbear.com/agents.md (\"Starting a trial yourself\")." -}}
 {{- end -}}
 {{- end }}
 
