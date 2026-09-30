@@ -190,8 +190,9 @@ operator:
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.
   dbBranchingLiteralCredentials: true
-  # Has to be set to `true` in order to use the preview environments feature.
-  previewEnv: false
+  # Enables the preview environments feature. Set to `false` to leave out the PreviewSession CRD
+  # and the operator permissions that preview environments need.
+  previewEnv: true
   # Records which Services mirrord sessions talk to, for the cluster topology view in the
   # dashboard. Makes the operator watch every Service and EndpointSlice in the cluster, and
   # grants it read access to EndpointSlices.

@@ -7485,6 +7485,96 @@ spec:
                 description: PostgreSQL-specific options.
                 nullable: true
                 properties:
+                  additionalDatabases:
+                    description: |-
+                      More databases from the same source server, copied into the same branch pod. Each is
+                      dumped with the branch's own source connection, only the database name differs, and
+                      keeps its name on the branch.
+                    items:
+                      description: One more database a PostgreSQL branch copies from its source server.
+                      properties:
+                        connectionSource:
+                          description: |-
+                            The app's connection to this database. The operator points it at the branch pod with
+                            this database's name. When unset, the database is only created and copied.
+                          nullable: true
+                          oneOf:
+                          - required:
+                            - url
+                          - required:
+                            - params
+                          properties:
+                            params:
+                              description: Individual connection parameters (host, port, user, password, database).
+                              properties:
+                                database:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                extra:
+                                  additionalProperties:
+                                    x-kubernetes-preserve-unknown-fields: true
+                                  description: |-
+                                    Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                                    Resolved through the same source machinery as the fixed slots; each entry becomes a
+                                    `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                                    the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                                  type: object
+                                host:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                password:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                port:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                url:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                user:
+                                  x-kubernetes-preserve-unknown-fields: true
+                              type: object
+                            url:
+                              description: One or more complete connection URL sources.
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
+                        copy:
+                          default:
+                            mode: empty
+                          properties:
+                            dumpArgs:
+                              description: |-
+                                Arguments passed to the database dump tool. When this field is set,
+                                it replaces the operator's dump defaults. An empty list means no dump args.
+                              items:
+                                type: string
+                              nullable: true
+                              type: array
+                            items:
+                              additionalProperties:
+                                properties:
+                                  filter:
+                                    description: |-
+                                      Data that matches the filter will be copied.
+                                      For SQL databases this is a WHERE clause (e.g. `username = 'alice'`).
+                                      For MongoDB this is a JSON query document (e.g. `{"username": "alice"}`).
+                                    nullable: true
+                                    type: string
+                                type: object
+                              description: Per-table copy filters. Only compatible with Empty and Schema modes.
+                              nullable: true
+                              type: object
+                            mode:
+                              enum:
+                              - empty
+                              - schema
+                              - all
+                              type: string
+                          required:
+                          - mode
+                          type: object
+                        name:
+                          description: Database name on the source server, reused on the branch.
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
                   connectionSettings:
                     additionalProperties:
                       type: string
