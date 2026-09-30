@@ -542,7 +542,7 @@ rules:
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
 # Unified BranchDatabase CRD used by the unified controller and legacy adapter
 - apiGroups:
   - dbs.mirrord.metalbear.co
@@ -649,7 +649,7 @@ rules:
   - get
   - update
   - patch
-{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching) }}
+{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching) }}
 # When the primary is itself the default (workload) cluster, its envoy serves branch
 # tunnels by port-forwarding to branch DB pods with the operator's OWN ServiceAccount
 # (ConfigFileClusterProvider::get_cluster_client's local path) - the member-side
@@ -747,7 +747,7 @@ rules:
 - apiGroups: [""]
   resources: [secrets]
   verbs: [create, get]
-{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (e.g. pattern-based DB branching overrides built from the target's runtime env, which can
 # embed source credentials). Injected via secretKeyRef; owner references handle cleanup.

@@ -174,6 +174,12 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.genericBranching }}
         - name: OPERATOR_S3_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.s3Branching }}
+        - name: OPERATOR_TURBOPUFFER_BRANCHING
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.turbopufferBranching }}
+        {{- if and .Values.operator.turbopufferOptions .Values.operator.turbopufferOptions.allowedHosts }}
+        - name: OPERATOR_TURBOPUFFER_ALLOWED_HOSTS
+          value: {{ join "," .Values.operator.turbopufferOptions.allowedHosts | quote }}
+        {{- end }}
         - name: OPERATOR_PREVIEW_ENV
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.previewEnv }}
         - name: OPERATOR_TOPOLOGY
@@ -482,6 +488,11 @@ spec:
           capabilities:
             drop: ["ALL"]
           privileged: false
+        volumeMounts:
+        # Kafka clients unpack the native libraries of compression codecs (zstd, snappy, lz4)
+        # into `java.io.tmpdir` on first use.
+        - mountPath: /tmp
+          name: kafka-sidecar-tmp
       {{- end }}
       # End of Kafka splitting sidecar
 
@@ -510,3 +521,7 @@ spec:
       {{- end }}
       - emptyDir: {}
         name: tmp
+      {{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaSplittingSidecar.enabled }}
+      - emptyDir: {}
+        name: kafka-sidecar-tmp
+      {{- end }}

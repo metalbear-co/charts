@@ -60,3 +60,12 @@ jobs:
         run: |
           LICENSE_CHART_VERSION=$(yq -r '.version' mirrord-license-server/Chart.yaml)
           helm push mirrord-operator-license-server-${LICENSE_CHART_VERSION}.tgz oci://ghcr.io/${{ github.repository_owner }}
+
+      # Consumed by `mirrord operator install`, which installs the operator without the helm CLI.
+      - name: Upload default operator manifest to the chart release
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          CHART_VERSION=$(yq -r '.version' mirrord-operator/Chart.yaml)
+          ./render_default_manifest.sh mirrord-operator-${CHART_VERSION}.yaml
+          gh release upload mirrord-operator-${CHART_VERSION} mirrord-operator-${CHART_VERSION}.yaml --clobber

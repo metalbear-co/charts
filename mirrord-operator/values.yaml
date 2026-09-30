@@ -175,6 +175,17 @@ operator:
   # clones buckets in the customer's cloud account with its own AWS credentials (from the
   # service account's IAM role annotation); there is no branch pod and no `s3BranchConfig`.
   s3Branching: false
+  # Has to be set to `true` in order to use the turbopuffer namespace branching feature. The
+  # operator branches namespaces through turbopuffer's API with the API key it reads off the
+  # target workload; there is no branch pod and no `turbopufferBranchConfig`.
+  turbopufferBranching: false
+  # Settings for the turbopuffer namespace branching feature.
+  turbopufferOptions:
+    # Domains a turbopuffer branch may send its API key to, on top of `turbopuffer.com`, which
+    # is always allowed. Set this only for a dedicated cluster served from another domain: a
+    # branch names its own endpoint, so anything listed here is a host the operator will hand
+    # the resolved API key to.
+    allowedHosts: []
   # Grants cluster-wide Secret permissions needed when users pass literal
   # database credentials in the mirrord config instead of referencing
   # existing K8s Secrets.

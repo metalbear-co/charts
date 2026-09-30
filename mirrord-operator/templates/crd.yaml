@@ -3667,6 +3667,8 @@ spec:
                   - replica_set
                 - required:
                   - labels
+                - required:
+                  - serverless
                 properties:
                   container:
                     nullable: true
@@ -3696,6 +3698,12 @@ spec:
                     description: |-
                       <!--${internal}-->
                       Rollout to mirror.
+                    type: string
+                  serverless:
+                    description: |-
+                      Name of the service in sessions-manager: the logical workload whose replicas
+                      each run an agent companion. Together with the environment it forms the
+                      `ServiceScope` that the session's agent pairing is restricted to.
                     type: string
                   service:
                     type: string
@@ -4036,6 +4044,8 @@ spec:
                   - replica_set
                 - required:
                   - labels
+                - required:
+                  - serverless
                 properties:
                   container:
                     nullable: true
@@ -4065,6 +4075,12 @@ spec:
                     description: |-
                       <!--${internal}-->
                       Rollout to mirror.
+                    type: string
+                  serverless:
+                    description: |-
+                      Name of the service in sessions-manager: the logical workload whose replicas
+                      each run an agent companion. Together with the environment it forms the
+                      `ServiceScope` that the session's agent pairing is restricted to.
                     type: string
                   service:
                     type: string
@@ -4389,6 +4405,8 @@ spec:
                   - replica_set
                 - required:
                   - labels
+                - required:
+                  - serverless
                 properties:
                   container:
                     nullable: true
@@ -4418,6 +4436,12 @@ spec:
                     description: |-
                       <!--${internal}-->
                       Rollout to mirror.
+                    type: string
+                  serverless:
+                    description: |-
+                      Name of the service in sessions-manager: the logical workload whose replicas
+                      each run an agent companion. Together with the environment it forms the
+                      `ServiceScope` that the session's agent pairing is restricted to.
                     type: string
                   service:
                     type: string
@@ -5832,6 +5856,41 @@ spec:
                       required:
                       - nameOrUrl
                       type: object
+                    turbopufferNamespace:
+                      description: Namespace branched in the customer's turbopuffer account for a turbopuffer branch.
+                      nullable: true
+                      properties:
+                        apiKeySecret:
+                          description: Where the API key that deletes the namespace is kept.
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
+                        baseUrl:
+                          description: API endpoint the namespace lives behind, e.g. `https://gcp-us-central1.turbopuffer.com/`.
+                          type: string
+                        name:
+                          description: Name of the namespace to delete.
+                          type: string
+                        seeded:
+                          description: |-
+                            Whether the operator created the namespace itself, which only a branch that clones
+                            its source does. An empty branch's namespace exists only once the app writes to it,
+                            so finding nothing to delete is expected there and suspect everywhere else.
+                          type: boolean
+                      required:
+                      - apiKeySecret
+                      - baseUrl
+                      - name
+                      type: object
                   type: object
                 type: array
               rmqResource:
@@ -5885,6 +5944,41 @@ spec:
                     type: string
                 required:
                 - nameOrUrl
+                type: object
+              turbopufferNamespace:
+                description: Namespace branched in the customer's turbopuffer account for a turbopuffer branch.
+                nullable: true
+                properties:
+                  apiKeySecret:
+                    description: Where the API key that deletes the namespace is kept.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  baseUrl:
+                    description: API endpoint the namespace lives behind, e.g. `https://gcp-us-central1.turbopuffer.com/`.
+                    type: string
+                  name:
+                    description: Name of the namespace to delete.
+                    type: string
+                  seeded:
+                    description: |-
+                      Whether the operator created the namespace itself, which only a branch that clones
+                      its source does. An empty branch's namespace exists only once the app writes to it,
+                      so finding nothing to delete is expected there and suspect everywhere else.
+                    type: boolean
+                required:
+                - apiKeySecret
+                - baseUrl
+                - name
                 type: object
             type: object
           status:
@@ -6099,6 +6193,11 @@ spec:
                     type: array
                   spannerBranchNames:
                     description: Spanner branch database names to use for this session.
+                    items:
+                      type: string
+                    type: array
+                  turbopufferBranchNames:
+                    description: turbopuffer branch namespace names to use for this session.
                     items:
                       type: string
                     type: array
@@ -6607,9 +6706,22 @@ spec:
                   type: object
                 type: array
               target:
+                anyOf:
+                - required:
+                  - apiVersion
+                  - container
+                  - kind
+                  - name
+                - required:
+                  - container
+                  - labelSelector
                 description: |-
                   Target to copy pod configuration from (deployment, pod, statefulset, etc.).
                   The preview pod will be a copy of the target's pod spec with the user's image.
+
+                  A pod-set target (label selector) takes traffic from every matching pod, whichever
+                  workloads own them. The pod spec is copied from one of the matching pods, and an empty
+                  `container` lets the operator pick the container in each pod on its own.
                 properties:
                   apiVersion:
                     description: Kubernetes resource apiVersion.
@@ -6620,14 +6732,57 @@ spec:
                   kind:
                     description: Kubernetes resource kind.
                     type: string
+                  labelSelector:
+                    description: Label selector for the targeted pods.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: |-
+                            A label selector requirement is a selector that contains values, a key, and an operator that
+                            relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: |-
+                                operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                                Exists and DoesNotExist.
+                              enum:
+                              - In
+                              - NotIn
+                              - Exists
+                              - DoesNotExist
+                              type: string
+                            values:
+                              description: |-
+                                values is an array of string values. If the operator is In or NotIn, the values array must
+                                be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                                This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              nullable: true
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        nullable: true
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                          equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                          "In", and the values array contains only "value". The requirements are ANDed.
+                        nullable: true
+                        type: object
+                    type: object
                   name:
                     description: Target name.
                     type: string
-                required:
-                - apiVersion
-                - container
-                - kind
-                - name
                 type: object
               ttlSecs:
                 description: |-
@@ -6788,7 +6943,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching }}
+{{ if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -7531,6 +7686,23 @@ spec:
                 format: uint64
                 minimum: 0.0
                 type: integer
+              turbopufferOptions:
+                description: turbopuffer-specific options.
+                nullable: true
+                properties:
+                  copy:
+                    default:
+                      mode: empty
+                    properties:
+                      mode:
+                        enum:
+                        - empty
+                        - all
+                        type: string
+                    required:
+                    - mode
+                    type: object
+                type: object
               version:
                 description: |-
                   Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
