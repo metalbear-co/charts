@@ -99,12 +99,6 @@ unset, the operator falls back to license-key authentication, so no source is st
 - apiGroups:
   - operator.metalbear.co
   resources:
-  - copytargets
-  verbs:
-  - create
-- apiGroups:
-  - operator.metalbear.co
-  resources:
   - targets
   - copytargets
   verbs:
@@ -116,6 +110,57 @@ unset, the operator falls back to license-key authentication, so no source is st
   verbs:
   - deletecollection
   - delete
+{{ include "mirrord-operator.sharedNamespacedRules" . }}
+{{- end }}
+
+{{/* The client uses both deployment and deploy names on target API routes. */}}
+{{- define "mirrord-operator.targetRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - targets
+  - targets/port-locks
+  resourceNames:
+  {{- range .targetNames }}
+  - {{ . | quote }}
+  {{- end }}
+  verbs:
+  - get
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - copytargets
+  verbs:
+  - get
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - targets
+  resourceNames:
+  {{- range .targetNames }}
+  - {{ . | quote }}
+  {{- end }}
+  verbs:
+  - proxy
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - copytargets
+  verbs:
+  - proxy
+{{ include "mirrord-operator.sharedNamespacedRules" .root }}
+{{- end }}
+
+{{/* Copy reuse lists the namespace before creation; create cannot use resourceNames.
+Session deletion stays outside this helper because session IDs do not identify targets. */}}
+{{- define "mirrord-operator.sharedNamespacedRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - copytargets
+  verbs:
+  - create
+  - list
 - apiGroups:
   - profiles.mirrord.metalbear.co
   resources:

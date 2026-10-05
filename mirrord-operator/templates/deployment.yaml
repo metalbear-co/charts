@@ -216,8 +216,8 @@ spec:
         - name: OPERATOR_SUSPEND_FLUX_CONTROLLERS
           value: "true"
         {{- end }}
-        {{- if .Values.operator.pauseKedaScaleIn }}
-        - name: OPERATOR_PAUSE_KEDA_SCALE_IN
+        {{- if or .Values.operator.manageKedaScaledObjects .Values.operator.pauseKedaScaleIn }}
+        - name: OPERATOR_MANAGE_KEDA_SCALED_OBJECTS
           value: "true"
         {{- end }}
         - name: OPERATOR_METRICS_ENABLED
@@ -230,6 +230,8 @@ spec:
         {{- end }}
         - name: OPERATOR_JSON_LOG
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.jsonLog }}
+        - name: OPERATOR_HIDE_HEADERS_AND_PROPERTIES
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.hideHeadersAndProperties }}
         - name: OPERATOR_REQUIRE_FRONT_PROXY_CLIENT_CERT
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.requireFrontProxyClientCert }}
         - name: OPERATOR_AGENT_CONFIG

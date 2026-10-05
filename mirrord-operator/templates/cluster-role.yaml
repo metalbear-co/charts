@@ -435,7 +435,7 @@ rules:
   - get
   - patch
 {{- end }}
-{{- if .Values.operator.pauseKedaScaleIn }}
+{{- if or .Values.operator.manageKedaScaledObjects .Values.operator.pauseKedaScaleIn }}
 - apiGroups:
   - keda.sh
   resources:
@@ -443,6 +443,7 @@ rules:
   verbs:
   - get
   - list
+  - watch
   - patch
 {{- end }}
 - apiGroups:

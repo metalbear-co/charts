@@ -156,6 +156,24 @@ clusterRole:
       team: ci
 ```
 
+Use `roleNamespaces` to limit users or groups to exact operator target names within a namespace:
+
+```yaml
+roleNamespaces:
+  my-namespace:
+    deployment.api:
+      - type: User
+        subject: developer@example.com
+      - type: Group
+        subject: api-team@example.com
+```
+
+Target names do not support wildcards, and must use `.` as path separators. Add `.container.<name>`
+to further restrict access to one container. Restricted subjects must name their target explicitly
+and must also have Kubernetes `get` access to the workload.
+
+NOTE: These roles do not grant session deletion.
+
 > Learn more about [copy-target namespaces](https://metalbear.co/mirrord/docs/using-mirrord/copy-target/).
 
 ---

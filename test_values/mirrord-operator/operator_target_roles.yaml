@@ -1,0 +1,13 @@
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
+
+roleNamespaces:
+  namespace1:
+    deployment.api:
+      - type: User
+        subject: developer@example.com
+      - type: Group
+        subject: api-team@example.com

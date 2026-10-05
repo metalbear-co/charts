@@ -4682,6 +4682,15 @@ spec:
                 items:
                   description: An accepted [`MirrordClusterWorkloadPatchRequest`], part of [`MirrordClusterWorkloadPatch`].
                   properties:
+                    autoscalerReplicas:
+                      description: |-
+                        Replica count to pause the workload's autoscaler at for as long as the patch is applied,
+                        unless a request sets `replicas`.
+
+                        [`None`] leaves the autoscaler running.
+                      format: int32
+                      nullable: true
+                      type: integer
                     configMapVolumes:
                       description: '`configMap` volumes to redirect to operator-owned ConfigMap copies.'
                       items:
@@ -4725,14 +4734,6 @@ spec:
                         - variable
                         type: object
                       type: array
-                    minReplicas:
-                      description: |-
-                        Lower bound on the workload's replica count for as long as the patch is applied.
-
-                        [`None`] means that no lower bound is imposed.
-                      format: int32
-                      nullable: true
-                      type: integer
                     podFileMounts:
                       description: Files inside the pods to shadow with operator-owned Secret content.
                       items:
@@ -4780,6 +4781,30 @@ spec:
                       format: int32
                       nullable: true
                       type: integer
+                    scaleTriggerRewrites:
+                      description: Autoscaler trigger rewrites to apply for as long as the patch is applied.
+                      items:
+                        description: |-
+                          Redirects an autoscaler trigger from one resource onto another.
+
+                          A trigger whose metadata `key` holds `from` gets `to` instead; the rest of the trigger, its
+                          `authenticationRef` included, is left alone.
+                        properties:
+                          from:
+                            description: Identifier of the resource the workload consumed before the patch.
+                            type: string
+                          key:
+                            description: Trigger metadata key naming the resource, such as `topic`.
+                            type: string
+                          to:
+                            description: Identifier of the resource the workload consumes while the patch is applied.
+                            type: string
+                        required:
+                        - from
+                        - key
+                        - to
+                        type: object
+                      type: array
                     uid:
                       description: UID of the origin [`MirrordClusterWorkloadPatchRequest`] resource.
                       type: string
@@ -4911,6 +4936,15 @@ spec:
           spec:
             description: Internal resource, representing an operator request to patch some workload.
             properties:
+              autoscalerReplicas:
+                description: |-
+                  Replica count to pause the workload's autoscaler at for as long as the patch is applied,
+                  unless a request sets `replicas`.
+
+                  [`None`] leaves the autoscaler running.
+                format: int32
+                nullable: true
+                type: integer
               configMapVolumes:
                 description: '`configMap` volumes to redirect to operator-owned ConfigMap copies.'
                 items:
@@ -4954,14 +4988,6 @@ spec:
                   - variable
                   type: object
                 type: array
-              minReplicas:
-                description: |-
-                  Lower bound on the workload's replica count for as long as the patch is applied.
-
-                  [`None`] means that no lower bound is imposed.
-                format: int32
-                nullable: true
-                type: integer
               podFileMounts:
                 description: Files inside the pods to shadow with operator-owned Secret content.
                 items:
@@ -5009,6 +5035,30 @@ spec:
                 format: int32
                 nullable: true
                 type: integer
+              scaleTriggerRewrites:
+                description: Autoscaler trigger rewrites to apply for as long as the patch is applied.
+                items:
+                  description: |-
+                    Redirects an autoscaler trigger from one resource onto another.
+
+                    A trigger whose metadata `key` holds `from` gets `to` instead; the rest of the trigger, its
+                    `authenticationRef` included, is left alone.
+                  properties:
+                    from:
+                      description: Identifier of the resource the workload consumed before the patch.
+                      type: string
+                    key:
+                      description: Trigger metadata key naming the resource, such as `topic`.
+                      type: string
+                    to:
+                      description: Identifier of the resource the workload consumes while the patch is applied.
+                      type: string
+                  required:
+                  - from
+                  - key
+                  - to
+                  type: object
+                type: array
               workloadRef:
                 description: Reference to the workload being patched.
                 properties:

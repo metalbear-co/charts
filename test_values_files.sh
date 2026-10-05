@@ -2,6 +2,9 @@
 
 set -e
 
+# Optional first argument selects filenames containing this text.
+filter=${1:-}
+
 # A namespace the chart created can still be Terminating after `helm uninstall --wait`
 # returns, and a terminating namespace rejects the next release's resources with a
 # `forbidden` error. Block until it is actually gone.
@@ -20,9 +23,25 @@ wait_for_namespace_deletion() {
   done
 }
 
+# Helm ignores a value no template consumes, so a misspelled key installs cleanly and leaves the
+# operator on its built-in default. Fail unless the operator container gets the variable `$2` with
+# the value `$3` from the values file `$1`.
+assert_rendered_env() {
+  echo "running with helm template and asserting that $2 renders as $3"
+  rendered=$(helm template -s templates/deployment.yaml -f "$1" mirrord-operator ./mirrord-operator)
+  if ! echo "$rendered" | grep -A1 "$2" | grep -q "\"$3\""; then
+    echo "chart did not render $2 with the value $3"
+    exit 1
+  fi
+}
+
 # For each file in the `test_values` directory
 # run helm install && helm uninstall.
 for file in test_values/mirrord-operator/*.yaml; do
+  case "${file##*/}" in
+    *"$filter"*) ;;
+    *) continue ;;
+  esac
   echo "::group::Running test for $file" # Groups logs in the CI dashboard
   # helm will wait forever for the volumes to be ready unless `--dry-run` is used
   if [ "$file" = "test_values/mirrord-operator/extra_volumes.yaml" ]; then
@@ -46,14 +65,9 @@ for file in test_values/mirrord-operator/*.yaml; do
       exit 1
     fi
   elif [ "$file" = "test_values/mirrord-operator/operator_communication_timeout.yaml" ]; then
-    # Helm ignores a value no template consumes, so a misspelled key installs cleanly and leaves
-    # the operator on its built-in default. Assert the variable renders with the configured value.
-    echo "running with helm template and asserting the rendered communication timeout"
-    rendered=$(helm template -s templates/deployment.yaml -f "$file" mirrord-operator ./mirrord-operator)
-    if ! echo "$rendered" | grep -A1 "OPERATOR_COMMUNICATION_TIMEOUT_MILLIS" | grep -q '"90000"'; then
-      echo "chart did not render the configured communication timeout"
-      exit 1
-    fi
+    assert_rendered_env "$file" OPERATOR_COMMUNICATION_TIMEOUT_MILLIS 90000
+  elif [ "$file" = "test_values/mirrord-operator/operator_hide_headers_and_properties.yaml" ]; then
+    assert_rendered_env "$file" OPERATOR_HIDE_HEADERS_AND_PROPERTIES true
   elif [ "$file" = "test_values/mirrord-operator/operator_no_resources.yaml" ]; then
     # Unset quantities have to disappear from the pod specs (operator, sidecar, and agent config)
     # and the ones left alone have to survive - dropping either would still install cleanly here,
@@ -101,6 +115,10 @@ done
 # For each file in the `test_values` directory
 # run helm install && helm uninstall.
 for file in test_values/mirrord-license-server/*.yaml; do
+  case "${file##*/}" in
+    *"$filter"*) ;;
+    *) continue ;;
+  esac
   echo "::group::Running test for $file" # Groups logs in the CI dashboard
 
   # helm will wait forever for the volumes to be ready unless `--dry-run` is used

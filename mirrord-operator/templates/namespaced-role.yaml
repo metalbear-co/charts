@@ -1,3 +1,5 @@
+{{- if .Values.roleNamespaces }}
+{{- if kindIs "slice" .Values.roleNamespaces }}
 {{- range .Values.roleNamespaces }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -16,4 +18,72 @@ metadata:
 rules:
 {{- include "mirrord-operator.rules" $ | nindent 0 }}
 ---
+{{- end }}
+{{- else if kindIs "map" .Values.roleNamespaces }}
+{{- range $namespace, $targets := .Values.roleNamespaces }}
+{{- if not (kindIs "map" $targets) }}
+{{- fail (printf "roleNamespaces.%s must map target names to subjects" $namespace) }}
+{{- end }}
+{{- range $target, $subjects := $targets }}
+{{- if not (kindIs "slice" $subjects) }}
+{{- fail (printf "roleNamespaces.%s.%s must be a list of subjects" $namespace $target) }}
+{{- end }}
+{{- if empty $subjects }}
+{{- fail (printf "roleNamespaces.%s.%s must contain at least one subject" $namespace $target) }}
+{{- end }}
+{{- $name := printf "mirrord-operator-user-%s" (sha256sum (printf "%s/%s" $namespace $target) | trunc 12) }}
+{{- $copyTarget := regexReplaceAll "^deployment\\." $target "deploy." }}
+{{- $targetNames := list $copyTarget (regexReplaceAll "^deploy\\." $target "deployment.") | uniq }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  namespace: {{ $namespace | quote }}
+  {{- if $.Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" $ | nindent 4 }}
+    {{- if index $.Values.role "mirrord-operator-user" "labels" }}
+          {{- toYaml (index $.Values.role "mirrord-operator-user" "labels") | nindent 4 }}
+    {{- end }}
+rules:
+{{- include "mirrord-operator.targetRules" (dict "root" $ "targetNames" $targetNames) | nindent 0 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  namespace: {{ $namespace | quote }}
+  {{- if $.Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $name }}
+subjects:
+{{- range $subject := $subjects }}
+{{- if not (kindIs "map" $subject) }}
+{{- fail (printf "roleNamespaces.%s.%s subjects must be mappings" $namespace $target) }}
+{{- end }}
+{{- $type := required (printf "roleNamespaces.%s.%s subject type is required" $namespace $target) $subject.type }}
+{{- if not (or (eq $type "User") (eq $type "Group")) }}
+{{- fail (printf "roleNamespaces.%s.%s subject type must be User or Group" $namespace $target) }}
+{{- end }}
+{{- $subjectName := required (printf "roleNamespaces.%s.%s subject is required" $namespace $target) $subject.subject }}
+- apiGroup: rbac.authorization.k8s.io
+  kind: {{ $type }}
+  name: {{ $subjectName | quote }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
+{{- else }}
+{{- fail "roleNamespaces must be a list or mapping" }}
+{{- end }}
 {{- end }}

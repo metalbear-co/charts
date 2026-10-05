@@ -45,6 +45,7 @@ rules:
       - mirrordmulticlustersessions
       - previewsessions
       - branchdatabases
+      - mirrordclusterworkloadpatchrequests
       - mirrordclusterworkloadpatches
       - mirrordclusterexternalresources
     verbs: [list, get, watch, delete, patch]
