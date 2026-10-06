@@ -6201,6 +6201,53 @@ spec:
                     items:
                       type: string
                     type: array
+                  connectionSources:
+                    additionalProperties:
+                      oneOf:
+                      - required:
+                        - url
+                      - required:
+                        - params
+                      properties:
+                        params:
+                          description: Individual connection parameters (host, port, user, password, database).
+                          properties:
+                            database:
+                              x-kubernetes-preserve-unknown-fields: true
+                            extra:
+                              additionalProperties:
+                                x-kubernetes-preserve-unknown-fields: true
+                              description: |-
+                                Engine-specific connection params keyed by name (e.g. Spanner `project` / `instance`).
+                                Resolved through the same source machinery as the fixed slots; each entry becomes a
+                                `--src-db-param <name>=<ref>` arg for the init binary. The accepted key set is owned by
+                                the engine (see `ExtraParamSet`) and validated per dialect, so unknown keys are rejected.
+                              type: object
+                            host:
+                              x-kubernetes-preserve-unknown-fields: true
+                            password:
+                              x-kubernetes-preserve-unknown-fields: true
+                            port:
+                              x-kubernetes-preserve-unknown-fields: true
+                            url:
+                              x-kubernetes-preserve-unknown-fields: true
+                            user:
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
+                        url:
+                          description: One or more complete connection URL sources.
+                          x-kubernetes-preserve-unknown-fields: true
+                      type: object
+                    description: |-
+                      This session's own connection mapping for the branches it reuses, keyed by branch
+                      resource name.
+
+                      A branch's `spec.connectionSource` names the env vars of the workload that created it.
+                      Another workload sharing the branch `id` reads its connection from differently named
+                      vars (`AUDIT_DB_HOST` where the creator has `DB_HOST`), so the operator builds this
+                      session's overrides from the mapping here instead of the branch spec. Branches this
+                      session created are absent: their spec already is this mapping.
+                    type: object
                   dynamodbBranchNames:
                     description: DynamoDB branch database names to use for this session.
                     items:

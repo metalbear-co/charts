@@ -1,8 +1,9 @@
 {{- if not .Values.shareIngress.shareDomain }}
   {{- fail "shareIngress.shareDomain is required" }}
 {{- end }}
-{{- if not .Values.shareIngress.appDomain }}
-  {{- fail "shareIngress.appDomain is required" }}
+{{- $notFoundRedirect := dig "notFound" "redirect" true .Values.shareIngress }}
+{{- if and $notFoundRedirect (not .Values.shareIngress.appDomain) }}
+  {{- fail "shareIngress.appDomain is required while shareIngress.notFound.redirect is true; set it, or set shareIngress.notFound.redirect=false to serve a plain 404 page" }}
 {{- end }}
 
 apiVersion: apps/v1
@@ -73,8 +74,12 @@ spec:
           value: {{ printf "0.0.0.0:%d" (int .Values.server.port) }}
         - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
           value: {{ .Values.shareIngress.shareDomain | quote }}
+        {{- with .Values.shareIngress.appDomain }}
         - name: OPERATOR_SHARE_INGRESS_APP_DOMAIN
-          value: {{ .Values.shareIngress.appDomain | quote }}
+          value: {{ . | quote }}
+        {{- end }}
+        - name: OPERATOR_SHARE_INGRESS_NOT_FOUND_REDIRECT
+          value: {{ $notFoundRedirect | ternary "true" "false" | quote }}
         - name: OPERATOR_SHARE_INGRESS_JSON_LOG
           value: {{ .Values.server.jsonLog | ternary "true" "false" | quote }}
         {{- range $key, $val := .Values.server.extraEnv }}

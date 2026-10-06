@@ -1,0 +1,831 @@
+{{/*
+Rules of the operator's own `mirrord-operator` role, split by the scope of the resources. These
+are not the rules for users (`mirrord-operator.rules` and `mirrord-operator.clusterRules` in
+`_helpers.tpl`).
+
+A rule for a namespaced resource must go in `operatorNamespacedRules`, and a rule for a
+cluster-scoped resource in `operatorClusterRules`, because a Role cannot give access to
+cluster-scoped resources.
+
+By default, the `mirrord-operator` ClusterRole has both sets of rules. With `namespaced: true`, it
+has only the cluster rules, and a Role in each allowed namespace has the namespaced rules (see
+`operator-namespaced-role.yaml`).
+*/}}
+
+{{- define "mirrord-operator.operatorClusterRules" -}}
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordclusterpolicies
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordclusterpolicies/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordclusterprofiles
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordclusterprofiles/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- if .Values.operator.rmqSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordrmqsessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordrmqsessions/status
+  verbs:
+  - update
+{{- end }}
+# For reading the `default` namespace UID, used as a stable per-cluster
+# identifier attached to telemetry events.
+- apiGroups:
+    - ''
+  resources:
+    - namespaces
+  resourceNames:
+    - default
+  verbs:
+    - get
+# For fetching the operator cluster role.
+# The role is used as an owner reference
+# for various native resources created by the operator.
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - clusterroles
+  resourceNames:
+    - mirrord-operator
+  verbs:
+    - get
+# For creating and managing mutating webhook configs.
+- apiGroups:
+    - admissionregistration.k8s.io
+  resources:
+    - mutatingwebhookconfigurations
+  verbs:
+    - create
+    - get
+    - update
+    - patch
+    - delete
+    - deletecollection
+    - list
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclustersplitsessions/status
+  verbs:
+  - update
+  - patch
+{{- end }}
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclustertlsstealconfigs
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclustertlsstealconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
+# Choosing between a PVC and the emptyDir fallback requires knowing whether the
+# cluster has a default StorageClass (and whether an explicitly configured one exists).
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
+{{- end }}
+{{- if .Values.operator.multiCluster.enabled }}
+# For multi-cluster sessions (Envoy)
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordmulticlustersessions/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordclusterworkloadpatches
+  - mirrordclusterworkloadpatches/status
+  - mirrordclusterworkloadpatchrequests
+  - mirrordclusterworkloadpatchrequests/status
+  - mirrordclustersessions
+  - mirrordclustersessions/status
+  - mirrordclusterexternalresources
+  - mirrordclusterexternalresources/status
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - deletecollection
+  - update
+  - patch
+  - create
+{{- end }}
+
+{{- define "mirrord-operator.operatorNamespacedRules" -}}
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  - pods/log
+  - pods/ephemeralcontainers
+  - services
+  - pods/proxy
+  verbs:
+  - get
+  - list
+  - watch
+{{- if .Values.operator.topology }}
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - deployments/scale
+  - statefulsets
+  - statefulsets/scale
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  - rollouts/scale
+  verbs:
+  - get
+  - list
+  - watch
+# For patching and unpatching target workloads: scale down for copy target and env injection for queue splitting.
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - statefulsets
+  - replicasets
+  verbs:
+  - patch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts
+  verbs:
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - ''
+  resources:
+  - pods/ephemeralcontainers
+  verbs:
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - deployments/scale
+  - statefulsets/scale
+  verbs:
+  - patch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - rollouts/scale
+  verbs:
+  - patch
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordpolicies
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - policies.mirrord.metalbear.co
+  resources:
+  - mirrordpolicies/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - profiles.mirrord.metalbear.co
+  resources:
+  - mirrordprofiles/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  - mirrordpropertylists/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+{{- if or .Values.operator.sqsSplitting .Values.operator.rmqSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordworkloadqueueregistries
+  verbs:
+  - list
+  - watch
+  - get
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordworkloadqueueregistries/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if .Values.operator.sqsSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - delete
+  - deletecollection
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsqssessions/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if .Values.operator.rmqSplitting }}
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+{{- end }}
+# For deleting previously mutated pods
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - delete
+  - deletecollection
+{{- if .Values.operator.kafkaSplitting }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkaephemeraltopics
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - patch
+  - delete
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkaclientconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkaclientconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkatopicsconsumers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordkafkatopicsconsumers/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsplitconfigs
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordsplitconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+{{- end }}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting }}
+# create/update/delete cover the operator-owned ConfigMap copies queue
+# splitting mounts in place of a user ConfigMap when queue names are resolved
+# from mounted files (`volume` sources). User ConfigMaps are only ever read.
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+# Property lists and Kafka client configs resolve through Secrets, so their accepted verdict has to
+# be recomputed when one changes. The watch is metadata-only; contents are read per resolution.
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+# create/update/delete cover the operator-owned Secret copies that queue
+# splitting shadow-mounts over `podFile` sources with the fallback names
+# swapped in. User Secrets are never modified.
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - create
+  - update
+  - delete
+{{- end }}
+{{- if .Values.operator.applicationPauseAutoSync }}
+- apiGroups:
+  - argoproj.io
+  resources:
+  - applications
+  verbs:
+  - list
+  - get
+  - patch
+{{- end }}
+{{- if .Values.operator.suspendFluxControllers }}
+- apiGroups:
+  - kustomize.toolkit.fluxcd.io
+  resources:
+  - kustomizations
+  verbs:
+  - get
+  - patch
+- apiGroups:
+  - helm.toolkit.fluxcd.io
+  resources:
+  - helmreleases
+  verbs:
+  - get
+  - patch
+{{- end }}
+{{- if or .Values.operator.manageKedaScaledObjects .Values.operator.pauseKedaScaleIn }}
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+{{- end }}
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordtlsstealconfigs
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordtlsstealconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - podtemplates
+  verbs:
+  - list
+  - get
+  - watch
+{{- if .Values.operator.isolatePodsRestart }}
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - patch
+{{- end }}
+{{- if .Values.operator.mysqlBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mysqlbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mysqlbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if .Values.operator.pgBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - pgbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if .Values.operator.mongodbBranching }}
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - mongodbbranchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+{{- end }}
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
+# Unified BranchDatabase CRD used by the unified controller and legacy adapter
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases
+  verbs:
+  - list
+  - get
+  - watch
+  - create
+  - delete
+  - update
+  - patch
+- apiGroups:
+  - dbs.mirrord.metalbear.co
+  resources:
+  - branchdatabases/status
+  verbs:
+  - get
+  - update
+  - patch
+# The operator creates ConfigMaps holding branch migration files mounted into the migration Job.
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+# Source TLS settings for branch copies are read from a conventionally named
+# MirrordPropertyList in each branch's namespace (e.g. `cockroachdb-source-tls`).
+# Resolving it follows secretKeyRef/configMapKeyRef references, and the resolved
+# certificate files are written into a Secret owned by the branch CR.
+- apiGroups:
+  - mirrord.metalbear.co
+  resources:
+  - mirrordpropertylists
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - patch
+# The operator watches temporary database credential Secrets and deletes those
+# that are not adopted by a BranchDatabase before their cleanup deadline.
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - list
+  - watch
+  - delete
+# Branch DB pods store their data on per-branch PersistentVolumeClaims by default.
+# `get` lets the operator adopt an existing claim idempotently across restarts;
+# `delete` removes a stale claim left by a deleted branch that had the same name.
+# Owner references handle regular cleanup.
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - get
+  - delete
+{{- end }}
+{{- if .Values.operator.multiCluster.enabled }}
+{{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching) }}
+# When the primary is itself the default (workload) cluster, its envoy serves branch
+# tunnels by port-forwarding to branch DB pods with the operator's OWN ServiceAccount
+# (ConfigFileClusterProvider::get_cluster_client's local path) - the member-side
+# mirrord-operator-envoy-remote grant never applies here. Branch pod names are
+# generated, so the grant cannot be pinned with resourceNames. kube-rs port-forwards
+# over WebSocket, which the apiserver authorizes as `get`; `create` covers SPDY.
+- apiGroups:
+  - ""
+  resources:
+  - pods/portforward
+  verbs:
+  - get
+  - create
+{{- end }}
+{{- end }}
+{{- if .Values.operator.previewEnv }}
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - update
+# A preview of a `cronjob/<name>` target is an isolated CronJob the operator creates
+# (`create`), suspends/resumes on failure or pause (`patch`), and deletes with the
+# session (`delete`, owner references). The operator also creates one Job right after
+# the CronJob to run it once regardless of its schedule; `get` on both is granted above
+# and is what `entry()` needs to create them idempotently across task respawns.
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - patch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+- apiGroups:
+  - preview.mirrord.metalbear.co
+  resources:
+  - previewsessions
+  - previewsessions/status
+  verbs:
+  - create
+  - delete
+  - edit
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create, get]
+# Preview `secret_mounts` file contents live in a per-session Secret the operator
+# creates on the CLI's behalf (the `previewsecretmounts` endpoint), so the
+# developer needs no Secret permissions. The endpoint only creates (a retried
+# request tolerates the 409). `get` is for the preview task reading the TLS
+# client certificate the CLI stores in that same Secret
+# (`tls_delivery.client_cert`), so it can present it to preview pods that
+# require one. User-owned Secrets are never read.
+- apiGroups: [""]
+  resources: [secrets]
+  verbs: [create, get]
+{{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
+# The operator creates a per-PreviewSession Secret holding operator-computed env values
+# (DB branch connection values and pattern-based overrides built from the target's runtime
+# env, which can embed credentials). Injected via secretKeyRef; owner references handle
+# cleanup. In this flow the operator does not read user-owned Secrets - `get` is what
+# `entry()` needs to create or refresh its own Secret idempotently across task respawns;
+# the refresh itself uses the `patch` verb granted in the branching block above.
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+{{- end }}
+{{- end }}
+{{- end }}

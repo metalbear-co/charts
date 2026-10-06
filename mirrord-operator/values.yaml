@@ -20,6 +20,26 @@ roleNamespaces:
 #       - type: Group
 #         subject: api-team@example.com
 
+## Limit the operator's own permissions to some namespaces.
+##
+## By default (`false`), the `mirrord-operator` ClusterRole lets the operator work in all
+## namespaces. When `true`, the ClusterRole keeps only the rules for cluster-scoped resources
+## (for example nodes, SubjectAccessReviews, MutatingWebhookConfigurations and the mirrord
+## `MirrordCluster*` resources). The rules for namespaced resources (for example pods, deployments
+## and secrets) go in a `mirrord-operator-namespaced` Role and RoleBinding in each namespace of
+## `allowedNamespaces` and in the operator namespace (`namespace`).
+##
+## The operator then refuses sessions and copy targets in other namespaces. The namespaces must
+## exist before you install the chart. These namespaces must also be in the list:
+## - the agent namespace, if you set `agent.extraConfig.namespace`;
+## - the Argo CD namespace, if you set `operator.applicationPauseAutoSync`;
+## - the Flux namespaces, if you set `operator.suspendFluxControllers`.
+##
+## Not supported with `operator.multiCluster.enabled` or `operator.multiClusterMember`.
+namespaced: false
+## The namespaces where the operator can work when `namespaced` is `true`.
+allowedNamespaces: []
+
 ## Additional Kubernetes resources to create with the chart. Entries are rendered as templates,
 ## so they can reference chart values and release information.
 extraObjects: []

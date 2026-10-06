@@ -8,7 +8,13 @@ shareIngress:
   # Must match `operator.shareIngress.shareDomain` on the operator, which mints hosts under it.
   shareDomain: ""
   # Where visitors are redirected when a share host no longer resolves to a live preview.
+  # Required while `notFound.redirect` is true.
   appDomain: ""
+  notFound:
+    # When true, a share host without a live preview gets a 404 page that redirects to
+    # `appDomain` after five seconds. When false, it gets a plain "Preview not found" 404 page
+    # with no refresh and no JavaScript, and `appDomain` is not needed.
+    redirect: true
 
 server:
   image: ghcr.io/metalbear-co/operator

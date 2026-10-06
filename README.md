@@ -174,6 +174,21 @@ and must also have Kubernetes `get` access to the workload.
 
 NOTE: These roles do not grant session deletion.
 
+To limit the operator's own permissions to some namespaces, set `namespaced` and list the
+namespaces in `allowedNamespaces`:
+
+```yaml
+namespaced: true
+allowedNamespaces:
+  - team-a
+  - team-b
+```
+
+The `mirrord-operator` ClusterRole then keeps only the rules for cluster-scoped resources. The chart
+puts the rules for namespaced resources in a `mirrord-operator-namespaced` Role and RoleBinding in
+each allowed namespace and in the operator namespace. The operator refuses sessions in other
+namespaces. This mode does not support multi-cluster.
+
 > Learn more about [copy-target namespaces](https://metalbear.co/mirrord/docs/using-mirrord/copy-target/).
 
 ---

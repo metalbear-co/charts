@@ -15,7 +15,7 @@ OTeltraces
 [Uu]id
 UID
 scaledown
-[Nn]amespaced?
+[Nn]amespace[ds]?
 NAMESPACE
 Jira
 AKS

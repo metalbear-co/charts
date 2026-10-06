@@ -1,0 +1,55 @@
+{{- /*
+With `namespaced: true`, the operator gets its rules for namespaced resources only in the allowed
+namespaces and in its own namespace, instead of in all namespaces through its ClusterRole.
+*/}}
+{{- if .Values.namespaced }}
+{{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
+{{- fail "operator.multiCluster.enabled and operator.multiClusterMember are not supported with namespaced: true." }}
+{{- end }}
+{{- $namespaces := concat (.Values.allowedNamespaces | default list) (list .Values.namespace) | uniq }}
+{{- /* The operator creates agent pods there and must watch them. */}}
+{{- if and .Values.agent.extraConfig (kindIs "map" .Values.agent.extraConfig) }}
+{{- with get .Values.agent.extraConfig "namespace" }}
+{{- if not (has . $namespaces) }}
+{{- fail (printf "agent.extraConfig.namespace (%s) must be in allowedNamespaces with namespaced: true." .) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- range $namespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mirrord-operator-namespaced
+  namespace: {{ . }}
+  {{- if $.Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" $ | nindent 4 }}
+rules:
+{{- include "mirrord-operator.operatorNamespacedRules" $ | nindent 0 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mirrord-operator-namespaced
+  namespace: {{ . }}
+  {{- if $.Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mirrord-operator-namespaced
+subjects:
+- apiGroup: ''
+  kind: ServiceAccount
+  name: {{ $.Values.sa.name }}
+  namespace: {{ $.Values.namespace }}
+{{- end }}
+{{- end }}
