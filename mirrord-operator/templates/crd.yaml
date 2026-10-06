@@ -6380,6 +6380,23 @@ spec:
                         - certSecretKey
                         - keySecretKey
                         type: object
+                      clientAuthFromTarget:
+                        description: |-
+                          Client certificate the operator reads from a running pod of the target and presents to
+                          the preview pod, for targets whose own process already holds the identity the preview
+                          pod expects. Nothing leaves the cluster. Ignored when `client_auth` is set.
+                        nullable: true
+                        properties:
+                          certPath:
+                            description: Path of the PEM certificate chain.
+                            type: string
+                          keyPath:
+                            description: Path of the PEM private key.
+                            type: string
+                        required:
+                        - certPath
+                        - keyPath
+                        type: object
                       serverName:
                         description: |-
                           Server name (SNI) to send to the preview pod's TLS server.
