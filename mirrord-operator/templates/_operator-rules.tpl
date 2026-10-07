@@ -456,7 +456,9 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - update
   - patch
 {{- end }}
-{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
+# Database branching reads `dbBranches` from split configs, so it needs them
+# without any queue splitting enabled.
 - apiGroups:
   - queues.mirrord.metalbear.co
   resources:
@@ -477,6 +479,8 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - get
   - update
   - patch
+{{- end }}
+{{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 - apiGroups:
   - mirrord.metalbear.co
   resources:
@@ -808,7 +812,9 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
 # request tolerates the 409). `get` is for the preview task reading the TLS
 # client certificate the CLI stores in that same Secret
 # (`tls_delivery.client_cert`), so it can present it to preview pods that
-# require one. User-owned Secrets are never read.
+# require one, and for the Secret values of `--resource` manifests, which the
+# CLI stores there too. `create` also covers the preview's own copies of those
+# Secrets, owned by the session. User-owned Secrets are never read or changed.
 - apiGroups: [""]
   resources: [secrets]
   verbs: [create, get]

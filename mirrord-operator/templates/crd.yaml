@@ -5584,6 +5584,13 @@ spec:
                     - subscription
                     - unknown
                     type: string
+                  mainOutput:
+                    description: |-
+                      Whether this is a split's main output subscription, the one the target workload reads
+                      while it is patched. Messages still in it when the split ends are unread for good, so
+                      cleanup keeps it until it is empty instead of deleting them; session subscriptions and
+                      topics are deleted outright. Older operators do not know the field and delete either way.
+                    type: boolean
                   name:
                     description: Resource name (topic or subscription name, not the full path).
                     type: string
@@ -5748,6 +5755,13 @@ spec:
                           - subscription
                           - unknown
                           type: string
+                        mainOutput:
+                          description: |-
+                            Whether this is a split's main output subscription, the one the target workload reads
+                            while it is patched. Messages still in it when the split ends are unread for good, so
+                            cleanup keeps it until it is empty instead of deleting them; session subscriptions and
+                            topics are deleted outright. Older operators do not know the field and delete either way.
+                          type: boolean
                         name:
                           description: Resource name (topic or subscription name, not the full path).
                           type: string
@@ -6819,6 +6833,84 @@ spec:
                   - secretKey
                   type: object
                 type: array
+              specResources:
+                description: |-
+                  Parts of the preview taken from the user's manifest files (`mirrord preview start
+                  --resource`) instead of the live cluster, because they differ from what is live.
+
+                  `None` (also what older CLIs send) builds the preview from the target's live spec. The
+                  CLI only creates a session with this field against an operator that advertises
+                  `PreviewSpecResources`: an older CRD schema prunes it, which would silently drop the
+                  user's files.
+                nullable: true
+                properties:
+                  configMaps:
+                    description: ConfigMaps the pod template refers to whose contents differ from the live ones.
+                    items:
+                      description: A ConfigMap from the user's files, by the name the pod template refers to it with.
+                      properties:
+                        binaryData:
+                          additionalProperties:
+                            type: string
+                          description: The ConfigMap's `binaryData`, base64-encoded as in the manifest.
+                          type: object
+                        data:
+                          additionalProperties:
+                            type: string
+                          description: The ConfigMap's `data`.
+                          type: object
+                        name:
+                          description: |-
+                            Name the pod template uses. The ConfigMap with this name in the cluster (if any) is
+                            left untouched.
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  podTemplate:
+                    description: |-
+                      The user's pod template for the target, as a JSON `PodTemplateSpec`.
+
+                      An opaque string for the same reason as [`PreviewIncomingConfig::http_filter`]: typing
+                      it would embed the whole Kubernetes pod template schema in this CRD and freeze it.
+                      `None` when the files do not define the target, or define it the same as the live one;
+                      the preview pod then uses the target's live template.
+                    nullable: true
+                    type: string
+                  secrets:
+                    description: |-
+                      Secrets the pod template refers to whose contents differ from the live ones. The
+                      contents are not stored here, see [`PreviewSpecSecret`].
+                    items:
+                      description: |-
+                        A Secret from the user's files, by the name the pod template refers to it with.
+
+                        Like `secret_mounts`, the values never travel on the CR: the CLI stores them in the session's
+                        secret mounts `Secret` (see [`secret_mounts_secret_name`]) and this names the keys holding
+                        them, so reading the session never reveals them.
+                      properties:
+                        keys:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Each data key of the user's Secret, mapped to the key in the session's secret mounts
+                            `Secret` holding its value.
+                          type: object
+                        name:
+                          description: |-
+                            Name the pod template uses. The Secret with this name in the cluster (if any) is left
+                            untouched.
+                          type: string
+                        type:
+                          description: The Secret's `type` (`Opaque` when unset).
+                          nullable: true
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                type: object
               target:
                 anyOf:
                 - required:
@@ -8072,7 +8164,7 @@ spec:
     subresources:
       status: {}
 {{ end }}
-{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -8170,6 +8262,26 @@ spec:
                     nullable: true
                     type: string
                 type: object
+              dbBranches:
+                description: |-
+                  Databases the selected workloads use, one entry per database, branched for the sessions
+                  that ask for them. Each entry takes the fields of a `feature.db_branches` entry in
+                  `mirrord.json` with camelCase keys, plus a required `id` and `copy.allowedModes`.
+                  Connection param names (`database_id`, a generic branch's `TOKEN`) stay as written.
+                items:
+                  properties:
+                    id:
+                      description: Entry id sessions reference, and the shared part of the branch id.
+                      type: string
+                    type:
+                      description: Database engine, the `type` of a `feature.db_branches` entry.
+                      type: string
+                  required:
+                  - id
+                  - type
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
               drainTimeout:
                 description: |-
                   How long (in seconds) at most the patched workload gets to finish consuming the split queue
@@ -8181,6 +8293,7 @@ spec:
                 nullable: true
                 type: integer
               queues:
+                default: []
                 description: Splittable queues that developers can reference from their mirrord config.
                 items:
                   description: |-
@@ -9778,7 +9891,6 @@ spec:
                 nullable: true
                 type: integer
             required:
-            - queues
             - targetRef
             type: object
           status:
@@ -9850,6 +9962,8 @@ spec:
     storage: true
     subresources:
       status: {}
+{{ end }}
+{{ if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.sqsSplitting .Values.operator.redisPubsubSplitting .Values.operator.temporalSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
