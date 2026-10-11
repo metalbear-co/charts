@@ -253,6 +253,20 @@ Session deletion stays outside this helper because session IDs do not identify t
 {{- end }}
 {{- end }}
 
+{{/*
+Renders "true" when any queue splitting broker is enabled, and nothing otherwise, so it works
+directly in `if`. Queue splitting is the only feature that changes the target's pods, so this
+decides whether the operator registers mutating webhooks and gets the verbs to manage them.
+`list` and `delete` stay either way: an older image still calls them from `do_initial_cleanup`
+on startup, and a 403 there wedges the process. The operator derives the same answer from its
+`OPERATOR_*_SPLITTING` env vars (`any_queue_splitting_enabled`); keep the two lists in sync.
+*/}}
+{{- define "mirrord-operator.queueSplittingEnabled" -}}
+{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting -}}
+true
+{{- end -}}
+{{- end }}
+
 {{/* rules needed to use mirrord and needs to be cluster scoped */}}
 {{- define "mirrord-operator.clusterRules" -}}
 - apiGroups:
@@ -312,7 +326,18 @@ Session deletion stays outside this helper because session IDs do not identify t
   verbs:
   - create
 {{- end }}
-{{- if or .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting }}
+{{- if or (default false .Values.operator.pgBranching) (default false .Values.operator.mysqlBranching) (default false .Values.operator.mariadbBranching) (default false .Values.operator.dynamodbBranching) (default false .Values.operator.mongodbBranching) (default false .Values.operator.mssqlBranching) (default false .Values.operator.redisBranching) (default false .Values.operator.spannerBranching) (default false .Values.operator.clickhouseBranching) (default false .Values.operator.cockroachdbBranching) (default false .Values.operator.genericBranching) (default false .Values.operator.s3Branching) (default false .Values.operator.turbopufferBranching) }}
+# `db_branches: "*"` / ids are resolved against the workload's MirrordSplitConfig over the
+# operator's aggregated API at cluster scope, so the rule must live in a ClusterRole even
+# for namespaced-Role users.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - splitconfigdbbranches
+  verbs:
+  - create
+{{- end }}
+{{- if include "mirrord-operator.queueSplittingEnabled" . }}
 # `mirrord queues status` reads split sessions over the aggregated API; its
 # --all-namespaces form lists at cluster scope, so the rule must live in a
 # ClusterRole even for namespaced-Role users.

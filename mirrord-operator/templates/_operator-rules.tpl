@@ -100,19 +100,31 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
     - mirrord-operator
   verbs:
     - get
-# For creating and managing mutating webhook configs.
+# An older image still lists and deletes these in do_initial_cleanup on startup. A 403
+# there retries forever and wedges the process, so these two verbs stay even when this
+# chart registers no webhooks. They are not limited to one name: that cleanup lists every
+# configuration and deletes the ones left by older operators.
 - apiGroups:
     - admissionregistration.k8s.io
   resources:
     - mutatingwebhookconfigurations
   verbs:
-    - create
-    - get
-    - update
-    - patch
-    - delete
-    - deletecollection
     - list
+    - delete
+{{- if include "mirrord-operator.queueSplittingEnabled" . }}
+# For registering the pod mutating webhooks queue splitting uses to change env vars, ConfigMap
+# volumes and files in the target's pods. Scoped to the one configuration the chart installs
+# (mutating-webhook-configuration.yaml): this image only edits its `webhooks` list.
+- apiGroups:
+    - admissionregistration.k8s.io
+  resources:
+    - mutatingwebhookconfigurations
+  resourceNames:
+    - mirrord-operator-pod-mutator
+  verbs:
+    - get
+    - patch
+{{- end }}
 {{- if or .Values.operator.gcpPubsubSplitting .Values.operator.azureServiceBusSplitting .Values.operator.temporalSplitting .Values.operator.bullmqSplitting .Values.operator.natsSplitting .Values.operator.natsPubsubSplitting .Values.operator.redisPubsubSplitting .Values.operator.sqsSplitting .Values.operator.kafkaSplitting .Values.operator.rmqSplitting}}
 - apiGroups:
   - queues.mirrord.metalbear.co

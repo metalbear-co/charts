@@ -2669,6 +2669,44 @@ spec:
                           - certPem
                           - keyPem
                           type: object
+                        identities:
+                          description: |-
+                            Additional client certificates, for servers that authorize requests based on the
+                            client's identity.
+
+                            When passing through a connection from a client that presented a certificate,
+                            mirrord-agent uses the first of these with the same identity as the client's certificate.
+                            The identity is the set of subject alternative names, or the subject if the certificate
+                            has no SANs. If none matches, or the client presented no certificate, `authentication` is
+                            used.
+
+                            Requires `agentAsServer.verification` with `acceptAnyCert` disabled, because the
+                            identity of an unverified client cannot be trusted.
+
+                            Optional. Defaults to an empty list.
+                          items:
+                            description: A client certificate with its private key, see [`AgentClientConfig::identities`].
+                            properties:
+                              cert:
+                                description: |-
+                                  Path to a PEM file containing the certificate chain.
+
+                                  This file must contain at least one certificate.
+                                  It can contain entries of other types, e.g private keys, which are ignored.
+                                type: string
+                              key:
+                                description: |-
+                                  Path to a PEM file containing the private key matching the certificate chain found in
+                                  `cert`.
+
+                                  This file must contain exactly one private key.
+                                  It can contain entries of other types, e.g certificates, which are ignored.
+                                type: string
+                            required:
+                            - cert
+                            - key
+                            type: object
+                          type: array
                         verification:
                           description: Configures how mirrord-agent verifies the server's certificate.
                           properties:
@@ -2998,6 +3036,44 @@ spec:
                           - certPem
                           - keyPem
                           type: object
+                        identities:
+                          description: |-
+                            Additional client certificates, for servers that authorize requests based on the
+                            client's identity.
+
+                            When passing through a connection from a client that presented a certificate,
+                            mirrord-agent uses the first of these with the same identity as the client's certificate.
+                            The identity is the set of subject alternative names, or the subject if the certificate
+                            has no SANs. If none matches, or the client presented no certificate, `authentication` is
+                            used.
+
+                            Requires `agentAsServer.verification` with `acceptAnyCert` disabled, because the
+                            identity of an unverified client cannot be trusted.
+
+                            Optional. Defaults to an empty list.
+                          items:
+                            description: A client certificate with its private key, see [`AgentClientConfig::identities`].
+                            properties:
+                              cert:
+                                description: |-
+                                  Path to a PEM file containing the certificate chain.
+
+                                  This file must contain at least one certificate.
+                                  It can contain entries of other types, e.g private keys, which are ignored.
+                                type: string
+                              key:
+                                description: |-
+                                  Path to a PEM file containing the private key matching the certificate chain found in
+                                  `cert`.
+
+                                  This file must contain exactly one private key.
+                                  It can contain entries of other types, e.g certificates, which are ignored.
+                                type: string
+                            required:
+                            - cert
+                            - key
+                            type: object
+                          type: array
                         verification:
                           description: Configures how mirrord-agent verifies the server's certificate.
                           properties:
@@ -3833,6 +3909,12 @@ spec:
                     id:
                       description: Session id.
                       type: string
+                    instanceId:
+                      description: |-
+                        Operator process that registered the session. A session ends with that process, so an entry
+                        from any other process belongs to a session that is already gone.
+                      nullable: true
+                      type: string
                     owner:
                       description: Owner info of the session.
                       properties:
@@ -3860,6 +3942,27 @@ spec:
                   type: object
                 default: {}
                 description: Information of sessions that are using this branch database.
+                type: object
+              source:
+                description: |-
+                  The source database this branch was copied from, once the operator has resolved the
+                  branch's connection source. Lets two branches that point at the same database be told
+                  apart from two that only share an entry id, without re-reading the target's env.
+                nullable: true
+                properties:
+                  database:
+                    nullable: true
+                    type: string
+                  host:
+                    type: string
+                  port:
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                required:
+                - host
                 type: object
             required:
             - expireTime
@@ -4210,6 +4313,12 @@ spec:
                     id:
                       description: Session id.
                       type: string
+                    instanceId:
+                      description: |-
+                        Operator process that registered the session. A session ends with that process, so an entry
+                        from any other process belongs to a session that is already gone.
+                      nullable: true
+                      type: string
                     owner:
                       description: Owner info of the session.
                       properties:
@@ -4237,6 +4346,27 @@ spec:
                   type: object
                 default: {}
                 description: Information of sessions that are using this branch database.
+                type: object
+              source:
+                description: |-
+                  The source database this branch was copied from, once the operator has resolved the
+                  branch's connection source. Lets two branches that point at the same database be told
+                  apart from two that only share an entry id, without re-reading the target's env.
+                nullable: true
+                properties:
+                  database:
+                    nullable: true
+                    type: string
+                  host:
+                    type: string
+                  port:
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                required:
+                - host
                 type: object
             required:
             - expireTime
@@ -4571,6 +4701,12 @@ spec:
                     id:
                       description: Session id.
                       type: string
+                    instanceId:
+                      description: |-
+                        Operator process that registered the session. A session ends with that process, so an entry
+                        from any other process belongs to a session that is already gone.
+                      nullable: true
+                      type: string
                     owner:
                       description: Owner info of the session.
                       properties:
@@ -4598,6 +4734,27 @@ spec:
                   type: object
                 default: {}
                 description: Information of sessions that are using this branch database.
+                type: object
+              source:
+                description: |-
+                  The source database this branch was copied from, once the operator has resolved the
+                  branch's connection source. Lets two branches that point at the same database be told
+                  apart from two that only share an entry id, without re-reading the target's env.
+                nullable: true
+                properties:
+                  database:
+                    nullable: true
+                    type: string
+                  host:
+                    type: string
+                  port:
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                required:
+                - host
                 type: object
             required:
             - expireTime
@@ -8123,6 +8280,12 @@ spec:
                     id:
                       description: Session id.
                       type: string
+                    instanceId:
+                      description: |-
+                        Operator process that registered the session. A session ends with that process, so an entry
+                        from any other process belongs to a session that is already gone.
+                      nullable: true
+                      type: string
                     owner:
                       description: Owner info of the session.
                       properties:
@@ -8150,6 +8313,27 @@ spec:
                   type: object
                 default: {}
                 description: Information of sessions that are using this branch database.
+                type: object
+              source:
+                description: |-
+                  The source database this branch was copied from, once the operator has resolved the
+                  branch's connection source. Lets two branches that point at the same database be told
+                  apart from two that only share an entry id, without re-reading the target's env.
+                nullable: true
+                properties:
+                  database:
+                    nullable: true
+                    type: string
+                  host:
+                    type: string
+                  port:
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    nullable: true
+                    type: integer
+                required:
+                - host
                 type: object
             required:
             - expireTime

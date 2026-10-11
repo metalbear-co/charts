@@ -35,6 +35,57 @@ assert_rendered_env() {
   fi
 }
 
+# `$1` is the values file. `$2` is `yes` when queue splitting stays on. `list` and `delete` are
+# always required and are not limited to one name. `get` and `patch` on the chart-owned
+# configuration appear only while a splitting broker is on.
+assert_webhook_verbs() {
+  echo "running with helm template and asserting webhook verbs (manage=$2)"
+  if [ "$2" = "yes" ]; then
+    rendered=$(helm template -s templates/cluster-role.yaml -f "$1" mirrord-operator ./mirrord-operator)
+  else
+    rendered=$(helm template -s templates/cluster-role.yaml -f "$1" --set operator.sqsSplitting=false mirrord-operator ./mirrord-operator)
+  fi
+  rules=$(echo "$rendered" | awk '
+    /^- apiGroups:/ { if (block ~ /mutatingwebhookconfigurations/) print block; block="" }
+    { block = block $0 "\n" }
+    END { if (block ~ /mutatingwebhookconfigurations/) print block }
+  ')
+  unscoped=$(echo "$rules" | awk '
+    /^- apiGroups:/ { if (block != "" && block !~ /resourceNames:/) print block; block="" }
+    { block = block $0 "\n" }
+    END { if (block != "" && block !~ /resourceNames:/) print block }
+  ')
+  if ! echo "$unscoped" | grep -q -- "- list$"; then
+    echo "chart dropped unscoped list on mutatingwebhookconfigurations"
+    exit 1
+  fi
+  if ! echo "$unscoped" | grep -q -- "- delete$"; then
+    echo "chart dropped unscoped delete on mutatingwebhookconfigurations"
+    exit 1
+  fi
+  for verb in create update deletecollection; do
+    if echo "$rules" | grep -q -- "- ${verb}$"; then
+      echo "chart granted ${verb} on mutatingwebhookconfigurations"
+      exit 1
+    fi
+  done
+  if [ "$2" = "yes" ]; then
+    if ! echo "$rules" | grep -q "mirrord-operator-pod-mutator"; then
+      echo "chart did not scope webhook management to mirrord-operator-pod-mutator"
+      exit 1
+    fi
+    for verb in get patch; do
+      if ! echo "$rules" | grep -q -- "- ${verb}$"; then
+        echo "chart dropped ${verb} on the chart-owned webhook configuration"
+        exit 1
+      fi
+    done
+  elif echo "$rules" | grep -q "mirrord-operator-pod-mutator"; then
+    echo "chart scoped webhook management with queue splitting off"
+    exit 1
+  fi
+}
+
 # For each file in the `test_values` directory
 # run helm install && helm uninstall.
 for file in test_values/mirrord-operator/*.yaml; do
@@ -90,6 +141,14 @@ for file in test_values/mirrord-operator/*.yaml; do
     helm install -f "$file" mirrord-operator ./mirrord-operator --wait
     helm uninstall mirrord-operator --wait
     wait_for_namespace_deletion "$file"
+  elif [ "$file" = "test_values/mirrord-operator/operator_mutating_webhooks.yaml" ]; then
+    # Queue splitting edits the chart-owned webhook configuration, so get and patch on that
+    # name appear only while a broker is on. list and delete stay unscoped either way: an
+    # older image still calls them from do_initial_cleanup on startup, and a 403 there wedges
+    # the process. Both renders install cleanly, so assert on the ClusterRole.
+    echo "running with helm template and asserting webhook RBAC follows queue splitting"
+    assert_webhook_verbs "$file" yes
+    assert_webhook_verbs "$file" no
   elif [ "$file" = "test_values/mirrord-operator/operator_existing_service_account.yaml" ]; then
     kubectl create namespace existing-service-account
     kubectl create serviceaccount existing-mirrord-operator --namespace existing-service-account

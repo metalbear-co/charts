@@ -310,8 +310,6 @@ spec:
         - name: OPERATOR_CLUSTER_NAME
           value: {{ .Values.operator.clusterName | quote }}
         {{- end }}
-        - name: OPERATOR_MUTATING_WEBHOOKS
-          value: "true"
         - name: OPERATOR_ISOLATE_PODS_RESTART
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.isolatePodsRestart }}
         {{- if .Values.operator.injectSessionKeyHeader }}

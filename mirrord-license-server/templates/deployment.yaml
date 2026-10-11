@@ -184,9 +184,22 @@ spec:
               {{- toYaml .Values.database.auth.password.secretKeyRef | nindent 14 }}
         {{- end }}
         {{- end }}
-        {{- if or .Values.database.tls (and .Values.database.auth .Values.database.auth.awsIam) }}
+        {{- if .Values.database.port }}
+        - name: PGPORT
+          value: {{ .Values.database.port | toString | quote }}
+        {{- end }}
+        {{- if .Values.database.sslMode }}
         - name: PGSSLMODE
-          value: "VerifyFull"
+          value: {{ .Values.database.sslMode | quote }}
+        {{- else if or .Values.database.tls (and .Values.database.auth .Values.database.auth.awsIam) }}
+        # Not `verify-full`: the server trusts only the public webpki roots, which do not include
+        # the RDS CA, so verification would fail unless `database.sslRootCert` supplies it.
+        - name: PGSSLMODE
+          value: "require"
+        {{- end }}
+        {{- with .Values.database.sslRootCert }}
+        - name: PGSSLROOTCERT
+          value: {{ . | quote }}
         {{- end }}
         {{- end }}
         - name: JSON_LOG

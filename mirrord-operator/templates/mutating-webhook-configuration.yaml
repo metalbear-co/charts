@@ -1,0 +1,20 @@
+{{- if include "mirrord-operator.queueSplittingEnabled" . }}
+{{- /* Holds the operator's mutating webhooks: one pod webhook per workload that queue splitting
+     patches, and one KEDA ScaledObject webhook per split that redirects the target's scaling
+     triggers. Installed only with queue splitting on, and without webhooks, so the operator
+     never needs `create` or `delete` on webhook configurations: Kubernetes cannot restrict `create` to a
+     name, and the ClusterRole grants only `get` and `patch` on this exact name. The operator
+     fills in `webhooks` at runtime; the field is left out here so `helm upgrade` keeps the
+     registered webhooks. The name must match `MutatingWebhookBaseConfig::WEBHOOK_CONFIG_NAME`
+     in `crates/operator-pod-mutator/src/webhook.rs`. */}}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mirrord-operator-pod-mutator
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+{{- end }}

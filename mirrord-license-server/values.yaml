@@ -23,6 +23,20 @@ database:
   # Optional
   # port: 5432
 
+  ## libpq-style SSL mode for the Postgres connection: disable, allow, prefer, require, verify-ca
+  ## or verify-full. When unset, it is `Require` if `database.tls` or `database.auth.awsIam` is
+  ## set, and `prefer` otherwise.
+  # sslMode: verify-full
+
+  ## CA certificates the server verifies the database certificate against, as inline PEM or a
+  ## file path in the container. Needed for `verify-ca`/`verify-full` against a CA outside the
+  ## public webpki roots, such as the RDS CA bundle
+  ## (https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem).
+  # sslRootCert: |
+  #   -----BEGIN CERTIFICATE-----
+  #   ...
+  #   -----END CERTIFICATE-----
+
   name: mirrord-license-server
 
   # auth:
