@@ -229,6 +229,18 @@ rules:
   - get
   - list
   - delete
+# `events` is the member operator's aggregated SSE endpoint behind `mirrord subscribe`.
+# A primary serving a subscription relays every member's stream through this
+# credential; without `watch` the member answers 403 and the subscriber sees that
+# cluster reported as unavailable instead of its events.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
 # `branchtunnels` is the member operator's aggregated v1alpha1 WebSocket endpoint the
 # primary's envoy dials to carry preview branch-DB traffic. The WS upgrade is a GET on the
 # collection path, which the apiserver authorizes as `list`; `get` covers named paths.

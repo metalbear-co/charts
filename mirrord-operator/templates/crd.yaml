@@ -5641,6 +5641,13 @@ spec:
                 format: date-time
                 nullable: true
                 type: string
+              splitConfigs:
+                description: |-
+                  The `MirrordSplitConfig`s merged into this session's queue split, by name, written when
+                  the split is ready.
+                items:
+                  type: string
+                type: array
             type: object
         required:
         - spec
@@ -8402,14 +8409,16 @@ spec:
         properties:
           spec:
             description: |-
-              Unified queue splitting configuration for a single workload.
+              Unified queue splitting configuration for one workload (`targetRef`) or for every workload
+              whose labels match (`targetSelector`).
 
               Replaces per-broker CRDs (`MirrordWorkloadQueueRegistry`, `MirrordKafkaTopicsConsumer`) with a
               single resource that covers SQS, Kafka, RabbitMQ, Google Cloud Pub/Sub, and future broker
               types.
 
-              There must be at most one `MirrordSplitConfig` per workload. If the operator discovers
-              duplicates targeting the same workload, it fails the session rather than guessing.
+              Every config that applies to a workload is merged into one for its sessions: a queue or
+              `dbBranches` entry defined identically by several configs is one entry, and a setting two
+              configs disagree on is reported on their `Accepted` condition and fails the session.
             properties:
               clientConfigs:
                 description: |-
@@ -10043,7 +10052,10 @@ spec:
                     x-kubernetes-int-or-string: true
                 type: object
               targetRef:
-                description: The workload to patch for queue splitting.
+                description: |-
+                  The one workload this config applies to. Exactly one of `targetRef` and
+                  `targetSelector` is set.
+                nullable: true
                 properties:
                   apiVersion:
                     type: string
@@ -10055,6 +10067,58 @@ spec:
                 - apiVersion
                 - kind
                 - name
+                type: object
+              targetSelector:
+                description: |-
+                  Every Deployment, StatefulSet or Argo Rollout in this namespace whose labels match,
+                  instead of one named workload. A workload that starts matching later is covered from its
+                  next session on. Exactly one of `targetRef` and `targetSelector` is set.
+                nullable: true
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                    items:
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies to.
+                          type: string
+                        operator:
+                          description: |-
+                            operator represents a key's relationship to a set of values. Valid operators are In, NotIn,
+                            Exists and DoesNotExist.
+                          enum:
+                          - In
+                          - NotIn
+                          - Exists
+                          - DoesNotExist
+                          type: string
+                        values:
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn, the values array must
+                            be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.
+                            This array is replaced during a strategic merge patch.
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    nullable: true
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is
+                      equivalent to an element of matchExpressions, whose key field is "key", the operator is
+                      "In", and the values array contains only "value". The requirements are ANDed.
+                    nullable: true
+                    type: object
                 type: object
               tmpNameTemplate:
                 description: |-
@@ -10074,8 +10138,6 @@ spec:
                 minimum: 0.0
                 nullable: true
                 type: integer
-            required:
-            - targetRef
             type: object
           status:
             description: Lifecycle and acceptance state of a workload's split configuration.
@@ -10083,6 +10145,7 @@ spec:
             properties:
               activeSessions:
                 default: 0
+                description: Sessions attached across every workload this config applies to.
                 format: uint32
                 minimum: 0.0
                 type: integer
@@ -10127,7 +10190,7 @@ spec:
                 type: integer
               phase:
                 default: inactive
-                description: Where the split for this workload is in its lifecycle.
+                description: The most active phase among the workloads this config applies to.
                 enum:
                 - unknown
                 - inactive
@@ -10135,6 +10198,52 @@ spec:
                 - warm
                 - draining
                 type: string
+              workloads:
+                description: |-
+                  Where each workload's split is. A config that applies to one workload has one entry;
+                  a selector config has one per workload it is splitting, and `phase` and
+                  `activeSessions` sum them up.
+                items:
+                  description: The split phase of one workload a config applies to.
+                  properties:
+                    activeSessions:
+                      default: 0
+                      format: uint32
+                      minimum: 0.0
+                      type: integer
+                    apiVersion:
+                      type: string
+                    keptQueues:
+                      description: |-
+                        Temporary queues the workload had not consumed when its last split was torn down, as
+                        `<kind> queue <name> (<n> messages)`. Empty after a clean teardown.
+                      items:
+                        type: string
+                      type: array
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    phase:
+                      default: inactive
+                      description: Where the split for this workload is in its lifecycle.
+                      enum:
+                      - unknown
+                      - inactive
+                      - active
+                      - warm
+                      - draining
+                      type: string
+                  required:
+                  - apiVersion
+                  - kind
+                  - name
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - kind
+                - name
+                x-kubernetes-list-type: map
             type: object
         required:
         - spec
@@ -10833,6 +10942,13 @@ spec:
               servingInstance:
                 nullable: true
                 type: string
+              splitConfigs:
+                description: |-
+                  The `MirrordSplitConfig`s merged into this session's split, by name. Empty for a split
+                  configured by legacy objects.
+                items:
+                  type: string
+                type: array
               startError:
                 properties:
                   code:

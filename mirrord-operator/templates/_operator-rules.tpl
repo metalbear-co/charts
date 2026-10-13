@@ -738,8 +738,9 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - delete
 # Branch DB pods store their data on per-branch PersistentVolumeClaims by default.
 # `get` lets the operator adopt an existing claim idempotently across restarts;
-# `delete` removes a stale claim left by a deleted branch that had the same name.
-# Owner references handle regular cleanup.
+# `delete` removes a stale claim left by a deleted branch that had the same name;
+# `patch` marks a claim whose first load completed, which is what a pod replaced after
+# an eviction may be rebuilt on. Owner references handle regular cleanup.
 - apiGroups:
   - ""
   resources:
@@ -747,6 +748,17 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   verbs:
   - create
   - get
+  - patch
+  - delete
+# Each branch pod sits behind a Service, so a pod replaced on the same volumes after an
+# eviction keeps the address sessions already hold. Owner references clean it up with the
+# branch; `delete` covers a stale one left by a branch of the same name.
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
   - delete
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}

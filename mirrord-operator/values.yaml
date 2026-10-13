@@ -727,6 +727,13 @@ operator:
   ##   # migrations, and the operator all connect there.
   ##   dbServerArgs:
   ##     - "--default-authentication-plugin=mysql_native_password"
+  ##   # How branch pods recreate the source database's accounts.
+  ##   # `empty` (default): only the user declared in the branch's connection config, with its
+  ##   # real password (as a hash) and every privilege; copied objects lose their definers.
+  ##   # `full`: source accounts with their grants, and copied objects keep their definers, so
+  ##   # the branch enforces the same permissions as the source. Only the declared user can log
+  ##   # in; other accounts come along only if it may read the `mysql` schema.
+  ##   roles: "empty"
 
   # mariadbBranchConfig:
   ## example
@@ -772,6 +779,13 @@ operator:
   ##   dbServerArgs:
   ##     - "--character-set-server=utf8mb4"
   ##     - "--collation-server=utf8mb4_unicode_ci"
+  ##   # How branch pods recreate the source database's accounts.
+  ##   # `empty` (default): only the user declared in the branch's connection config, with its
+  ##   # real password (as a hash) and every privilege; copied objects lose their definers.
+  ##   # `full`: source accounts with their grants, and copied objects keep their definers, so
+  ##   # the branch enforces the same permissions as the source. Only the declared user can log
+  ##   # in; other accounts come along only if it may read the `mysql` schema.
+  ##   roles: "empty"
 
   # pgBranchConfig:
   ## example
