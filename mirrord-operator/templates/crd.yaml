@@ -4938,6 +4938,26 @@ spec:
                       format: int32
                       nullable: true
                       type: integer
+                    scaleTriggerOverrides:
+                      description: Autoscaler trigger metadata to set for as long as the patch is applied.
+                      items:
+                        description: Sets one metadata value of a named autoscaler trigger.
+                        properties:
+                          key:
+                            description: Trigger metadata key to set.
+                            type: string
+                          trigger:
+                            description: The trigger's `name`.
+                            type: string
+                          value:
+                            description: Value the key holds while the patch is applied.
+                            type: string
+                        required:
+                        - key
+                        - trigger
+                        - value
+                        type: object
+                      type: array
                     scaleTriggerRewrites:
                       description: Autoscaler trigger rewrites to apply for as long as the patch is applied.
                       items:
@@ -5192,6 +5212,26 @@ spec:
                 format: int32
                 nullable: true
                 type: integer
+              scaleTriggerOverrides:
+                description: Autoscaler trigger metadata to set for as long as the patch is applied.
+                items:
+                  description: Sets one metadata value of a named autoscaler trigger.
+                  properties:
+                    key:
+                      description: Trigger metadata key to set.
+                      type: string
+                    trigger:
+                      description: The trigger's `name`.
+                      type: string
+                    value:
+                      description: Value the key holds while the patch is applied.
+                      type: string
+                  required:
+                  - key
+                  - trigger
+                  - value
+                  type: object
+                type: array
               scaleTriggerRewrites:
                 description: Autoscaler trigger rewrites to apply for as long as the patch is applied.
                 items:
@@ -6997,6 +7037,18 @@ spec:
                   - secretKey
                   type: object
                 type: array
+              shareHost:
+                description: |-
+                  Share host of the session this one replaces.
+
+                  `mirrord preview start` copies the replaced session's `status.shareHost` here when it
+                  starts a new session for the same key and target (typically a new image), so the preview
+                  link stays the same across pushes. The operator keeps this host only when it is one it
+                  could have minted for this key under its own share domain. An absent (what older CLIs
+                  send) or rejected host goes through the operator's normal host selection: a random
+                  suffix by default, or the key-derived host with `shareIngress.stableSlugs`.
+                nullable: true
+                type: string
               specResources:
                 description: |-
                   Parts of the preview taken from the user's manifest files (`mirrord preview start
@@ -8416,9 +8468,10 @@ spec:
               single resource that covers SQS, Kafka, RabbitMQ, Google Cloud Pub/Sub, and future broker
               types.
 
-              Every config that applies to a workload is merged into one for its sessions: a queue or
-              `dbBranches` entry defined identically by several configs is one entry, and a setting two
-              configs disagree on is reported on their `Accepted` condition and fails the session.
+              Every config that applies to a workload is merged into one for its sessions: a queue,
+              `dbBranches` entry, or `scaleTriggerOverrides` entry defined identically by several configs is
+              one entry, and a setting two configs disagree on is reported on their `Accepted` condition and
+              fails the session.
             properties:
               clientConfigs:
                 description: |-
@@ -10051,6 +10104,29 @@ spec:
                     nullable: true
                     x-kubernetes-int-or-string: true
                 type: object
+              scaleTriggerOverrides:
+                description: |-
+                  Metadata values to set on named triggers of the workload's KEDA `ScaledObject` while it is
+                  split.
+                items:
+                  description: Metadata values for one named trigger of a split workload's KEDA `ScaledObject`.
+                  properties:
+                    metadata:
+                      additionalProperties:
+                        type: string
+                      description: |-
+                        Values by metadata key. Available placeholders (each wrapped in double curly braces):
+                        `<queue id>.queue`, the resource the workload reads that queue from while split, and
+                        `<queue id>.group`, its Kafka consumer group or NATS consumer.
+                      type: object
+                    name:
+                      description: The trigger's `name`.
+                      type: string
+                  required:
+                  - metadata
+                  - name
+                  type: object
+                type: array
               targetRef:
                 description: |-
                   The one workload this config applies to. Exactly one of `targetRef` and

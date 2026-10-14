@@ -585,8 +585,14 @@ operator:
   ## are held longer after a client really does go away.
   # communicationTimeoutMillis: 60000
 
-  ## Controls how long (in milliseconds) a session can live when there are no pods ready to be targeted.
-  ## When this value is not set when installing the chart, the default value of 60000 (60 seconds) is used.
+  ## Controls how long (in milliseconds) a session can live without a live mirrord-agent, usually
+  ## because the target has no ready pod to run an agent on. The clock starts when the last agent
+  ## is lost (or at session start) and stops as soon as an agent connects. An agent that is still
+  ## starting on a ready pod when the time runs out gets to finish: the session waits for that
+  ## load before closing. Defaults to 60000 (60 seconds).
+  ## Raise this when a replacement target pod can take longer than that to become ready, for example
+  ## on spot or preemptible nodes with node auto-provisioning, where the replacement pod waits for a
+  ## new node to boot. Rolling updates are not affected: the new pod is ready before the old one goes.
   # noPodTargetsSessionTimeoutMillis: 60000
 
   ## Default TTL (in milliseconds) for idle Kafka splits.
