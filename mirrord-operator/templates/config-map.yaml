@@ -99,6 +99,10 @@ data:
     {{- if and .Values.operator.genericBranching .Values.operator.genericBranchConfig }}
     {{- toYaml .Values.operator.genericBranchConfig | nindent 4 }}
     {{- end }}
+  kafka-branch-config.yaml: |-
+    {{- if and .Values.operator.kafkaBranching .Values.operator.kafkaBranchConfig }}
+    {{- toYaml .Values.operator.kafkaBranchConfig | nindent 4 }}
+    {{- end }}
   {{- if .Values.operator.multiCluster.enabled }}
   multicluster-config.yaml: |-
     clusterName: {{ .Values.operator.multiCluster.clusterName | default "primary" | quote }}

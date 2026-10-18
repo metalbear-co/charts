@@ -63,3 +63,25 @@ metadata:
     {{- end }}
 rules:
 {{- include "mirrord-operator.clusterRules" . | nindent 0 }}
+{{- if .Values.operator.sessionsManager }}
+---
+# The workload companion's agent side of an operator-hosted sessions-manager session: only what
+# the agent needs to register and relay its sessions, none of the mirrord user permissions. Bind
+# it to the identity the agent authenticates to the cluster as. It covers every scope; see
+# `operator.sessionsManager` in values.yaml to narrow a binding to one.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mirrord-operator-sessions-manager-agent
+  {{- if .Values.operator.annotations }}
+  annotations:
+    {{- include "mirrord-operator.annotations" . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+    {{- with dig "mirrord-operator-sessions-manager-agent" "labels" dict .Values.clusterRole }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+rules:
+{{- include "mirrord-operator.serverlessAgentRules" . | nindent 0 }}
+{{- end }}

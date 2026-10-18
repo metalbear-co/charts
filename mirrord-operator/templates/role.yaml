@@ -60,3 +60,14 @@ rules:
   verbs:
   - get
   - patch
+{{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaBranching }}
+# Each Kafka branch broker sits behind a Service in the operator's namespace. Owner references
+# clean it up with the branch; `delete` covers a stale one left by a branch of the same name.
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+{{- end }}

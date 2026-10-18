@@ -146,6 +146,24 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - update
   - patch
 {{- end }}
+{{- if and .Values.operator.kafkaSplitting .Values.operator.kafkaBranching }}
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclusterkafkabranches
+  verbs:
+  - create
+  - watch
+  - list
+  - get
+  - patch
+- apiGroups:
+  - queues.mirrord.metalbear.co
+  resources:
+  - mirrordclusterkafkabranches/status
+  verbs:
+  - patch
+{{- end }}
 - apiGroups:
   - mirrord.metalbear.co
   resources:

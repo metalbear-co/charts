@@ -340,6 +340,48 @@ true
   - get
   - list
 {{- end }}
+{{- if and .Values.operator.sessionsManager .Values.operator.sessionsManagerUserRbac }}
+{{- include "mirrord-operator.serverlessClientRules" . | nindent 0 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Rules for the two sides of an operator-hosted sessions-manager session. Each side registers on
+its own resource (a long-running `proxy` request named `<environment>.<service>`) and dials its
+assigned `serverlessdataplanes` (a WebSocket `get`). One registration resource per side is what
+keeps a developer from registering as an agent. All are cluster-scoped resources of the
+operator's aggregated API.
+*/}}
+{{/* Dialing an assigned data plane, shared by both sides so their roles can't drift on it. */}}
+{{- define "mirrord-operator.serverlessDataPlaneRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - serverlessdataplanes
+  verbs:
+  - get
+{{- end }}
+
+{{/* The developer's local mirrord, granted through the mirrord user ClusterRoles. */}}
+{{- define "mirrord-operator.serverlessClientRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - serverlessclientassignments
+  verbs:
+  - proxy
+{{- include "mirrord-operator.serverlessDataPlaneRules" . | nindent 0 }}
+{{- end }}
+
+{{/* The workload companion's agent, granted through `mirrord-operator-sessions-manager-agent`. */}}
+{{- define "mirrord-operator.serverlessAgentRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - serverlessagentassignments
+  verbs:
+  - proxy
+{{- include "mirrord-operator.serverlessDataPlaneRules" . | nindent 0 }}
 {{- end }}
 
 {{/*
