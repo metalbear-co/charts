@@ -186,6 +186,10 @@ spec:
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.s3Branching }}
         - name: OPERATOR_TURBOPUFFER_BRANCHING
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.turbopufferBranching }}
+        - name: OPERATOR_DB_BRANCH_NAMESPACE_PATTERN
+          value: {{ include "mirrord-operator.dbBranchNamespacePattern" . }}
+        - name: OPERATOR_DB_BRANCH_NAMESPACES
+          value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.dbBranchNamespaces }}
         {{- if and .Values.operator.turbopufferOptions .Values.operator.turbopufferOptions.allowedHosts }}
         - name: OPERATOR_TURBOPUFFER_ALLOWED_HOSTS
           value: {{ join "," .Values.operator.turbopufferOptions.allowedHosts | quote }}

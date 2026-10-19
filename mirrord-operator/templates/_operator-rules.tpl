@@ -190,6 +190,23 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   verbs:
   - get
   - list
+{{- if and .Values.operator.dbBranchNamespaces (not .Values.namespaced) }}
+# `feature.db_branches[].namespace` runs a branch's pods in a namespace per session key
+# (`mirrord-<key>`). The operator creates those namespaces, lists them to find the ones no
+# branch runs in anymore, and deletes those. It only uses and deletes namespaces it labelled
+# `operator.metalbear.co/db-branch-namespace: "true"`. `patch` stamps when a branch last
+# started using a namespace, which keeps the cleanup from deleting it under a new branch.
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - create
+  - patch
+  - delete
+{{- end }}
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)
@@ -778,6 +795,29 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   verbs:
   - create
   - delete
+{{- if .Values.operator.dbBranchNamespaces }}
+# A branch in the namespace of its session key reads the Secrets, ConfigMaps and service
+# account of its target's namespace, which a pod elsewhere cannot see: the operator copies them
+# into the key's namespace (`patch` keeps an existing copy up to date). Everything the branch
+# creates there is owned by a placeholder ConfigMap, which the operator lists and deletes once
+# its branch is gone.
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - list
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+  - create
+  - patch
+{{- end }}
 {{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 {{- if and (not .Values.operator.multiCluster.managementOnly) (or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching) }}

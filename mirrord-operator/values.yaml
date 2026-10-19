@@ -264,6 +264,18 @@ operator:
   # operator branches namespaces through turbopuffer's API with the API key it reads off the
   # target workload; there is no branch pod and no `turbopufferBranchConfig`.
   turbopufferBranching: false
+  # Has to be set to `true` for db branches to run in a namespace of their own per session
+  # key (`feature.db_branches[].namespace: true` creates `mirrord-<key>`). Grants the
+  # operator `create`, `list`, `patch` and `delete` on namespaces cluster-wide, and `get`/`patch` on
+  # ServiceAccounts and ConfigMaps to copy what the branch pod reads into that namespace. The
+  # operator only deletes namespaces it created (labelled
+  # `operator.metalbear.co/db-branch-namespace: "true"`). Has no effect with `namespaced: true`.
+  dbBranchNamespaces: false
+  # Exactly one {{key}} placeholder, with up to 53 lowercase letters, digits or hyphens
+  # around it. For example, "t-{{key}}" creates t-alice for key alice. Invalid key
+  # characters and long names are normalized with a hash suffix. Existing branches keep
+  # their namespace when this changes; new branches use this pattern.
+  dbBranchNamespacePattern: "mirrord-{{key}}"
   # Settings for the turbopuffer namespace branching feature.
   turbopufferOptions:
     # Domains a turbopuffer branch may send its API key to, on top of `turbopuffer.com`, which

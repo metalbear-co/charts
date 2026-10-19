@@ -433,3 +433,19 @@ resources: {}
   {{ default false . | ternary "true" "false" | quote }}
 {{- end -}}
 {{- end }}
+
+{{/* Validate before passing the pattern literally, without Helm template expansion. */}}
+{{- define "mirrord-operator.dbBranchNamespacePattern" -}}
+{{- $pattern := "mirrord-{{key}}" -}}
+{{- if hasKey .Values.operator "dbBranchNamespacePattern" -}}
+{{- $pattern = .Values.operator.dbBranchNamespacePattern -}}
+{{- end -}}
+{{- if not (kindIs "string" $pattern) -}}
+{{- fail "operator.dbBranchNamespacePattern must be a string" -}}
+{{- end -}}
+{{- $literal := replace "{{key}}" "" $pattern -}}
+{{- if or (ne (len (regexFindAll `\{\{key\}\}` $pattern -1)) 1) (not (regexMatch "^[a-z0-9-]*$" $literal)) (gt (len $literal) 53) -}}
+{{- fail "operator.dbBranchNamespacePattern must contain exactly one {{key}}, with at most 53 lowercase letters, digits or hyphens around it" -}}
+{{- end -}}
+{{- $pattern | quote -}}
+{{- end -}}
