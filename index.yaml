@@ -13,6 +13,57 @@ entries:
           url: https://github.com/metalbear-co/mirrord/issues
       artifacthub.io/operator: "true"
     apiVersion: v2
+    appVersion: 3.224.0
+    created: "2026-10-22T19:45:39.325667148Z"
+    description: The control plane for mirrord. Let every developer and AI agent on
+      your team develop against a real Kubernetes cluster at once, with traffic filtering,
+      queue splitting, DB branching, preview environments, CI support, and policy
+      controls.
+    digest: cf423b75a58df0aaf02f75f60f4b93812b0c89314b77681b0919998388bb9c09
+    home: https://metalbear.com/mirrord
+    icon: https://raw.githubusercontent.com/metalbear-co/mirrord/main/images/icon.png
+    keywords:
+    - mirrord
+    - kubernetes
+    - operator
+    - development
+    - developer-environment
+    - local-development
+    - remote-development
+    - cloud-development
+    - preview-environments
+    - cicd
+    - ci
+    - ai-agents
+    - claude
+    - database-branching
+    - traffic-filtering
+    - debugging
+    - metalbear
+    maintainers:
+    - email: eyal@metalbear.com
+      name: MetalBear
+      url: https://metalbear.com
+    name: mirrord-operator
+    sources:
+    - https://github.com/metalbear-co/charts
+    - https://github.com/metalbear-co/mirrord
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-3.224.0/mirrord-operator-3.224.0.tgz
+    version: 3.224.0
+  - annotations:
+      artifacthub.io/links: |
+        - name: Documentation
+          url: https://metalbear.com/mirrord/docs
+        - name: Pricing
+          url: https://metalbear.com/mirrord/pricing
+        - name: Source
+          url: https://github.com/metalbear-co/charts
+        - name: support
+          url: https://github.com/metalbear-co/mirrord/issues
+      artifacthub.io/operator: "true"
+    apiVersion: v2
     appVersion: 3.223.0
     created: "2026-10-19T19:40:04.387102823Z"
     description: The control plane for mirrord. Let every developer and AI agent on
@@ -5066,6 +5117,42 @@ entries:
         - name: support
           url: https://github.com/metalbear-co/mirrord/issues
     apiVersion: v2
+    appVersion: 3.224.0
+    created: "2026-10-22T19:45:39.604410841Z"
+    description: Self-hosted, air-gapped license server for the mirrord Operator that
+      manages Enterprise licenses with no external telemetry.
+    digest: 33edfe6f75eeaa23cff68795321aa1b24019f324fa3cfcf3d404b419e46249ea
+    home: https://metalbear.com/mirrord
+    icon: https://raw.githubusercontent.com/metalbear-co/mirrord/main/images/icon.png
+    keywords:
+    - mirrord
+    - kubernetes
+    - license-server
+    - air-gapped
+    - enterprise
+    - metalbear
+    maintainers:
+    - email: eyal@metalbear.com
+      name: MetalBear
+      url: https://metalbear.com
+    name: mirrord-operator-license-server
+    sources:
+    - https://github.com/metalbear-co/charts
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-license-server-3.224.0/mirrord-operator-license-server-3.224.0.tgz
+    version: 3.224.0
+  - annotations:
+      artifacthub.io/links: |
+        - name: Documentation
+          url: https://metalbear.com/mirrord/docs
+        - name: Pricing
+          url: https://metalbear.com/mirrord/pricing
+        - name: Source
+          url: https://github.com/metalbear-co/charts
+        - name: support
+          url: https://github.com/metalbear-co/mirrord/issues
+    apiVersion: v2
     appVersion: 3.223.0
     created: "2026-10-19T19:40:04.634644992Z"
     description: Self-hosted, air-gapped license server for the mirrord Operator that
@@ -8155,6 +8242,42 @@ entries:
         - name: support
           url: https://github.com/metalbear-co/mirrord/issues
     apiVersion: v2
+    appVersion: 3.224.0
+    created: "2026-10-22T19:45:39.90358605Z"
+    description: Serves mirrord preview environments over plain share links, replacing
+      the browser extension for sharing.
+    digest: fb30bb91b3068248c0e22624929bb48090cc122ddbe485c223a81a5e71d73a87
+    home: https://metalbear.com/mirrord
+    icon: https://raw.githubusercontent.com/metalbear-co/mirrord/main/images/icon.png
+    keywords:
+    - mirrord
+    - kubernetes
+    - preview-environments
+    - share-ingress
+    - enterprise
+    - metalbear
+    maintainers:
+    - email: eyal@metalbear.com
+      name: MetalBear
+      url: https://metalbear.com
+    name: mirrord-operator-share-ingress
+    sources:
+    - https://github.com/metalbear-co/charts
+    type: application
+    urls:
+    - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-share-ingress-3.224.0/mirrord-operator-share-ingress-3.224.0.tgz
+    version: 3.224.0
+  - annotations:
+      artifacthub.io/links: |
+        - name: Documentation
+          url: https://metalbear.com/mirrord/docs
+        - name: Pricing
+          url: https://metalbear.com/mirrord/pricing
+        - name: Source
+          url: https://github.com/metalbear-co/charts
+        - name: support
+          url: https://github.com/metalbear-co/mirrord/issues
+    apiVersion: v2
     appVersion: 3.223.0
     created: "2026-10-19T19:40:04.897996618Z"
     description: Serves mirrord preview environments over plain share links, replacing
@@ -9764,4 +9887,4 @@ entries:
     urls:
     - https://github.com/metalbear-co/charts/releases/download/mirrord-operator-share-ingress-3.183.0/mirrord-operator-share-ingress-3.183.0.tgz
     version: 3.183.0
-generated: "2026-10-19T19:40:04.898766728Z"
+generated: "2026-10-22T19:45:39.905021982Z"
