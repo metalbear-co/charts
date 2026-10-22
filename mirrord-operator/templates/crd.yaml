@@ -8697,8 +8697,19 @@ spec:
                         Reference to a value in the target pod's template: an environment variable,
                         or a file mounted from a `configMap` volume.
                       properties:
+                        containerNames:
+                          description: |-
+                            Limit to specific containers. Defaults to all non-infra containers.
+                            An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                            This spelling avoids Kustomize's image transformer treating names as container objects.
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
                         containers:
-                          description: Limit to specific containers. Defaults to all non-infra containers.
+                          description: |-
+                            Legacy spelling of `containerNames`, retained for backward compatibility.
+                            Mutually exclusive with `containerNames`.
                           items:
                             type: string
                           nullable: true
@@ -8781,6 +8792,9 @@ spec:
                           - name
                           type: object
                       type: object
+                      x-kubernetes-validations:
+                      - message: Set only containerNames or containers, not both
+                        rule: '!(has(self.containers) && has(self.containerNames))'
                     type: array
                 required:
                 - bootstrapServers
@@ -8804,8 +8818,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -8888,6 +8913,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         channel:
@@ -8897,8 +8925,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -8981,6 +9020,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         channelPattern:
@@ -8990,8 +9032,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9074,6 +9127,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         consumer:
@@ -9083,8 +9139,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9167,6 +9234,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         exchange:
@@ -9176,8 +9246,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9260,6 +9341,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         groupId:
@@ -9269,8 +9353,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9353,6 +9448,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         projectId:
@@ -9362,8 +9460,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9446,6 +9555,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         queue:
@@ -9455,8 +9567,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9539,6 +9662,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         shardChannel:
@@ -9548,8 +9674,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9632,6 +9769,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         stream:
@@ -9641,8 +9781,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9725,6 +9876,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         subject:
@@ -9737,8 +9891,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9821,6 +9986,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         subscription:
@@ -9830,8 +9998,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -9914,6 +10093,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         taskQueue:
@@ -9923,8 +10105,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -10007,6 +10200,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         temporalAddress:
@@ -10016,8 +10212,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -10100,6 +10307,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         temporalNamespace:
@@ -10109,8 +10319,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -10193,6 +10414,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                         topic:
@@ -10202,8 +10426,19 @@ spec:
                               Reference to a value in the target pod's template: an environment variable,
                               or a file mounted from a `configMap` volume.
                             properties:
+                              containerNames:
+                                description: |-
+                                  Limit to specific containers. Defaults to all non-infra containers.
+                                  An explicit empty list selects no containers. Mutually exclusive with `containers`.
+                                  This spelling avoids Kustomize's image transformer treating names as container objects.
+                                items:
+                                  type: string
+                                nullable: true
+                                type: array
                               containers:
-                                description: Limit to specific containers. Defaults to all non-infra containers.
+                                description: |-
+                                  Legacy spelling of `containerNames`, retained for backward compatibility.
+                                  Mutually exclusive with `containerNames`.
                                 items:
                                   type: string
                                 nullable: true
@@ -10286,6 +10521,9 @@ spec:
                                 - name
                                 type: object
                             type: object
+                            x-kubernetes-validations:
+                            - message: Set only containerNames or containers, not both
+                              rule: '!(has(self.containers) && has(self.containerNames))'
                           nullable: true
                           type: array
                       type: object
