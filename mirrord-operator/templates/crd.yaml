@@ -6205,6 +6205,17 @@ spec:
                           - exchange
                           - unknown
                           type: string
+                        mainOutput:
+                          description: |-
+                            For a queue, whether it is a split's main output queue, the one the target workload
+                            reads while it is patched. Messages still in it when the split ends are unread for good,
+                            so cleanup keeps it until it is empty; session queues are deleted outright.
+
+                            Absent on records written by older operators, which named main output queues
+                            `mirrord-main-...`, so cleanup tells those apart by name instead. Names can come from
+                            `tmpNameTemplate`, so records that have the field are never classified by name.
+                          nullable: true
+                          type: boolean
                         name:
                           type: string
                         propertiesListName:
@@ -6294,6 +6305,17 @@ spec:
                     - exchange
                     - unknown
                     type: string
+                  mainOutput:
+                    description: |-
+                      For a queue, whether it is a split's main output queue, the one the target workload
+                      reads while it is patched. Messages still in it when the split ends are unread for good,
+                      so cleanup keeps it until it is empty; session queues are deleted outright.
+
+                      Absent on records written by older operators, which named main output queues
+                      `mirrord-main-...`, so cleanup tells those apart by name instead. Names can come from
+                      `tmpNameTemplate`, so records that have the field are never classified by name.
+                    nullable: true
+                    type: boolean
                   name:
                     type: string
                   propertiesListName:
@@ -6485,6 +6507,14 @@ spec:
           spec:
             description: This resource represents a preview environment created by the `mirrord preview start` command.
             properties:
+              autoQueueSplitting:
+                description: |-
+                  The `queue_splitting` are the splits `mirrord preview up` adds by default (`"*"` for every
+                  broker), not ones the user asked for. The operator drops those it can't serve, like a
+                  broker whose splitting is off, instead of failing the session, as it does for `mirrord up`
+                  sessions. Sent only to operators advertising `PreviewAutoQueueSplitting`; `false`, left
+                  out of the resource as older CLIs do, means every split was asked for.
+                type: boolean
               configMounts:
                 description: File-based config mount settings for this preview session.
                 items:
@@ -10684,8 +10714,30 @@ spec:
               tmpNameTemplate:
                 description: |-
                   Template for temporary resource names. Available placeholders (each
-                  wrapped in double curly braces): RANDOM, FALLBACK, ORIGINAL.
-                  Default: mirrord-tmp-RANDOM-FALLBACK-ORIGINAL (with double-brace wrapping).
+                  wrapped in double curly braces): RANDOM (10 random lowercase letters),
+                  FALLBACK (`-main-` for the resource the patched workload reads, `-` for a
+                  session's), ORIGINAL (the original resource name; for an SQS FIFO queue,
+                  without `.fifo`, which is appended to the rendered name). Names that exceed
+                  the broker's length limit get ORIGINAL shortened with a hash.
+                  Default: mirrord-tmp-RANDOM-FALLBACK-ORIGINAL (with double-brace wrapping),
+                  except RabbitMQ and SQS, which default to `mirrord[-main]-<random>-<original>`,
+                  and Kafka, which defaults to the operator's `kafkaSplittingTopicFormat`.
+
+                  For RabbitMQ, SQS, and Kafka queues the config is not accepted unless the
+                  template uses only these placeholders, contains RANDOM, leaves room for a
+                  shortened ORIGINAL within the name length limit, and its own characters are
+                  valid in the broker's names (SQS: letters, digits, `-`, `_`; Kafka: also `.`;
+                  RabbitMQ: no leading `amq.`). Kafka's `kafkaSplittingTopicFormat`
+                  placeholder ORIGINAL_TOPIC is not one of them.
+
+                  With `mirrord.temporary_group_id`, Kafka also names each session's consumer
+                  group from the template, with ORIGINAL the original group and RANDOM derived
+                  from the session id, so the session keeps its group across operator restarts
+                  and clusters. Without a template, that group is the session id.
+
+                  Temporal names must be the same every time they are computed, so there
+                  RANDOM is empty, FALLBACK is `-main-<workload hash>-` for the main task
+                  queue, and WORKLOAD and SESSION insert the workload and session hashes.
                 nullable: true
                 type: string
               ttl:

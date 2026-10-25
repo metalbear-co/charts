@@ -670,6 +670,8 @@ operator:
   ##  You can adjust the format of the created kafka topic names to suit your needs. The default value is:
   ## `mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}`
   ## see docs here https://metalbear.co/mirrord/docs/using-mirrord/queue-splitting/#customizing-mirrord-created-kafka-topic-names
+  ## `spec.tmpNameTemplate` of a `MirrordSplitConfig` takes precedence over this format for the workloads it selects.
+  ## That template uses `{{ORIGINAL}}` instead of `{{ORIGINAL_TOPIC}}`, and its `{{FALLBACK}}` is `-main-` rather than `-fallback-`.
   # kafkaSplittingTopicFormat: "mirrord-tmp-{{RANDOM}}{{FALLBACK}}{{ORIGINAL_TOPIC}}"
 
   # kafkaBranchConfig:
@@ -1319,6 +1321,11 @@ operator:
   ##   most once per branch. The copy image also goes through `allowedImages`. If your
   ##   cluster uses NetworkPolicies, the Job (in the target's namespace) must be able to
   ##   reach both the source database and the branch pod's IP.
+  ## - `dbPod.copyDeadlineSecs` (default 3600) is the longest a copy Job may run. A running
+  ##   copy keeps its branch alive past the branch TTL, so this stops a copy that hangs: the
+  ##   Job is stopped and the branch fails with a message naming the deadline. It applies to
+  ##   the user's `copy` from mirrord.json too, and a profile without it inherits the
+  ##   default `dbPod`'s, so it can be set once at the default level.
   ##
   ## Both fields are engine-specific, so they are only honored inside a named profile -
   ## a generic branch that uses no profile fails when the default-level `dbPod` sets
