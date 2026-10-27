@@ -2,6 +2,12 @@ operator:
   kafkaSplitting: true
   kafkaSplittingSidecar:
     enabled: true
+    extraEnv:
+      KAFKA_SIDECAR_TEST_VAR: "value"
+      HOST_IP:
+        valueFrom:
+          fieldRef:
+            fieldPath: status.hostIP
 
 license:
   file:

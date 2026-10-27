@@ -717,6 +717,14 @@ operator:
     limits:
       cpu: 200m
       memory: 200Mi
+    # Define additional environment variables for the sidecar, in the same format as
+    # `operator.extraEnv`.
+    extraEnv:
+    #   JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75"
+    #   HOST_IP:
+    #     valueFrom:
+    #       fieldRef:
+    #         fieldPath: status.hostIP
 
   # Linger timeout for legacy SQS splits (in milliseconds).
   # Applies only to old MirrordWorkloadQueueRegistry objects: once their last SQS

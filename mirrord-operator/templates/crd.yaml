@@ -8238,6 +8238,12 @@ spec:
                 description: Redis-specific options.
                 nullable: true
                 properties:
+                  cluster:
+                    default: false
+                    description: |-
+                      Run the branch as a one node Redis Cluster that owns every hash slot, so Redis Cluster
+                      clients can discover and use it. Only database 0 exists on such a node.
+                    type: boolean
                   copy:
                     default:
                       mode: empty

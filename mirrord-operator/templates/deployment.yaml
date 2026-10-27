@@ -368,13 +368,8 @@ spec:
           value: {{ $preview.maxTunnelStreams | quote }}
         {{- end }}
         {{- end }}
-        {{- range $key, $val := .Values.operator.extraEnv }}
-        - name: {{ $key }}
-        {{- if kindIs "map" $val }}
-{{- toYaml $val | nindent 10 }}
-        {{- else }}
-          value: {{ $val | quote }}
-        {{- end }}
+        {{- with .Values.operator.extraEnv }}
+        {{- include "mirrord-operator.extraEnv" . | trim | nindent 8 }}
         {{- end }}
         {{- /*
         OTEL export URLs are set _after_ extraEnv, so that the urls can reference env vars, for
@@ -498,6 +493,9 @@ spec:
         env:
           - name: HTTP_PORT
             value: {{ .Values.operator.kafkaSplittingSidecar.port | quote }}
+          {{- with .Values.operator.kafkaSplittingSidecar.extraEnv }}
+          {{- include "mirrord-operator.extraEnv" . | trim | nindent 10 }}
+          {{- end }}
         image: {{ .Values.operator.kafkaSplittingSidecar.image }}:{{ default .Chart.AppVersion .Values.operator.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.operator.imagePullPolicy }}
         {{- include "mirrord-operator.resources" (dict "requests" .Values.operator.kafkaSplittingSidecar.requests "limits" .Values.operator.kafkaSplittingSidecar.limits) | nindent 8 }}

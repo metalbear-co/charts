@@ -449,3 +449,19 @@ resources: {}
 {{- end -}}
 {{- $pattern | quote -}}
 {{- end -}}
+
+{{/*
+Renders an `extraEnv` map as container `env` entries. A map value is the rest of the entry
+(e.g. `valueFrom`), anything else is the literal `value`. Entries come out in key order, so a
+variable that references another must sort after it.
+*/}}
+{{- define "mirrord-operator.extraEnv" -}}
+{{- range $key, $val := . }}
+- name: {{ $key }}
+{{- if kindIs "map" $val }}
+{{- toYaml $val | nindent 2 }}
+{{- else }}
+  value: {{ $val | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
