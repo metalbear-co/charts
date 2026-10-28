@@ -314,6 +314,7 @@ true
   - operator.metalbear.co
   resources:
   - mirrordclusteroperatorusercredentials
+  - featuregatehits
   verbs:
   - create
 {{- if .Values.operator.topology }}
