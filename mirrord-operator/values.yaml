@@ -1435,6 +1435,8 @@ agent:
   #  tolerations:
   #    - operator: Exists
   #  privileged: true
+  #  # Max HTTP/2 header size, in bytes, accepted by the agent on intercepted traffic (default 16KB).
+  #  http2_max_header_list_size: 16384
 
 license:
   ## ID of a Google Secret Manager secret containing the license PEM file.
