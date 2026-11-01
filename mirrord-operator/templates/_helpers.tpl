@@ -182,12 +182,14 @@ Session deletion stays outside this helper because session IDs do not identify t
 # The previews API extension the CLI reads multicluster status from (RBAC is
 # version-agnostic, so this covers the alpha group-version it is served under).
 # `previews/logs` is a subresource, which Kubernetes authorizes separately from its
-# parent - without it the CLI cannot read why a preview failed.
+# parent - without it the CLI cannot read why a preview failed. `previews/sync` is the
+# websocket that `mirrord preview sync` pushes local code through to the preview pod.
 - apiGroups:
   - operator.metalbear.co
   resources:
   - previews
   - previews/logs
+  - previews/sync
   verbs:
   - get
   - list

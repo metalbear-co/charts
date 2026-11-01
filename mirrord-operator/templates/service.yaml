@@ -20,7 +20,7 @@ spec:
     port: {{ .Values.operator.temporalProxy.port }}
     targetPort: temporal
   {{- end }}
-  {{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
+  {{- if .Values.operator.previewEnv }}
   - name: db-tunnel
     port: 4980
     targetPort: db-tunnel

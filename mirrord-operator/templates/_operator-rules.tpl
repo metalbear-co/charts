@@ -208,6 +208,17 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - delete
 {{- end }}
 {{- end }}
+{{- if .Values.operator.previewEnv }}
+# The operator gets the StorageClass named in
+# `operator.preview.codeSync.storage.storageClassName` to check that it exists before a preview
+# that syncs code creates its claim.
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+{{- end }}
 {{- if .Values.operator.multiCluster.enabled }}
 # For multi-cluster sessions (Envoy)
 - apiGroups:
@@ -888,6 +899,12 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
 - apiGroups: [""]
   resources: [configmaps]
   verbs: [create, get]
+# A preview that syncs code keeps the code that `mirrord preview sync` pushes on a claim of
+# its own. `get` is what `entry()` needs to create it idempotently across task respawns;
+# owner references delete it with the session.
+- apiGroups: [""]
+  resources: [persistentvolumeclaims]
+  verbs: [create, get]
 # Preview `secret_mounts` file contents live in a per-session Secret the operator
 # creates on the CLI's behalf (the `previewsecretmounts` endpoint), so the
 # developer needs no Secret permissions. The endpoint only creates (a retried
@@ -896,10 +913,17 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
 # (`tls_delivery.client_cert`), so it can present it to preview pods that
 # require one, and for the Secret values of `--resource` manifests, which the
 # CLI stores there too. `create` also covers the preview's own copies of those
-# Secrets, owned by the session. User-owned Secrets are never read or changed.
+# Secrets, owned by the session.
 - apiGroups: [""]
   resources: [secrets]
   verbs: [create, get]
+# A deleted preview of the same name can leave the TLS Secret of its sidecar behind
+# while its garbage collection is pending, and the preview task refreshes that Secret
+# with a merge patch. The task patches only a Secret that a preview session owns, and
+# fails the preview rather than change a user's Secret of the same name.
+- apiGroups: [""]
+  resources: [secrets]
+  verbs: [patch]
 {{- if or .Values.operator.pgBranching .Values.operator.mysqlBranching .Values.operator.mariadbBranching .Values.operator.dynamodbBranching .Values.operator.mongodbBranching .Values.operator.mssqlBranching .Values.operator.redisBranching .Values.operator.spannerBranching .Values.operator.clickhouseBranching .Values.operator.cockroachdbBranching .Values.operator.genericBranching .Values.operator.s3Branching .Values.operator.turbopufferBranching }}
 # The operator creates a per-PreviewSession Secret holding operator-computed env values
 # (DB branch connection values and pattern-based overrides built from the target's runtime

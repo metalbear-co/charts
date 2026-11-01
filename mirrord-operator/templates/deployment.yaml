@@ -441,9 +441,9 @@ spec:
         ports:
         - containerPort: {{ .Values.operator.port }}
           name: https
-        {{- if or .Values.operator.multiCluster.enabled .Values.operator.multiClusterMember }}
-        {{- /* Fixed gateway port of the preview branch-DB tunnel (sidecars dial it on the
-             leader Service). Deliberately not a values knob. */}}
+        {{- if .Values.operator.previewEnv }}
+        {{- /* Fixed port of the preview gateway, which preview sidecars dial on the leader
+             Service. Deliberately not a values knob. */}}
         - containerPort: 4980
           name: db-tunnel
         {{- end }}
