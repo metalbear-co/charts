@@ -1,0 +1,25 @@
+operator:
+  pgBranching: true
+  pgBranchConfig:
+    dbPod:
+      tolerations:
+        - key: "workload"
+          operator: "Equal"
+          value: "dev"
+          effect: "NoSchedule"
+      nodeSelector:
+        karpenter.sh/nodepool: "dev-pool"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "kubernetes.io/arch"
+                    operator: "In"
+                    values: ["amd64"]
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"

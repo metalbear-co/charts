@@ -7585,6 +7585,22 @@ spec:
                   or when running against an older operator that does not set this field.
                 nullable: true
                 type: string
+              sharePort:
+                description: |-
+                  Port that `mirrord-share-ingress` forwards `share_host` requests to, on the Service
+                  named after the target workload.
+
+                  The session steals on container ports, which the Service may expose under different
+                  ports (`80` to a container's `8080`), so the operator resolves the Service port whose
+                  `targetPort` is a stolen port, or the stolen port itself for a headless Service, each time
+                  it starts the session's task. A task that finds no such port keeps the one an earlier task
+                  found. `None` without a `share_host`, when that Service never had such a port, or when
+                  running against an older operator that does not set this field.
+                format: uint16
+                maximum: 65535.0
+                minimum: 0.0
+                nullable: true
+                type: integer
               startedAt:
                 description: Timestamp of when the operator started processing this session.
                 format: date-time
@@ -7817,6 +7833,11 @@ spec:
                           type: string
                         nullable: true
                         type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -7856,6 +7877,11 @@ spec:
                         items:
                           type: string
                         nullable: true
+                        type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
                         type: array
                       items:
                         additionalProperties:
@@ -8098,6 +8124,11 @@ spec:
                           type: string
                         nullable: true
                         type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -8210,6 +8241,11 @@ spec:
                           type: string
                         nullable: true
                         type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
+                        type: array
                       items:
                         additionalProperties:
                           properties:
@@ -8249,6 +8285,11 @@ spec:
                         items:
                           type: string
                         nullable: true
+                        type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
                         type: array
                       items:
                         additionalProperties:
@@ -8351,6 +8392,11 @@ spec:
                                 type: string
                               nullable: true
                               type: array
+                            excludeTables:
+                              description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                              items:
+                                type: string
+                              type: array
                             items:
                               additionalProperties:
                                 properties:
@@ -8399,6 +8445,11 @@ spec:
                         items:
                           type: string
                         nullable: true
+                        type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
                         type: array
                       items:
                         additionalProperties:
@@ -8531,6 +8582,11 @@ spec:
                         items:
                           type: string
                         nullable: true
+                        type: array
+                      excludeTables:
+                        description: Tables the copy leaves out, by name or `*`/`?` pattern. Honored for MySQL and MariaDB.
+                        items:
+                          type: string
                         type: array
                       items:
                         additionalProperties:
@@ -10790,8 +10846,26 @@ spec:
                         operator's namespace.
                       nullable: true
                       type: string
+                    enforceFilter:
+                      description: |-
+                        Rejects a session that sets its own filter on this queue, so every session filters by
+                        `keyJqFilter`, which this field requires. When unset, a session's own filter is used
+                        instead of `keyJqFilter`. The filter `mirrord up` generates does not count as a session's
+                        own.
+                      type: boolean
                     id:
                       description: Arbitrary queue ID used in the developer's mirrord config.
+                      type: string
+                    keyJqFilter:
+                      description: |-
+                        jq program that returns the session key of a message, for sessions that list this queue
+                        in `feature.split_queues` without a filter of their own. For example,
+                        `.Body | fromjson | .session_key` when the key is in the body of an SQS message.
+
+                        The program only says where the key is, and the operator matches its result against the
+                        session's key, so a session gets only the messages that carry its key. A message with no
+                        key, or one that makes the program fail, stays with the target.
+                      nullable: true
                       type: string
                     kind:
                       description: Broker kind for this queue.

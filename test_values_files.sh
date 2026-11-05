@@ -115,6 +115,18 @@ for file in test_values/mirrord-operator/*.yaml; do
       echo "expected 10 rendered allowedImages blocks (one per engine), got $rendered_allowlists"
       exit 1
     fi
+  elif [ "$file" = "test_values/mirrord-operator/operator_db_branch_scheduling.yaml" ]; then
+    # The scheduling keys reach the operator only through the rendered pg-branch-config
+    # ConfigMap entry; helm would silently drop a value no template consumes, so assert each
+    # key is there.
+    echo "running with helm template and asserting rendered branch pod scheduling"
+    rendered=$(helm template -s templates/config-map.yaml -f "$file" mirrord-operator ./mirrord-operator)
+    for key in "tolerations:" "nodeSelector:" "affinity:" "karpenter.sh/nodepool: dev-pool"; do
+      if ! echo "$rendered" | grep -q "$key"; then
+        echo "chart dropped '$key' from the rendered pg-branch-config"
+        exit 1
+      fi
+    done
   elif [ "$file" = "test_values/mirrord-operator/operator_communication_timeout.yaml" ]; then
     assert_rendered_env "$file" OPERATOR_COMMUNICATION_TIMEOUT_MILLIS 90000
   elif [ "$file" = "test_values/mirrord-operator/operator_hide_headers_and_properties.yaml" ]; then

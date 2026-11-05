@@ -23,7 +23,8 @@ server:
   replicas: 1
   # Port the share-ingress HTTP server listens on. TLS is terminated by your ingress in front of it.
   port: 8080
-  logLevel: mirrord=info,warn
+  # `share_ingress=debug` also logs the upstream address each share link request is forwarded to.
+  logLevel: share_ingress=info,mirrord=info,warn
   jsonLog: true
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
