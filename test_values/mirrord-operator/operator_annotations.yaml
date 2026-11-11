@@ -16,12 +16,14 @@ operator:
 
   # Multi-cluster is off by default, so its ClusterRole and its per-cluster credential
   # Secrets only render with this set. Without it nothing here covers those resources.
+  # The operator parses this file at startup, so `authType` has to be one it accepts
+  # (`bearerToken`, `mtls`, `eks`, `aks`), or the pod exits before it is ever Ready.
   multiCluster:
     enabled: true
     defaultCluster: remote
     clusters:
       remote:
-        authType: token
+        authType: bearerToken
         server: https://remote.example.com:443
         bearerToken: "not-a-real-token"
 

@@ -7289,80 +7289,89 @@ spec:
                 type: object
               sync:
                 description: |-
-                  Code sync settings. When set, the CLI pushes its local tree into the preview pod. `image`
-                  may then be empty, and the preview runs the target's image with the pushed code. Sent
+                  Code sync settings. When set, the CLI syncs its local tree into the preview pod. `image`
+                  may then be empty, and the preview runs the target's image with the synced code. Sent
                   only to operators advertising `PreviewCodeSync`.
                 nullable: true
                 properties:
                   entries:
                     description: |-
-                      The directories that the CLI pushes into the preview pod. A push names each entry by its
+                      The directories that the CLI syncs into the preview pod. A sync names each entry by its
                       index in this list.
                     items:
-                      description: One directory that the CLI pushes into the preview pod.
+                      description: One directory that the CLI syncs into the preview pod.
                       properties:
                         remote:
-                          description: The absolute path in the target container that holds the pushed tree.
+                          description: The absolute path in the target container that holds the synced tree.
                           type: string
                       required:
                       - remote
                       type: object
                     type: array
-                  install:
-                    description: The command that installs the app's dependencies, if the app needs one.
+                  prepare:
+                    description: |-
+                      The command that prepares the code for the app, such as an install of its dependencies.
+                      Requires `run`, because the supervisor runs it.
                     nullable: true
                     properties:
                       command:
                         description: |-
-                          The command, as a list of the program and its arguments. It runs before `run_command`
-                          starts, and again after a push that changes a file that `on_change` matches.
-                        items:
-                          type: string
-                        type: array
-                      onChange:
-                        description: The files whose changes run `command` again, as absolute globs in the target container.
+                          The command, as a list of the program and its arguments. It runs before `run.command`
+                          starts, and again after a sync that changes a file that `triggeredBy` matches.
                         items:
                           type: string
                         type: array
                       persist:
                         description: |-
                           The absolute paths outside every entry's `remote` that `command` writes to. The preview
-                          keeps them on its code volume, seeded from the image, so the installed files survive a
-                          restart of the pod.
+                          keeps them on its code volume, seeded from the image, so the files that `command` wrote
+                          survive a restart of the pod.
+                        items:
+                          type: string
+                        type: array
+                      triggeredBy:
+                        description: The files whose changes run `command` again, as absolute globs in the target container.
                         items:
                           type: string
                         type: array
                       workingDir:
                         description: |-
-                          The absolute working directory of `command` in the target container. `None` runs it in
-                          the working directory of `run_command`.
+                          The absolute working directory of `command` in the target container. `None` keeps the
+                          container's working directory.
                         nullable: true
                         type: string
                     required:
                     - command
                     type: object
-                  restartOnChange:
-                    default: true
-                    description: |-
-                      Whether the app restarts after each push. A dev server that reloads changed files on its
-                      own doesn't need the restart.
-                    type: boolean
-                  runCommand:
-                    description: |-
-                      The command that runs the app in the target container, as a list of the program and its
-                      arguments. It replaces the container's command and arguments.
-                    items:
-                      type: string
-                    type: array
-                  workingDir:
-                    description: |-
-                      The absolute working directory of `run_command` in the target container, and of the
-                      install command without one of its own. `None` keeps the container's working directory.
+                  run:
+                    description: How the supervisor runs the app, or `None` to keep the container's own command.
                     nullable: true
-                    type: string
+                    properties:
+                      command:
+                        description: |-
+                          The command that runs the app in the target container, as a list of the program and its
+                          arguments. It replaces the container's command and arguments.
+                        items:
+                          type: string
+                        type: array
+                      restart:
+                        default: onPrepare
+                        description: When the supervisor restarts the app.
+                        enum:
+                        - onPrepare
+                        - onSync
+                        type: string
+                      workingDir:
+                        description: |-
+                          The absolute working directory of `command` in the target container. `None` keeps the
+                          container's working directory.
+                        nullable: true
+                        type: string
+                    required:
+                    - command
+                    type: object
                 required:
                 - entries
-                - runCommand
                 type: object
               target:
                 anyOf:
@@ -7616,7 +7625,8 @@ spec:
                   app:
                     description: |-
                       The app, the process of `run.command` in the preview pod, while a sidecar that relays the
-                      supervisor's report is connected.
+                      supervisor's report is connected. `None` without `run`, because the container then runs
+                      its own command and no supervisor reports on it.
                     nullable: true
                     properties:
                       lastExitCode:
@@ -7651,13 +7661,13 @@ spec:
                     type: object
                   cliAttached:
                     description: |-
-                      Whether a `mirrord preview sync` is connected to the operator to push code to the
+                      Whether a `mirrord preview sync` is connected to the operator to sync code into the
                       preview.
                     nullable: true
                     type: boolean
                   generation:
                     description: |-
-                      The generation of the last push that the code volume holds. Each push that the sidecar
+                      The generation of the last sync that the code volume holds. Each sync that the sidecar
                       applies adds one.
                     format: uint64
                     minimum: 0.0
@@ -7679,21 +7689,26 @@ spec:
                       with `storage`, and optional only so that a later status update can leave it unchanged.
                     nullable: true
                     type: string
-                  install:
+                  lastSyncedAt:
+                    description: When the sidecar last applied a sync.
+                    format: date-time
+                    nullable: true
+                    type: string
+                  prepare:
                     description: |-
-                      The last run of `install.command` in the preview pod, while a sidecar that relays the
+                      The last run of `prepare.command` in the preview pod, while a sidecar that relays the
                       supervisor's report is connected.
                     nullable: true
                     properties:
                       error:
                         description: |-
-                          Why the last install failed, with the end of its output. `None` unless `state` is
-                          [`InstallState::Failed`].
+                          Why the last `prepare` failed, with the end of its output. `None` unless `state` is
+                          [`PrepareState::Failed`].
                         nullable: true
                         type: string
                       state:
                         description: |-
-                          Where the install stands. Once released, it may only grow, as [`SyncFrame`] says. Its
+                          Where `prepare` stands. Once released, it may only grow, as [`SyncFrame`] says. Its
                           `Display` is the wording of `mirrord preview sync` and `mirrord preview status`.
                         enum:
                         - running
@@ -7705,11 +7720,6 @@ spec:
                     required:
                     - state
                     type: object
-                  lastSyncedAt:
-                    description: When the sidecar last applied a push.
-                    format: date-time
-                    nullable: true
-                    type: string
                   sidecar:
                     description: |-
                       What the sync sidecar of a preview session is doing, as [`PreviewSyncStatus::sidecar`]
