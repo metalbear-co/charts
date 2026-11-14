@@ -5105,6 +5105,36 @@ spec:
                         - to
                         type: object
                       type: array
+                    secretVolumes:
+                      description: '`secret` volumes to redirect to operator-owned Secret copies.'
+                      items:
+                        description: |-
+                          Redirects one `secret` volume of the workload's pods to an operator-owned
+                          copy of the Secret.
+
+                          The Secret twin of [`ConfigMapVolumeSwap`]: queue splitting uses it when the
+                          config file naming the queues is mounted from a Secret rather than a
+                          ConfigMap. The copy is itself a Secret, so it is as protected as the original,
+                          and it follows the same lifecycle: created before the patch request, deleted
+                          by the request controller once no pod mounts it. The swap only covers the
+                          fallback copy: the session's rendered version of the file is kept in a Secret
+                          owned by the split session.
+                        properties:
+                          copySecret:
+                            description: Name of the operator-owned copy to mount instead.
+                            type: string
+                          originalSecret:
+                            description: Name of the Secret the volume references in the workload's template.
+                            type: string
+                          volume:
+                            description: Name of the volume in the pod spec's `volumes` array.
+                            type: string
+                        required:
+                        - copySecret
+                        - originalSecret
+                        - volume
+                        type: object
+                      type: array
                     uid:
                       description: UID of the origin [`MirrordClusterWorkloadPatchRequest`] resource.
                       type: string
@@ -5379,6 +5409,36 @@ spec:
                   - to
                   type: object
                 type: array
+              secretVolumes:
+                description: '`secret` volumes to redirect to operator-owned Secret copies.'
+                items:
+                  description: |-
+                    Redirects one `secret` volume of the workload's pods to an operator-owned
+                    copy of the Secret.
+
+                    The Secret twin of [`ConfigMapVolumeSwap`]: queue splitting uses it when the
+                    config file naming the queues is mounted from a Secret rather than a
+                    ConfigMap. The copy is itself a Secret, so it is as protected as the original,
+                    and it follows the same lifecycle: created before the patch request, deleted
+                    by the request controller once no pod mounts it. The swap only covers the
+                    fallback copy: the session's rendered version of the file is kept in a Secret
+                    owned by the split session.
+                  properties:
+                    copySecret:
+                      description: Name of the operator-owned copy to mount instead.
+                      type: string
+                    originalSecret:
+                      description: Name of the Secret the volume references in the workload's template.
+                      type: string
+                    volume:
+                      description: Name of the volume in the pod spec's `volumes` array.
+                      type: string
+                  required:
+                  - copySecret
+                  - originalSecret
+                  - volume
+                  type: object
+                type: array
               workloadRef:
                 description: Reference to the workload being patched.
                 properties:
@@ -5628,6 +5688,166 @@ spec:
                 - userId
                 - username
                 type: object
+              queueSplitDetails:
+                description: |-
+                  Multi-cluster: the consumer cluster's split, for the Default cluster to serve to the local
+                  application. The application reads its environment variables and files from the Default
+                  cluster, and the split queue names live in the `envUpdates` and `fileUpdates` of the split
+                  session on the cluster that ran the split. When that cluster is not the Default, the
+                  Primary copies them here once the consumer's split is ready, before it connects to the
+                  Default, whose operator then swaps them into the answers it gives the application as it
+                  does for a split of its own. Only the Primary writes it, only on a `bystander` child
+                  session, and only on the Default cluster's.
+                nullable: true
+                properties:
+                  envUpdates:
+                    additionalProperties:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    description: |-
+                      Environment variable updates for each container. The workload patch applies these
+                      so the application reads from temporary resources instead of originals.
+                    type: object
+                  fileUpdates:
+                    description: |-
+                      Session-specific content for config files from `configMap` volumes that hold
+                      queue names. The operator proxy serves these to the local app in place of the
+                      files mounted in the target pod, which carry the fallback names, and a preview
+                      pod mounts a copy built from them.
+
+                      Files from `secret` volumes and `podFile` sources never appear here, because
+                      this resource is cluster-scoped and is not encrypted the way Secrets can be.
+                      They live in a Secret owned by this session, in the target's namespace, and
+                      have the same shape there. A reader that knows only this field gives the local
+                      app the fallback content for those files.
+                    items:
+                      description: |-
+                        Session-specific content for one file mounted from a `configMap` or `secret`
+                        volume, or resolved from a `podFile` source. Stored in the session's status or in
+                        its Secret, see [`SplitSessionDetails::file_updates`].
+                      properties:
+                        content:
+                          description: The file's content with this session's output names swapped in.
+                          type: string
+                        file:
+                          description: |-
+                            File path within the volume, or the absolute path of a `podFile`
+                            source. The proxy matches reads by the base file name under
+                            `mount_dirs`.
+                          type: string
+                        mountDirs:
+                          description: |-
+                            Directories the volume is mounted at across the target's containers,
+                            resolved from the pod spec's volume mounts. The proxy matches reads of
+                            this file under any of them.
+                          items:
+                            type: string
+                          type: array
+                        rewrite:
+                          description: |-
+                            Recipe for repeating the rewrite on a *different* base document than
+                            the target's original file. A preview session that overrides the same
+                            file through `config_mounts` applies it to the user-provided content,
+                            so the user's values survive and only the queue names change -
+                            [`Self::content`] cannot serve there because it is rendered from the
+                            original file. Absent when nothing in this file resolved to an output.
+                          nullable: true
+                          properties:
+                            outputs:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Maps each original name read from this file to the name this session
+                                should see (the session output, or the shared fallback for queues the
+                                session does not override).
+                              type: object
+                            selectors:
+                              description: |-
+                                `valueSelector` expressions bound to this file, from the split config.
+                                Empty for pattern and whole-file bindings, whose names are swapped by
+                                text search instead.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - outputs
+                          type: object
+                        volume:
+                          description: |-
+                            Volume name in the target's pod spec. Empty for `podFile` sources,
+                            which are identified by path alone.
+                          type: string
+                      required:
+                      - content
+                      - file
+                      - volume
+                      type: object
+                    type: array
+                  tmpResources:
+                    description: Temporary resources created for each queue, keyed by queue ID.
+                    items:
+                      properties:
+                        channel:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original Redis channel name to temporary channel name.
+                            One entry per physical channel managed under this queue_id.
+                          type: object
+                        queue:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original queue name to temporary queue name (RabbitMQ). One entry
+                            per physical queue managed under this queue_id.
+                          type: object
+                        queueId:
+                          description: Queue ID from MirrordSplitConfig.
+                          type: string
+                        subscription:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original subscription name to temporary subscription name.
+                            One entry per physical subscription managed under this queue_id.
+                          type: object
+                        taskQueue:
+                          additionalProperties:
+                            type: string
+                          description: Maps original Temporal task queue name to virtual task queue name.
+                          type: object
+                        topic:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            Maps original topic name to temporary topic name. One entry per
+                            physical topic managed under this queue_id.
+                          type: object
+                      required:
+                      - queueId
+                      type: object
+                    type: array
+                type: object
+              queueSplitRole:
+                description: |-
+                  What a workload cluster does about the queue splits of a multi-cluster session whose
+                  `MirrordSplitConfig` names a `consumerCluster`. The primary writes it on the cluster's child
+                  `MirrordClusterSession`, which clients cannot edit; absent when every cluster splits, and
+                  pruned by a `MirrordClusterSession` CRD that predates it.
+                enum:
+                - consumer
+                - bystander
+                nullable: true
+                type: string
               target:
                 anyOf:
                 - required:
@@ -5804,6 +6024,42 @@ spec:
                 format: date-time
                 nullable: true
                 type: string
+              share:
+                description: |-
+                  The share link of a session started with `mirrord exec --share`.
+
+                  The connect that created the session records it, and share-ingress routes its host to the
+                  session's target while the session is neither closed nor being deleted.
+                nullable: true
+                properties:
+                  container:
+                    description: |-
+                      The target container the session runs against. Two sessions with the same key, target and
+                      container would steal the same requests, so the operator gives only one of them a link.
+                    type: string
+                  entryPort:
+                    description: The target container port that the link opens; the CLI prints the local port mapped to it.
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    type: integer
+                  host:
+                    description: The host of the link, `<key slug>-<random suffix>.<shareDomain>`.
+                    type: string
+                  servicePort:
+                    description: |-
+                      The port of the Service named after the target that leads to `entry_port`, which
+                      share-ingress dials.
+                    format: uint16
+                    maximum: 65535.0
+                    minimum: 0.0
+                    type: integer
+                required:
+                - container
+                - entryPort
+                - host
+                - servicePort
+                type: object
               splitConfigs:
                 description: |-
                   The `MirrordSplitConfig`s merged into this session's queue split, by name, written when
@@ -8974,6 +9230,20 @@ spec:
                     nullable: true
                     type: string
                 type: object
+              consumerCluster:
+                description: |-
+                  In a multi-cluster setup, the one cluster whose operator splits these queues: it runs the
+                  forwarder, creates the temporary queues and patches the workload there. The other
+                  clusters' child sessions still check their `splitQueues` policy against the session's
+                  request, then leave their copy of the workload and its queues alone. Any cluster the
+                  session spans can be named, the Primary's `operator.multiCluster.defaultCluster` or
+                  another one; the local application keeps reading its environment and files from the
+                  default cluster, with this cluster's split queue names swapped in. Files read from a
+                  `secret` volume or a `podFile` source are the exception: they stay in this cluster, so a
+                  session whose split reads one is refused unless this names the default cluster. Unset,
+                  every workload cluster splits the queues on its own. Ignored outside multi-cluster.
+                nullable: true
+                type: string
               dbBranches:
                 description: |-
                   Databases the selected workloads use, one entry per database, branched for the sessions
@@ -9017,7 +9287,7 @@ spec:
                     items:
                       description: |-
                         Reference to a value in the target pod's template: an environment variable,
-                        or a file mounted from a `configMap` volume.
+                        or a file mounted from a `configMap` or `secret` volume.
                       properties:
                         containerNames:
                           description: |-
@@ -9094,20 +9364,28 @@ spec:
                           type: string
                         volume:
                           description: |-
-                            File in a `configMap` volume of the pod spec. `valueSelector` /
-                            `valuePattern` apply to the file's content the same way they apply to an
-                            env var's value. Mutually exclusive with `env` and `envLike`.
+                            File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                            / `valuePattern` apply to the file's content the same way they apply to
+                            an env var's value. A file from a `secret` volume needs one of the two,
+                            and whatever it matches is treated as a queue name and leaves the
+                            Secret; a value of several lines or of more than 260 bytes is refused,
+                            whatever the broker. Point it at the key that holds the queue
+                            name alone. Mutually exclusive with `env` and `envLike`.
                           nullable: true
                           properties:
                             file:
                               description: |-
-                                Path of the file within the volume: the ConfigMap data key, or the
-                                item `path` when the volume remaps keys via `items`.
+                                Path of the file within the volume: the ConfigMap or Secret data key,
+                                or the item `path` when the volume remaps keys via `items`.
                               type: string
                             name:
                               description: |-
                                 Name of the entry in the pod spec's `volumes` array. The volume must be
-                                of the `configMap` type.
+                                of the `configMap` or `secret` type. The content of a file from a `secret`
+                                volume is only ever copied into Secrets, the session's rendered version
+                                included. The queue names read from it are treated like names from any
+                                other source: they appear in the session's `tmpResources` and in the
+                                workload patch request's scale trigger rewrites.
                               type: string
                           required:
                           - file
@@ -9138,7 +9416,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9215,20 +9493,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9245,7 +9531,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9322,20 +9608,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9352,7 +9646,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9429,20 +9723,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9459,7 +9761,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9536,20 +9838,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9566,7 +9876,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9643,20 +9953,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9673,7 +9991,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9750,20 +10068,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9780,7 +10106,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9857,20 +10183,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9887,7 +10221,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -9964,20 +10298,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -9994,7 +10336,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10071,20 +10413,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10101,7 +10451,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10178,20 +10528,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10211,7 +10569,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10288,20 +10646,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10318,7 +10684,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10395,20 +10761,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10425,7 +10799,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10502,20 +10876,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10532,7 +10914,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10609,20 +10991,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10639,7 +11029,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10716,20 +11106,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -10746,7 +11144,7 @@ spec:
                           items:
                             description: |-
                               Reference to a value in the target pod's template: an environment variable,
-                              or a file mounted from a `configMap` volume.
+                              or a file mounted from a `configMap` or `secret` volume.
                             properties:
                               containerNames:
                                 description: |-
@@ -10823,20 +11221,28 @@ spec:
                                 type: string
                               volume:
                                 description: |-
-                                  File in a `configMap` volume of the pod spec. `valueSelector` /
-                                  `valuePattern` apply to the file's content the same way they apply to an
-                                  env var's value. Mutually exclusive with `env` and `envLike`.
+                                  File in a `configMap` or `secret` volume of the pod spec. `valueSelector`
+                                  / `valuePattern` apply to the file's content the same way they apply to
+                                  an env var's value. A file from a `secret` volume needs one of the two,
+                                  and whatever it matches is treated as a queue name and leaves the
+                                  Secret; a value of several lines or of more than 260 bytes is refused,
+                                  whatever the broker. Point it at the key that holds the queue
+                                  name alone. Mutually exclusive with `env` and `envLike`.
                                 nullable: true
                                 properties:
                                   file:
                                     description: |-
-                                      Path of the file within the volume: the ConfigMap data key, or the
-                                      item `path` when the volume remaps keys via `items`.
+                                      Path of the file within the volume: the ConfigMap or Secret data key,
+                                      or the item `path` when the volume remaps keys via `items`.
                                     type: string
                                   name:
                                     description: |-
                                       Name of the entry in the pod spec's `volumes` array. The volume must be
-                                      of the `configMap` type.
+                                      of the `configMap` or `secret` type. The content of a file from a `secret`
+                                      volume is only ever copied into Secrets, the session's rendered version
+                                      included. The queue names read from it are treated like names from any
+                                      other source: they appear in the session's `tmpResources` and in the
+                                      workload patch request's scale trigger rewrites.
                                     type: string
                                 required:
                                 - file
@@ -11421,14 +11827,21 @@ spec:
                         type: object
                       fileUpdates:
                         description: |-
-                          Session-specific content for mounted config files holding queue names
-                          (`volume` sources). The operator proxy serves these to the local app in
-                          place of the files mounted in the target pod, which carry the fallback
-                          names. Nothing in the cluster is patched with this content.
+                          Session-specific content for config files from `configMap` volumes that hold
+                          queue names. The operator proxy serves these to the local app in place of the
+                          files mounted in the target pod, which carry the fallback names, and a preview
+                          pod mounts a copy built from them.
+
+                          Files from `secret` volumes and `podFile` sources never appear here, because
+                          this resource is cluster-scoped and is not encrypted the way Secrets can be.
+                          They live in a Secret owned by this session, in the target's namespace, and
+                          have the same shape there. A reader that knows only this field gives the local
+                          app the fallback content for those files.
                         items:
                           description: |-
-                            Session-specific content for one file mounted from a `configMap` volume or
-                            resolved from a `podFile` source.
+                            Session-specific content for one file mounted from a `configMap` or `secret`
+                            volume, or resolved from a `podFile` source. Stored in the session's status or in
+                            its Secret, see [`SplitSessionDetails::file_updates`].
                           properties:
                             content:
                               description: The file's content with this session's output names swapped in.
@@ -11619,14 +12032,21 @@ spec:
                     type: object
                   fileUpdates:
                     description: |-
-                      Session-specific content for mounted config files holding queue names
-                      (`volume` sources). The operator proxy serves these to the local app in
-                      place of the files mounted in the target pod, which carry the fallback
-                      names. Nothing in the cluster is patched with this content.
+                      Session-specific content for config files from `configMap` volumes that hold
+                      queue names. The operator proxy serves these to the local app in place of the
+                      files mounted in the target pod, which carry the fallback names, and a preview
+                      pod mounts a copy built from them.
+
+                      Files from `secret` volumes and `podFile` sources never appear here, because
+                      this resource is cluster-scoped and is not encrypted the way Secrets can be.
+                      They live in a Secret owned by this session, in the target's namespace, and
+                      have the same shape there. A reader that knows only this field gives the local
+                      app the fallback content for those files.
                     items:
                       description: |-
-                        Session-specific content for one file mounted from a `configMap` volume or
-                        resolved from a `podFile` source.
+                        Session-specific content for one file mounted from a `configMap` or `secret`
+                        volume, or resolved from a `podFile` source. Stored in the session's status or in
+                        its Secret, see [`SplitSessionDetails::file_updates`].
                       properties:
                         content:
                           description: The file's content with this session's output names swapped in.
@@ -11756,14 +12176,21 @@ spec:
                     type: object
                   fileUpdates:
                     description: |-
-                      Session-specific content for mounted config files holding queue names
-                      (`volume` sources). The operator proxy serves these to the local app in
-                      place of the files mounted in the target pod, which carry the fallback
-                      names. Nothing in the cluster is patched with this content.
+                      Session-specific content for config files from `configMap` volumes that hold
+                      queue names. The operator proxy serves these to the local app in place of the
+                      files mounted in the target pod, which carry the fallback names, and a preview
+                      pod mounts a copy built from them.
+
+                      Files from `secret` volumes and `podFile` sources never appear here, because
+                      this resource is cluster-scoped and is not encrypted the way Secrets can be.
+                      They live in a Secret owned by this session, in the target's namespace, and
+                      have the same shape there. A reader that knows only this field gives the local
+                      app the fallback content for those files.
                     items:
                       description: |-
-                        Session-specific content for one file mounted from a `configMap` volume or
-                        resolved from a `podFile` source.
+                        Session-specific content for one file mounted from a `configMap` or `secret`
+                        volume, or resolved from a `podFile` source. Stored in the session's status or in
+                        its Secret, see [`SplitSessionDetails::file_updates`].
                       properties:
                         content:
                           description: The file's content with this session's output names swapped in.
@@ -12083,6 +12510,14 @@ spec:
                 items:
                   type: string
                 type: array
+              consumerCluster:
+                description: |-
+                  The one cluster that splits the session's queues, copied from the target's
+                  `MirrordSplitConfig.spec.consumerCluster` when the session was created. Recorded here so a
+                  primary that restarts mid-session treats the clusters the same way as the one that created
+                  it. Absent, every workload cluster splits.
+                nullable: true
+                type: string
               copyTarget:
                 description: |-
                   Copy target configuration. When set, a copy pod is created on the default

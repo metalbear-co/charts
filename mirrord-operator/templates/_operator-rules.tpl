@@ -566,7 +566,10 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - update
   - delete
 # Property lists and Kafka client configs resolve through Secrets, so their accepted verdict has to
-# be recomputed when one changes. The watch is metadata-only; contents are read per resolution.
+# be recomputed when one changes. The watch is metadata-only; contents are read per resolution. The
+# reads also cover any Secret that a split config's `volume` source names through the target's
+# `secret` volume, since that is where the queue names are, and the Secret a split session keeps
+# its rendered files in, which every `mirrord exec` and preview session on it reads.
 - apiGroups:
   - ''
   resources:
@@ -575,9 +578,13 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - get
   - list
   - watch
-# create/update/delete cover the operator-owned Secret copies that queue
-# splitting shadow-mounts over `podFile` sources with the fallback names
-# swapped in. User Secrets are never modified.
+# create/update/delete cover the operator-owned Secret copies with the fallback
+# names swapped in: the ones queue splitting shadow-mounts over `podFile` sources,
+# and the full copies of any Secret that a split config's `volume` source names.
+# They also cover the Secret each split session keeps its rendered files in, for files
+# from those two sources. The session owns it, so Kubernetes deletes it with the session,
+# and the operator deletes it itself once the session has no such file left.
+# User Secrets are never modified.
 - apiGroups:
   - ''
   resources:
@@ -913,7 +920,9 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
 # (`tls_delivery.client_cert`), so it can present it to preview pods that
 # require one, and for the Secret values of `--resource` manifests, which the
 # CLI stores there too. `create` also covers the preview's own copies of those
-# Secrets, owned by the session.
+# Secrets, owned by the session. `get` and `create` also cover the session's copy
+# of any Secret that a split config's `volume` source names, with the session's
+# queue names swapped in and owned by the session the same way.
 - apiGroups: [""]
   resources: [secrets]
   verbs: [create, get]

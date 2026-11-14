@@ -152,8 +152,17 @@ unset, the operator falls back to license-key authentication, so no source is st
 {{- end }}
 
 {{/* Copy reuse lists the namespace before creation; create cannot use resourceNames.
-Session deletion stays outside this helper because session IDs do not identify targets. */}}
+Session deletion stays outside this helper because session IDs do not identify targets.
+`mirrord exec --share` gets its own session in the target's namespace to read its share link,
+which the operator shows only to the session's owner; the rule lives here so that users with
+per-target roles (map-form roleNamespaces) get it too. */}}
 {{- define "mirrord-operator.sharedNamespacedRules" -}}
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - sessions
+  verbs:
+  - get
 - apiGroups:
   - operator.metalbear.co
   resources:

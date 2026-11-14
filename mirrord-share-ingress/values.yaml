@@ -1,5 +1,5 @@
 # Namespace the share-ingress runs in. Install it before the first preview, since your ingress,
-# DNS, and TLS point at its Service.
+# DNS, and TLS point at its Service. Local share links (`mirrord exec --share`) need it too.
 namespace: mirrord
 createNamespace: false
 
@@ -7,19 +7,22 @@ shareIngress:
   # Domain that share hosts live under, entered without a leading "*." wildcard.
   # Must match `operator.shareIngress.shareDomain` on the operator, which mints hosts under it.
   shareDomain: ""
-  # Where visitors are redirected when a share host no longer resolves to a live preview.
+  # Where visitors are redirected when a share host no longer resolves to a live preview or
+  # local session.
   # Required while `notFound.redirect` is true.
   appDomain: ""
   notFound:
-    # When true, a share host without a live preview gets a 404 page that redirects to
-    # `appDomain` after five seconds. When false, it gets a plain "Preview not found" 404 page
-    # with no refresh and no JavaScript, and `appDomain` is not needed.
+    # When true, a share host without a live preview or local session gets a 404 page that
+    # redirects to `appDomain` after five seconds. When false, it gets a plain "Preview not
+    # found" 404 page with no refresh and no JavaScript, and `appDomain` is not needed.
     redirect: true
 
 server:
   image: ghcr.io/metalbear-co/operator
   # Image tag. Defaults to the chart's appVersion.
   tag: ""
+  # Upgrade every replica before people use local share links: the operator's capability check
+  # reaches only one replica through the Service.
   replicas: 1
   # Port the share-ingress HTTP server listens on. TLS is terminated by your ingress in front of it.
   port: 8080

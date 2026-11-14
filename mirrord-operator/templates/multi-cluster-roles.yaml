@@ -274,6 +274,9 @@ rules:
   - get
   - list
   - watch
+  # The Primary writes a consumer cluster's split details on the Default cluster's child
+  # session once that split is ready.
+  - patch
   - delete
 - apiGroups:
   - mirrord.metalbear.co

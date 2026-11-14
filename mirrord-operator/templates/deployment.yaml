@@ -199,6 +199,8 @@ spec:
         - name: OPERATOR_TOPOLOGY
           value: {{ include "mirrord-operator.checked-bool-ternary" .Values.operator.topology }}
         {{- if and .Values.operator.shareIngress .Values.operator.shareIngress.shareDomain }}
+        - name: OPERATOR_SHARE_INGRESS_SERVICE_URL
+          value: {{ .Values.operator.shareIngress.serviceUrl | default (printf "http://mirrord-share-ingress.%s.svc" .Values.namespace) | quote }}
         - name: OPERATOR_SHARE_INGRESS_SHARE_DOMAIN
           value: {{ .Values.operator.shareIngress.shareDomain | quote }}
         {{- end }}
