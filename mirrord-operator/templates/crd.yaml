@@ -3819,7 +3819,7 @@ spec:
                 description: ID derived by mirrord CLI.
                 type: string
               mysqlVersion:
-                description: MySQL server image version, e.g. "8.0".
+                description: MySQL server image version, e.g. "8.4".
                 nullable: true
                 type: string
               target:
@@ -6155,6 +6155,38 @@ spec:
                 - propertiesListName
                 - propertiesListNamespace
                 type: object
+              bullmqResource:
+                description: Temporary BullMQ queue created for queue splitting.
+                nullable: true
+                properties:
+                  mainOutput:
+                    description: |-
+                      Whether this is a split's main output queue, the one the target workload reads while it
+                      is patched. Jobs still in it when the split ends are unread for good, so cleanup keeps it
+                      until it is empty; session queues are deleted outright.
+                    type: boolean
+                  name:
+                    description: Name of the queue.
+                    type: string
+                  prefix:
+                    description: |-
+                      Key prefix the queue's keys were created under. Cleanup uses this one rather than the
+                      property list's current `prefix`, which can change after the split started.
+                    type: string
+                  propertiesListName:
+                    description: Name of the `MirrordPropertyList` used to build the Redis client for cleanup.
+                    type: string
+                  propertiesListNamespace:
+                    description: |-
+                      Namespace the `MirrordPropertyList` was resolved from (the target's namespace,
+                      or the operator's when the list was found there).
+                    type: string
+                required:
+                - name
+                - prefix
+                - propertiesListName
+                - propertiesListNamespace
+                type: object
               gcpPubsubResource:
                 description: |-
                   Temporary Google Cloud Pub/Sub resource (topic or subscription) created for queue
@@ -6323,6 +6355,38 @@ spec:
                       required:
                       - kind
                       - name
+                      - propertiesListName
+                      - propertiesListNamespace
+                      type: object
+                    bullmqResource:
+                      description: Temporary BullMQ queue created for queue splitting.
+                      nullable: true
+                      properties:
+                        mainOutput:
+                          description: |-
+                            Whether this is a split's main output queue, the one the target workload reads while it
+                            is patched. Jobs still in it when the split ends are unread for good, so cleanup keeps it
+                            until it is empty; session queues are deleted outright.
+                          type: boolean
+                        name:
+                          description: Name of the queue.
+                          type: string
+                        prefix:
+                          description: |-
+                            Key prefix the queue's keys were created under. Cleanup uses this one rather than the
+                            property list's current `prefix`, which can change after the split started.
+                          type: string
+                        propertiesListName:
+                          description: Name of the `MirrordPropertyList` used to build the Redis client for cleanup.
+                          type: string
+                        propertiesListNamespace:
+                          description: |-
+                            Namespace the `MirrordPropertyList` was resolved from (the target's namespace,
+                            or the operator's when the list was found there).
+                          type: string
+                      required:
+                      - name
+                      - prefix
                       - propertiesListName
                       - propertiesListNamespace
                       type: object
@@ -8929,7 +8993,7 @@ spec:
                 type: object
               version:
                 description: |-
-                  Database server image version (e.g. "16" for PostgreSQL, "8.0" for MySQL).
+                  Database server image version (e.g. "16" for PostgreSQL, "8.4" for MySQL).
                   Mutually exclusive with `image`.
                 nullable: true
                 type: string
@@ -11444,7 +11508,8 @@ spec:
                   shortened ORIGINAL within the name length limit, and its own characters are
                   valid in the broker's names (SQS: letters, digits, `-`, `_`; Kafka: also `.`;
                   RabbitMQ: no leading `amq.`). Kafka's `kafkaSplittingTopicFormat`
-                  placeholder ORIGINAL_TOPIC is not one of them.
+                  placeholder ORIGINAL_TOPIC is not one of them. For BullMQ queues the
+                  template must use only these placeholders and contain RANDOM.
 
                   With `mirrord.temporary_group_id`, Kafka also names each session's consumer
                   group from the template, with ORIGINAL the original group and RANDOM derived
@@ -11545,7 +11610,8 @@ spec:
                     keptQueues:
                       description: |-
                         Temporary queues the workload had not consumed when its last split was torn down, as
-                        `<kind> queue <name> (<n> messages)`. Empty after a clean teardown.
+                        `<kind> queue <name> (<n> messages)`, or `<kind> queue <name> (unknown number of
+                        messages)` when teardown couldn't count them. Empty after a clean teardown.
                       items:
                         type: string
                       type: array
