@@ -117,7 +117,8 @@ operator:
   # Leave the full HTTP request headers (`request_headers`) and queue message properties
   # (`message_properties`) out of the operator's `Message Processing` logs. Set this to `true` when
   # headers or properties can contain secrets. The logs still show the trace and correlation
-  # values (`traceparent`, `tracestate`, `baggage`, `correlation_id`).
+  # values (`traceparent`, `tracestate`, `baggage`, `correlation_id`). This also leaves out the log
+  # lines of preview environments that show the HTTP requests they receive, with their headers.
   hideHeadersAndProperties: false
   # Require Kubernetes front-proxy client certificates on operator API routes.
   # The operator validates the certificate chain using the front-proxy CA from the cluster's
@@ -241,6 +242,13 @@ operator:
   # Has to be set to `true` in order to use the DynamoDB database branching feature.
   dynamodbBranching: false
   # Has to be set to `true` in order to use the MSSQL database branching feature.
+  # SQL Server images refuse to start until their license is accepted, so the operator
+  # starts every MSSQL branch database with `ACCEPT_EULA=Y`, whichever image it runs (the
+  # default `mcr.microsoft.com/mssql/server`, `mssqlBranchConfig.dbPod.image`, a profile, or
+  # a per-branch `image`). Setting this to `true` means you accept, on your own behalf, the
+  # Microsoft license terms for the SQL Server edition that image runs. The default image
+  # runs SQL Server Developer, which is licensed for non-production use only:
+  # https://go.microsoft.com/fwlink/?linkid=857698
   mssqlBranching: false
   # Has to be set to `true` in order to use the Redis database branching feature.
   redisBranching: false
@@ -1623,6 +1631,65 @@ tls:
   data:
     tls.key: ""
     tls.crt: ""
+
+## Single sign-on: developers log in to the operator with your OIDC identity provider at a public
+## HTTPS URL, instead of through a kubeconfig. Setup guide:
+## https://metalbear.com/mirrord/docs/managing-mirrord/sso
+## Every setting mirrors a Kubernetes API server `--oidc-*` flag, so SSO users get the same
+## usernames and groups an OIDC kubeconfig for the same provider gives them, and the RoleBindings
+## you already have keep matching.
+sso:
+  enabled: false
+
+  ## HTTPS URL developers reach the operator at, for example https://mirrord.example.com.
+  ## Required when enabled. The Ingress below serves its host.
+  url: ""
+
+  ## OIDC issuer URL, as the provider announces it (`--oidc-issuer-url`). Discovery runs at
+  ## <issuerUrl>/.well-known/openid-configuration. Required when enabled.
+  issuerUrl: ""
+
+  ## Client ID of the application you registered for mirrord at the provider
+  ## (`--oidc-client-id`). Required when enabled.
+  clientId: ""
+
+  ## Secret holding that application's client secret. The chart never takes the secret itself as
+  ## a value: create the Secret first, for example
+  ##   read -rs CLIENT_SECRET
+  ##   kubectl create secret generic mirrord-sso -n mirrord --from-literal=clientSecret="$CLIENT_SECRET"
+  ## Required when enabled.
+  clientSecretRef:
+    name: ""
+    key: clientSecret
+
+  ## Claim that becomes the Kubernetes username (`--oidc-username-claim`).
+  usernameClaim: sub
+
+  ## Prefix put in front of the username (`--oidc-username-prefix`). Leave empty for the API
+  ## server's default: no prefix when usernameClaim is `email`, `<issuerUrl>#` otherwise. Set
+  ## `-` for no prefix with any claim.
+  usernamePrefix: ""
+
+  ## Claim that holds the user's groups (`--oidc-groups-claim`). Empty gives SSO users no groups.
+  groupsClaim: ""
+
+  ## Prefix put in front of every group (`--oidc-groups-prefix`).
+  groupsPrefix: ""
+
+  ## Ingress for the host in `sso.url`, forwarding the operator's API paths to the operator
+  ## Service over HTTPS. The operator terminates TLS itself with the certificate in `tls.secret`,
+  ## so the Ingress controller must speak HTTPS to the backend; the default annotation says so
+  ## for ingress-nginx, replace it with your controller's equivalent. Disable the Ingress to route
+  ## the host yourself (Gateway API, a cloud load balancer, a service mesh); the route must then
+  ## serve TLS and forward `/apis/operator.metalbear.co/` to the Service over HTTPS.
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    ## TLS Secret the Ingress serves the host with. Required when the Ingress is enabled: login
+    ## tokens travel on it.
+    tlsSecret: ""
 
 # if you run on OpenShift, set this value to true to get a SCC in the yaml.
 openshift: false

@@ -1,0 +1,41 @@
+{{- $sso := .Values.sso | default dict }}
+{{- if and $sso.enabled ($sso.ingress | default dict).enabled }}
+{{- /* Developers reach the operator at sso.url through this Ingress. The backend is the operator's
+     own HTTPS port, the same one the API server dials, so the operator keeps terminating TLS and
+     keeps telling the two paths apart by the front-proxy client certificate, which only the API
+     server presents. The Ingress always serves TLS itself: bearer tokens travel on it. */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mirrord-operator-sso
+  namespace: {{ .Values.namespace }}
+  {{- $annotations := merge (dict) .Values.sso.ingress.annotations .Values.operator.annotations }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app: mirrord-operator
+    {{- include "mirrord-operator.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.sso.ingress.className }}
+  ingressClassName: {{ . | quote }}
+  {{- end }}
+  tls:
+  - hosts:
+    - {{ include "mirrord-operator.ssoHost" . | quote }}
+    secretName: {{ .Values.sso.ingress.tlsSecret | quote }}
+  rules:
+  - host: {{ include "mirrord-operator.ssoHost" . | quote }}
+    http:
+      paths:
+      {{- /* Only the API group: the webhook (`/mutate`) and health paths on the same port take no
+           identity, so they stay reachable from inside the cluster only. */}}
+      - path: /apis/operator.metalbear.co/
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.service.name }}
+            port:
+              number: {{ .Values.operator.port }}
+{{- end }}

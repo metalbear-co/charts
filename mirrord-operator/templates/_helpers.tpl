@@ -85,6 +85,44 @@ unset, the operator falls back to license-key authentication, so no source is st
 {{- end -}}
 {{- end }}
 
+{{/*
+Validate the SSO settings: every setting the operator cannot do without is checked here, naming
+the value to set, so a half-configured install fails at `helm install` instead of at the first
+login.
+*/}}
+{{- define "mirrord-operator.validateSso" -}}
+{{- $sso := .Values.sso | default dict -}}
+{{- if $sso.enabled -}}
+{{- if not (regexMatch "^https://[^/:?#]+" ($sso.url | default "")) -}}
+{{- fail "sso.url is required when sso.enabled is true and must be an https:// URL with a host, for example https://mirrord.example.com" -}}
+{{- end -}}
+{{- if not (regexMatch "^https://[^/:?#]+" ($sso.issuerUrl | default "")) -}}
+{{- fail "sso.issuerUrl is required when sso.enabled is true and must be the provider's https:// issuer URL" -}}
+{{- end -}}
+{{- $ingress := $sso.ingress | default dict -}}
+{{- if and $ingress.enabled (not $ingress.tlsSecret) -}}
+{{- fail "sso.ingress.tlsSecret is required when the chart's SSO Ingress is enabled: name the TLS Secret for the host in sso.url, or set sso.ingress.enabled to false and route the host yourself" -}}
+{{- end -}}
+{{- if not $sso.clientId -}}
+{{- fail "sso.clientId is required when sso.enabled is true" -}}
+{{- end -}}
+{{- if not ($sso.clientSecretRef | default dict).name -}}
+{{- fail "sso.clientSecretRef.name is required when sso.enabled is true: the name of a Secret holding the client secret under sso.clientSecretRef.key" -}}
+{{- end -}}
+{{- if not ($sso.clientSecretRef | default dict).key -}}
+{{- fail "sso.clientSecretRef.key is required when sso.enabled is true" -}}
+{{- end -}}
+{{- if not $sso.usernameClaim -}}
+{{- fail "sso.usernameClaim is required when sso.enabled is true" -}}
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/* Host part of sso.url, the Ingress host. */}}
+{{- define "mirrord-operator.ssoHost" -}}
+{{- regexReplaceAll "^https://([^/:?#]+).*$" .Values.sso.url "${1}" -}}
+{{- end }}
+
 {{/* rules needed to use mirrord and can be namespaced*/}}
 {{- define "mirrord-operator.rules" -}}
 - apiGroups:

@@ -1,5 +1,6 @@
 {{- include "mirrord-operator.validateLicense" . }}
 {{- include "mirrord-operator.validateCloudApiKey" . }}
+{{- include "mirrord-operator.validateSso" . }}
 {{- $pemGsmRef := coalesce .Values.license.pemGsmRef .Values.license.gsmRef }}
 {{- $cloudApiKey := (.Values.cloud | default dict).apiKey | default dict }}
 {{/* A license server deployment never authenticates to the cloud, so its API key is not passed to the operator. */}}
@@ -413,6 +414,33 @@ spec:
         {{- if .Values.cloud.anonymizeData }}
         - name: OPERATOR_TELEMETRY_ANONYMIZE_DATA
           value: "true"
+        {{- end }}
+        {{- if (.Values.sso | default dict).enabled }}
+        - name: OPERATOR_SSO_URL
+          value: {{ .Values.sso.url | quote }}
+        - name: OPERATOR_SSO_ISSUER_URL
+          value: {{ .Values.sso.issuerUrl | quote }}
+        - name: OPERATOR_SSO_CLIENT_ID
+          value: {{ .Values.sso.clientId | quote }}
+        - name: OPERATOR_SSO_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.sso.clientSecretRef.name | quote }}
+              key: {{ .Values.sso.clientSecretRef.key | quote }}
+        - name: OPERATOR_SSO_USERNAME_CLAIM
+          value: {{ .Values.sso.usernameClaim | quote }}
+        {{- if .Values.sso.usernamePrefix }}
+        - name: OPERATOR_SSO_USERNAME_PREFIX
+          value: {{ .Values.sso.usernamePrefix | quote }}
+        {{- end }}
+        {{- if .Values.sso.groupsClaim }}
+        - name: OPERATOR_SSO_GROUPS_CLAIM
+          value: {{ .Values.sso.groupsClaim | quote }}
+        {{- end }}
+        {{- if .Values.sso.groupsPrefix }}
+        - name: OPERATOR_SSO_GROUPS_PREFIX
+          value: {{ .Values.sso.groupsPrefix | quote }}
+        {{- end }}
         {{- end }}
         {{- if .Values.license.key }}
         envFrom:
