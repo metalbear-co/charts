@@ -545,6 +545,24 @@ operator:
     #       → Requires `region` field and EKS Access Entry on each remote cluster
     #       → The cluster key name must match the EKS cluster name
     #
+    #   authType: aks — Azure Workload Identity for AKS clusters (example further down)
+    #
+    #   authType: gke — Google identity for GKE clusters
+    #       → Not yet supported: groundwork that has not been proven against a separate GKE
+    #         cluster, so its setup below may still change
+    #       → Tokens come from the operator pod's Application Default Credentials: Workload
+    #         Identity when the primary runs on GKE, a workload identity federation file
+    #         (GOOGLE_APPLICATION_CREDENTIALS) when it runs on AKS or EKS
+    #       → Minted anew halfway through each token's lifetime. A Google service account's
+    #         token reports its lifetime through Google's tokeninfo endpoint
+    #         (oauth2.googleapis.com), which the operator must reach; a federated principal's
+    #         token (an AKS or EKS primary) is not introspectable, so it is treated as
+    #         short-lived and minted every three minutes. An AKS or EKS primary also reaches
+    #         sts.googleapis.com, where its federated token is exchanged for the Google one
+    #       → No secrets to manage — safe to commit to Git
+    #       → Requires a `multiClusterMemberGcpPrincipal` binding on each member; `caData` only
+    #         for a member reached at its IP endpoint (a DNS endpoint has a public certificate)
+    #
     #   authType: bearerToken — ServiceAccount token
     #       → Auto-refreshed via TokenRequest API
     #       → No manual rotation needed
@@ -589,6 +607,39 @@ operator:
     #     # tenantId and clientId are optional -- defaults to env vars injected by webhook
     #     # tenantId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     #     # clientId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    #
+    # Example with GKE Google identity auth (not yet supported, see `authType: gke` above):
+    # clusters:
+    #   remote-gke:
+    #     authType: gke
+    #     # The member's IP endpoint: its certificate comes from the cluster's own CA, so caData
+    #     # is needed. Get it from:
+    #     #   gcloud container clusters describe <cluster> --format='value(masterAuth.clusterCaCertificate)'
+    #     # A DNS endpoint (`<id>.<region>.gke.goog`) carries a publicly trusted certificate:
+    #     # leave caData out for it, since with caData set only that CA is trusted.
+    #     server: https://34.1.2.3
+    #     caData: LS0tLS1CRUdJTi...
+    #
+    # GKE setup:
+    #   1. Give the primary operator a Google identity:
+    #        - primary on GKE: bind its Kubernetes service account to a Google service account
+    #          (Workload Identity, `iam.gke.io/gcp-service-account` annotation on `sa`). Google
+    #          accepts the Kubernetes service account's own token only at the pod's own cluster,
+    #          so a member elsewhere needs the Google service account
+    #        - primary on AKS or EKS: a Workload Identity Federation pool and provider trusting
+    #          the primary cluster's OIDC issuer, a credentials file for it mounted in the pod and
+    #          named by GOOGLE_APPLICATION_CREDENTIALS; the identity is the federated principal,
+    #          principal://iam.googleapis.com/projects/<n>/locations/global/workloadIdentityPools/<pool>/subject/<subject>
+    #   2. Grant the identity `roles/container.clusterViewer` on each member cluster's project
+    #      (the service account email or the principal:// as the IAM member): GKE checks
+    #      `container.clusters.get` in IAM before it reads Kubernetes RBAC, so without it the API
+    #      server refuses the token outright.
+    #   3. Install mirrord on each member GKE cluster with:
+    #          --set operator.multiClusterMember=true \
+    #          --set operator.multiClusterMemberGcpPrincipal=<identity>
+    #      where <identity> is the name GKE gives the primary's token in RBAC: the Google
+    #      service account email, or the principal:// from step 1 for a primary outside Google
+    #      Cloud. That binds the identity to the envoy ClusterRoles, which grant everything else.
     #
     # AKS` Workload Identity setup:
     #   1. Create a User-Assigned Managed Identity in Azure
@@ -641,6 +692,15 @@ operator:
   # permissions as the ServiceAccount-based setup.
   # Only used when multiClusterMember is true.
   # multiClusterMemberAzureGroup: "mirrord-operator-envoy"
+
+  # Not yet supported, groundwork for `authType: gke` (see the comment on it above).
+  # When the primary signs in with `authType: gke`, set this to its Google identity as GKE
+  # names it in RBAC: the Google service account email, or the `principal://` of a workload
+  # identity federation subject for a primary outside Google Cloud. This creates
+  # ClusterRoleBindings that grant that identity the same permissions as the
+  # ServiceAccount-based setup.
+  # Only used when multiClusterMember is true.
+  # multiClusterMemberGcpPrincipal: "mirrord-operator@my-project.iam.gserviceaccount.com"
 
   # imagePullSecrets:
   #   - name: value

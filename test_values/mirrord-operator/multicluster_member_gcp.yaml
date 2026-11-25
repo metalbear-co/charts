@@ -1,0 +1,11 @@
+# A member cluster that trusts a primary's Google identity: renders the `-gcp` ClusterRoleBindings
+# and skips the envoy ServiceAccount, as `multicluster_member_iam.yaml` does for an IAM primary.
+operator:
+  multiClusterMember: true
+  multiClusterMemberGcpPrincipal: "mirrord-operator-envoy@my-project.iam.gserviceaccount.com"
+
+license:
+  file:
+    secret: mirrord-operator-license
+    data:
+      license.pem: "DOESN'TNEEDTOBOOTSOITCANBEINVALID"
