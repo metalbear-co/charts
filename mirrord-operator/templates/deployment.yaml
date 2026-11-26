@@ -441,6 +441,10 @@ spec:
         - name: OPERATOR_SSO_GROUPS_PREFIX
           value: {{ .Values.sso.groupsPrefix | quote }}
         {{- end }}
+        {{- if .Values.sso.scopes }}
+        - name: OPERATOR_SSO_SCOPES
+          value: {{ .Values.sso.scopes | quote }}
+        {{- end }}
         {{- end }}
         {{- if .Values.license.key }}
         envFrom:

@@ -5554,6 +5554,11 @@ spec:
       name: K8s User
       priority: 1
       type: string
+    - description: 'How the user authenticated: kube or sso.'
+      jsonPath: .spec.authMethod
+      name: Auth
+      priority: 1
+      type: string
     - description: Namespace of the session.
       jsonPath: .spec.namespace
       name: Namespace
@@ -5592,6 +5597,14 @@ spec:
         properties:
           spec:
             properties:
+              authMethod:
+                description: How the developer who opened a session proved who they are.
+                enum:
+                - kube
+                - sso
+                - unknown
+                nullable: true
+                type: string
               ciInfo:
                 description: |-
                   Set when this is a machine session, i.e. one that doesn't consume a license seat and counts
@@ -6836,6 +6849,33 @@ spec:
                   `PreviewAutoQueueSplitting`; `false`, left out of the resource as older CLIs do, means every
                   split was asked for.
                 type: boolean
+              autoscale:
+                description: |-
+                  Autoscaling of the preview's Deployment, copied from the target's
+                  `HorizontalPodAutoscaler` within these bounds.
+
+                  `None` (also what older CLIs send) runs `replicas` pods and never creates an autoscaler.
+                nullable: true
+                properties:
+                  maxReplicas:
+                    description: The most preview pods. `None` means the target autoscaler's maximum.
+                    format: int32
+                    nullable: true
+                    type: integer
+                  minReplicas:
+                    description: The fewest preview pods while the session isn't idle. `None` means 1.
+                    format: int32
+                    nullable: true
+                    type: integer
+                  targetAutoscalerOptional:
+                    description: |-
+                      What the operator does with a target that has no autoscaler: `Some(true)` runs the
+                      session with `replicas` pods and no autoscaler of its own, which is what `mirrord up`
+                      asks for when `autoscale` comes from `common` and not from the service itself. `None`
+                      (also what older CLIs send) or `Some(false)` fails the session.
+                    nullable: true
+                    type: boolean
+                type: object
               configMounts:
                 description: File-based config mount settings for this preview session.
                 items:
@@ -7789,6 +7829,52 @@ spec:
             description: Status of a preview session resource.
             nullable: true
             properties:
+              autoscaling:
+                description: |-
+                  How the session's pods scale, resolved from the target when the session's task starts.
+
+                  `None` for a session that runs no preview pods (targetless, split-only, CronJob), before
+                  the task resolved it, or when running against an older operator that does not set this
+                  field.
+                nullable: true
+                properties:
+                  preview:
+                    description: |-
+                      The bounds of the autoscaler the operator created for the preview. `None` when the
+                      session runs a fixed number of pods: without `spec.autoscale`, or with it when the target
+                      has no autoscaler and `spec.autoscale` tolerates that.
+                    nullable: true
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - minReplicas
+                    type: object
+                  target:
+                    description: |-
+                      The bounds of the target's own autoscaler. `None` when the target has none, or when the
+                      operator couldn't look it up.
+
+                      Serialized as `null` rather than skipped, like `preview`, so that a status merge patch
+                      clears the range a previous task run reported.
+                    nullable: true
+                    properties:
+                      maxReplicas:
+                        format: int32
+                        type: integer
+                      minReplicas:
+                        format: int32
+                        type: integer
+                    required:
+                    - maxReplicas
+                    - minReplicas
+                    type: object
+                type: object
               conditions:
                 description: Standard conditions.
                 items:

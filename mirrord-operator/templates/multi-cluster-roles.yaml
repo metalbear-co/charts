@@ -241,6 +241,17 @@ rules:
   - get
   - list
   - watch
+# `previews/wake` is the member operator's aggregated v1alpha1 WebSocket endpoint behind
+# `mirrord preview wake`. A primary waking a preview opens it on every workload cluster that
+# runs a copy, using that cluster's credential; the WS upgrade is a GET on the named
+# subresource, which the apiserver authorizes as `get` on the subresource alone. Without it the
+# member answers 403 and the primary can't wake the copy on that cluster.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - previews/wake
+  verbs:
+  - get
 # `branchtunnels` is the member operator's aggregated v1alpha1 WebSocket endpoint the
 # primary's envoy dials to carry preview branch-DB traffic. The WS upgrade is a GET on the
 # collection path, which the apiserver authorizes as `list`; `get` covers named paths.

@@ -1191,6 +1191,13 @@ operator:
   ##   imagePullPolicy: "IfNotPresent"
   ##   labels: { "role": "database" }
   ##   annotations: { "db.branch/owner-team": "platform" }
+  ##   # Extra flags for the branch's mongod, passed as the container's args. The branch
+  ##   # container's command replaces the image's CMD for every image, so these are the only
+  ##   # server flags: flags a custom image's CMD carried go here. Keep the listener on 27017 -
+  ##   # the seeding init container and the operator connect there.
+  ##   dbServerArgs:
+  ##     - "--wiredTigerCacheSizeGB"
+  ##     - "1"
   ##   # An explicit volume overrides the default per-branch PVC backing; see `storage`
   ##   # under pgBranchConfig (available on every `<db>BranchConfig`).
   ##   volume:
@@ -1735,6 +1742,10 @@ sso:
 
   ## Prefix put in front of every group (`--oidc-groups-prefix`).
   groupsPrefix: ""
+
+  ## Scopes `mirrord login` asks the provider for, space-separated. Providers differ in what
+  ## unlocks the groups claim: Okta needs `groups` added here, Entra ID refuses it.
+  scopes: "openid email profile"
 
   ## Ingress for the host in `sso.url`, forwarding the operator's API paths to the operator
   ## Service over HTTPS. The operator terminates TLS itself with the certificate in `tls.secret`,

@@ -80,15 +80,15 @@ has only the cluster rules, and a Role in each allowed namespace has the namespa
   - update
 {{- end }}
 # For reading the `default` namespace UID, used as a stable per-cluster
-# identifier attached to telemetry events.
+# identifier attached to telemetry events, and for listing the namespaces a CLI logged in
+# through SSO may list targets in (`mirrord ls`), which the operator filters with RBAC.
 - apiGroups:
     - ''
   resources:
     - namespaces
-  resourceNames:
-    - default
   verbs:
     - get
+    - list
 # For fetching the operator cluster role.
 # The role is used as an owner reference
 # for various native resources created by the operator.

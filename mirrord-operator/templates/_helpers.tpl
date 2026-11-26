@@ -215,6 +215,13 @@ per-target roles (map-form roleNamespaces) get it too. */}}
   verbs:
   - get
   - list
+# The namespaced profile read of a CLI logged in through SSO, see the cluster rule.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordprofiles
+  verbs:
+  - get
 {{- if .Values.operator.previewEnv }}
 - apiGroups:
   - preview.mirrord.metalbear.co
@@ -230,13 +237,15 @@ per-target roles (map-form roleNamespaces) get it too. */}}
 # version-agnostic, so this covers the alpha group-version it is served under).
 # `previews/logs` is a subresource, which Kubernetes authorizes separately from its
 # parent - without it the CLI cannot read why a preview failed. `previews/sync` is the
-# websocket that `mirrord preview sync` pushes local code through to the preview pod.
+# websocket that `mirrord preview sync` pushes local code through to the preview pod, and
+# `previews/wake` the one through which `mirrord preview wake` wakes previews.
 - apiGroups:
   - operator.metalbear.co
   resources:
   - previews
   - previews/logs
   - previews/sync
+  - previews/wake
   verbs:
   - get
   - list
@@ -358,6 +367,24 @@ true
   - mirrordclusterprofiles
   verbs:
   - get
+  - list
+# A CLI logged in through SSO reaches only the operator's API group, so it reads the profile its
+# config names through the operator (`mirrordclusterprofiles/{name}` on operator.metalbear.co),
+# and the SSO identity check asks RBAC for this verb on this group.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - mirrordclusterprofiles
+  verbs:
+  - get
+# `mirrord ls` under an SSO login asks the operator which namespaces the user may list targets
+# in (`namespaces` on operator.metalbear.co); the operator answers from RBAC, so this rule
+# exposes no namespace the user could not list targets in anyway.
+- apiGroups:
+  - operator.metalbear.co
+  resources:
+  - namespaces
+  verbs:
   - list
 - apiGroups:
   - operator.metalbear.co
